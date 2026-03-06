@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tauri Zho</title>
+    <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<div class="container">
+    <div class="config-container">
+        <input type="radio" id="rb_st" name="config" checked>
+        <label for="rb_st">zh-Hans（简）to zh-Hant（繁）</label>
+
+        <input type="radio" id="rb_ts" name="config">
+        <label for="rb_ts">zh-Hant（繁）to zh-Hans（简）</label>
+
+        <div class="config-select-group">
+            <input type="radio" id="rb_manual" name="config">
+            <label for="rb_manual">Manual（自定义）</label>
+
+            <label for="select_config"></label>
+            <select name="manual-config" id="select_config">
+                <option value="s2t">s2t</option>
+                <option value="s2tw">s2tw</option>
+                <option value="s2twp">s2twp</option>
+                <option value="s2hk">s2hk</option>
+                <option value="t2s">t2s</option>
+                <option value="t2tw">t2tw</option>
+                <option value="t2twp">t2twp</option>
+                <option value="t2hk">t2hk</option>
+                <option value="tw2s">tw2s</option>
+                <option value="tw2sp">tw2sp</option>
+                <option value="tw2t">tw2t</option>
+                <option value="tw2tp">tw2tp</option>
+                <option value="hk2s">hk2s</option>
+                <option value="hk2t">hk2t</option>
+                <option value="jp2t">jp2t</option>
+                <option value="t2jp">t2jp</option>
+            </select>
+        </div>
+    </div>
+
+
+    <div class="region-container">
+        <input type="radio" id="rb_std" name="region" checked>
+        <label for="rb_std">Standard（通用简繁）</label>
+        <input type="radio" id="rb_zhtw" name="region">
+        <label for="rb_zhtw">ZH-TW（中台简繁）</label>
+        <input type="radio" id="rb_zhhk" name="region">
+        <label for="rb_zhhk">ZH-HK（中港简繁）</label>
+        <div>
+            <label><input type="checkbox" id="cb_zhtwp"> ZH-TW Idioms（中台惯用语）</label>
+            <label><input type="checkbox" id="cb_punctuation" checked> Punctuation（标点）</label>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs" role="tablist" aria-label="Main tabs">
+        <button class="tab active" id="tab-convert"
+                role="tab" aria-selected="true"
+                aria-controls="panel-convert" type="button">
+            Convert
+        </button>
+
+        <button class="tab" id="tab-batch"
+                role="tab" aria-selected="false"
+                aria-controls="panel-batch" type="button">
+            Batch Convert
+        </button>
+
+        <button class="tab" id="tab-settings"
+                role="tab" aria-selected="false"
+                aria-controls="panel-settings" type="button">
+            Settings
+        </button>
+    </div>
+
+    <!-- Tab panels -->
+    <div class="tab-panels">
+        <div class="tab-panel active" id="panel-convert" role="tabpanel" aria-labelledby="tab-convert">
+            <!-- ============================= -->
+            <!-- Editor Area (NEW WRAPPER DIV) -->
+            <!-- ============================= -->
+            <div class="editor-area" id="editor-area">
+
+                <!-- Panels row -->
+                <div class="editor-panels">
+
+                    <!-- LEFT PANEL -->
+                    <div class="editor-panel editor-left" id="panel-left">
+                        <div class="panel-body">
+                            <div id="editor-left" class="cm-host" aria-label="Source editor"></div>
+                        </div>
+
+                        <div class="panel-info">
+                            <div class="panel-info-left">
+                                🔤 <label id="lbl_input"></label>
+                                <label id="lbl_char_count"></label>
+                            </div>
+                        </div>
+
+                        <div class="panel-actions">
+                            <button id="reflow" class="icon-btn" type="button"
+                                    title="Reflow extracted CJK text">↳↰</button>
+
+                            <button id="clear-source">AC</button>
+                            <button id="paste">Paste</button>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL -->
+                    <div class="editor-panel editor-right" id="panel-right">
+                        <div class="panel-body">
+                            <div id="editor-right" class="cm-host" aria-label="Converted result editor"></div>
+                        </div>
+
+                        <div class="panel-info">
+                            <div class="panel-info-right">
+                                🔤 <label id="lbl_output"></label>
+                            </div>
+                        </div>
+
+                        <div class="panel-actions">
+                            <label class="fluent-checkbox compare-toggle">
+                                <input type="checkbox" id="compare-toggle">
+                                <span>Compare</span>
+                            </label>
+                            <button id="clear-destination">AC</button>
+                            <button id="copy">Copy</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Global actions row (bottom row in your table) -->
+                <div class="global-actions">
+                    <button id="open-file">Open File</button>
+                    <button id="convert">Convert</button>
+                    <button id="save-file">Save File</button>
+                </div>
+
+            </div>
+            <!-- status bar can stay inside here too, if you want it tabbed -->
+        </div>
+
+        <div class="tab-panel" id="panel-batch" role="tabpanel" aria-labelledby="tab-batch">
+            <div class="batch-area" id="batch-area">
+
+                <!-- Top: two panes -->
+                <div class="batch-panels">
+                    <!-- Left: file list -->
+                    <div class="batch-panel" id="batch-left">
+                        <div class="batch-panel-header">
+                            <span class="batch-title">Files</span>
+                            <span class="batch-sub" id="batch-count">0</span>
+                        </div>
+
+                        <div class="batch-panel-body">
+                            <label for="batch-files"></label>
+                            <select id="batch-files" class="batch-list" size="12" multiple></select>
+                        </div>
+                    </div>
+
+                    <!-- Right: output/log/preview -->
+                    <div class="batch-panel" id="batch-right">
+                        <div class="batch-panel-header">
+                            <span class="batch-title">Log / Preview</span>
+                            <span class="batch-sub" id="batch-status">Idle</span>
+                        </div>
+
+                        <div class="batch-panel-body">
+                            <label for="batch-log"></label>
+                            <textarea id="batch-log" placeholder="Batch output / log..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom controls (same div) -->
+                <div class="batch-controls">
+
+                    <!-- Left controls -->
+                    <div class="batch-controls-left">
+                        <button id="batch-add" type="button">＋</button>
+                        <button id="batch-remove" type="button">－</button>
+                        <button id="batch-clear" type="button">AC</button>
+                    </div>
+
+                    <!-- Right controls -->
+                    <div class="batch-controls-right">
+                        <label class="batch-inline-label" for="batch-outdir">Output</label>
+                        <input id="batch-outdir" type="text" value="./output"/>
+                        <button id="batch-browse" type="button" title="Browse output folder">📁</button>
+                        <button id="batch-open-outdir" type="button">Open Output</button>
+                        <button id="batch-log-clear" type="button">AC</button>
+                    </div>
+
+                </div>
+
+                <!-- Optional: main action row -->
+                <div class="batch-actions">
+                    <button id="batch-run" type="button" class="btn-primary">
+                        Convert Batch
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-panel" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings">
+            <div class="settings-card">
+                <h3>Settings</h3>
+
+                <div class="settings-group">
+                    <label class="fluent-checkbox">
+                        <input type="checkbox" id="cbConvertFilename">
+                        <span>Convert Filename</span>
+                    </label>
+
+                    <label class="fluent-checkbox">
+                        <input type="checkbox" id="cbAddPageHeader">
+                        <span>Add Page Header (PDF)</span>
+                    </label>
+
+                    <label class="fluent-checkbox">
+                        <input type="checkbox" id="cbCompactPdf">
+                        <span>Compact PDF Text</span>
+                    </label>
+
+                    <label class="fluent-checkbox">
+                        <input type="checkbox" id="cbAutoReflow" checked>
+                        <span>Auto Reflow (PDF)</span>
+                    </label>
+                    <label class="fluent-checkbox">
+                        <input type="checkbox" id="cbOverwriteOutput"/>
+                        <span>Overwrite Existing Output Files (Batch Mode)</span>
+                    </label>
+                    <label class="fluent-checkbox">
+                        <input type="checkbox" id="cbEnableEditorLog" checked/>
+                        <span>Enable Editor Log</span>
+                    </label>
+
+                    <div class="settings-field">
+                        <label for="tbHeadingRegex" class="settings-label">Custom Heading Regex (PDF Advanced)</label>
+
+                        <div class="regex-row">
+                            <input
+                                    type="text"
+                                    id="tbHeadingRegex"
+                                    spellcheck="false"
+                                    placeholder="e.g. ^(Chapter|Section)\s+\d+"
+                            />
+                            <span id="headingRegexStatus" class="regex-status" aria-live="polite"></span>
+                        </div>
+
+                        <div id="headingRegexHint" class="settings-hint">
+                            Used to detect headings (optional). Invalid patterns will be highlighted.
+                        </div>
+                        <div id="headingRegexExamples" class="settings-hint">
+                            <pre class="regex-examples">Optional: detect additional headings using regex.
+<code>Bullet symbols: ^[-•○■✓➤]
+Numbered lists: ^&#92;d+&#92;.
+Sections: ^[A-Z]&#92;.
+Chinese chapters: ^第[一二三四五六七八九十百]+[章节]
+English headings: ^(Chapter|Section)&#92;s+&#92;d+</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar-container">
+        💬&nbsp;<label id="lbl_status_bar"></label>
+    </div>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

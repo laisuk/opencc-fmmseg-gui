@@ -1,0 +1,971 @@
+/* ==========================================================
+   Fluent 2 (Win11-like) – PANEL-ONLY (legacy removed)
+   For the refactored HTML:
+     .editor-area
+       .editor-panels
+         .editor-panel (left/right)
+           .panel-body > textarea
+           .panel-info
+           .panel-actions
+       .global-actions
+   ========================================================== */
+
+:root {
+    --font-ui: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, Arial, "Noto Sans", sans-serif;
+    --font-mono: ui-monospace, "Cascadia Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    --bg: #0b0f19;
+
+    --surface: rgba(255, 255, 255, .04);
+    --micaA: rgba(255, 255, 255, .06);
+    --micaB: rgba(255, 255, 255, .09);
+
+    --stroke: rgba(255, 255, 255, .12);
+    --stroke2: rgba(255, 255, 255, .18);
+
+    --text: rgba(255, 255, 255, .92);
+    --muted: rgba(255, 255, 255, .70);
+    --faint: rgba(255, 255, 255, .52);
+
+    --accent: #3b82f6;
+    --accentRing: rgba(59, 130, 246, .22);
+
+    --r-xl: 22px;
+    --r-md: 12px;
+
+    --shadow: 0 26px 80px rgba(0, 0, 0, .55);
+    --shadow2: 0 10px 24px rgba(0, 0, 0, .25);
+
+    --ctl-h: 40px;
+    --gap: 12px;
+
+    --editor-font-size: 1.05rem; /* try 1.1rem – 1.3rem */
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg: #f3f4f6;
+        --micaA: rgba(255, 255, 255, .72);
+        --micaB: rgba(255, 255, 255, .82);
+        --stroke: rgba(0, 0, 0, .10);
+        --stroke2: rgba(0, 0, 0, .14);
+        --text: rgba(0, 0, 0, .86);
+        --muted: rgba(0, 0, 0, .62);
+        --faint: rgba(0, 0, 0, .45);
+        --shadow: 0 18px 55px rgba(0, 0, 0, .14);
+        --shadow2: 0 8px 18px rgba(0, 0, 0, .10);
+        --accent: #2563eb;
+        --accentRing: rgba(37, 99, 235, .18);
+        --diff-added-bg: rgba(16, 185, 129, .20);
+    }
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --diff-added-bg: rgba(34, 197, 94, .25);
+    }
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    font-family: var(--font-ui), sans-serif;
+    color: var(--text);
+
+    background: radial-gradient(1000px 700px at 15% 20%, rgba(59, 130, 246, .18), transparent 58%),
+    radial-gradient(900px 650px at 80% 15%, rgba(147, 197, 253, .12), transparent 55%),
+    radial-gradient(900px 650px at 55% 95%, rgba(34, 211, 238, .10), transparent 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, .03), transparent 42%),
+    var(--bg);
+
+    display: grid;
+    place-items: center;
+    padding: 18px;
+}
+
+/* Shell */
+.container {
+    width: min(1180px, calc(100vw - 28px));
+    border-radius: 26px;
+    border: 1px solid var(--stroke);
+    background: linear-gradient(180deg, var(--micaB), var(--micaA));
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Shared card styling */
+.config-container,
+.region-container,
+.status-bar-container,
+.editor-panel {
+    border-radius: var(--r-xl);
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .05);
+    box-shadow: var(--shadow2);
+}
+
+/* Top / Region bars */
+.config-container,
+.region-container {
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px;
+}
+
+/* Labels */
+label {
+    user-select: none;
+    font-weight: 600;
+    letter-spacing: .1px;
+    color: var(--text);
+}
+
+/* =========================
+   Fluent pill radios
+   ========================= */
+input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+input[type="radio"] + label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--ctl-h);
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .04);
+    transition: background .14s ease, border-color .14s ease, transform .06s ease;
+    cursor: pointer;
+}
+
+input[type="radio"] + label::before {
+    content: "";
+    width: 12px;
+    height: 12px;
+    border-radius: 999px;
+    border: 2px solid var(--faint);
+    transition: border-color .14s ease, box-shadow .14s ease;
+}
+
+input[type="radio"]:checked + label {
+    border-color: rgba(59, 130, 246, .60);
+    background: rgba(59, 130, 246, .14);
+}
+
+input[type="radio"]:checked + label::before {
+    border-color: rgba(59, 130, 246, .95);
+    box-shadow: inset 0 0 0 4px rgba(59, 130, 246, .95);
+}
+
+input[type="radio"]:focus-visible + label {
+    outline: 3px solid var(--accentRing);
+    outline-offset: 2px;
+}
+
+input[type="radio"] + label:hover {
+    background: rgba(255, 255, 255, .07);
+    border-color: var(--stroke2);
+}
+
+input[type="radio"] + label:active {
+    transform: translateY(1px);
+}
+
+/* =========================
+   Checkboxes (current HTML)
+   <div style="...margin-top..."><label><input>Text</label>...</div>
+   ========================= */
+.region-container div[style*="margin-top"] {
+    margin-top: 0 !important;
+}
+
+.region-container div[style*="margin-top"] label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    height: var(--ctl-h);
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .04);
+    cursor: pointer;
+    transition: background .14s ease, border-color .14s ease, transform .06s ease;
+}
+
+.region-container div[style*="margin-top"] label:hover {
+    background: rgba(255, 255, 255, .07);
+    border-color: var(--stroke2);
+}
+
+.region-container div[style*="margin-top"] label:active {
+    transform: translateY(1px);
+}
+
+.region-container input[type="checkbox"] {
+    accent-color: var(--accent);
+    width: 16px;
+    height: 16px;
+}
+
+/* Manual config select */
+.config-select-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* small controlled spacing */
+}
+
+#select_config {
+    margin-left: auto;
+    height: var(--ctl-h);
+    min-width: 170px;
+    padding: 0 12px;
+    border-radius: var(--r-md);
+    border: 1px solid var(--stroke);
+    background: rgba(0, 0, 0, .18);
+    color: var(--text);
+    outline: none;
+}
+
+#select_config:hover {
+    border-color: var(--stroke2);
+    background: rgba(0, 0, 0, .22);
+}
+
+#select_config:focus {
+    border-color: rgba(59, 130, 246, .65);
+    box-shadow: 0 0 0 4px var(--accentRing);
+}
+
+.tabs {
+    margin-top: 10px;
+    display: inline-flex;
+    gap: 8px;
+    padding: 6px;
+    border-radius: 999px;
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .05);
+    box-shadow: var(--shadow2);
+}
+
+.tab {
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 650;
+    cursor: pointer;
+    box-shadow: none;
+}
+
+.tab:hover {
+    background: rgba(255, 255, 255, .06);
+    color: var(--text);
+}
+
+.tab.active {
+    color: var(--text);
+    background: rgba(59, 130, 246, .14);
+    border-color: rgba(59, 130, 246, .45);
+    font-weight: 800;
+}
+
+.tab-panels {
+    margin-top: 0;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative; /* key */
+    padding-bottom: 70px; /* status bar height + margin, tune 60~90 */
+}
+
+/* all panels are layered on top of each other (NOT stacked) */
+.tab-panel {
+    position: absolute; /* key */
+    inset: 0; /* fill tab-panels */
+    display: none; /* hidden by default */
+    min-height: 0; /* remove the forced min-height */
+    /*overflow: hidden;       !* each panel manages its own scrolling *!*/
+    /*overflow: visible;*/
+}
+
+/* only active panel is shown */
+.tab-panel.active {
+    display: flex; /* or block, but flex is nicer for layout */
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto; /* ✅ allow stacked layout to scroll */
+    overflow-x: hidden;
+}
+
+/* Optional: a card look for settings tab */
+.settings-card {
+    border-radius: var(--r-xl);
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .05);
+    box-shadow: var(--shadow2);
+    padding: 16px;
+}
+
+/* =========================
+   Editor area (NEW layout)
+   ========================= */
+.editor-area {
+    margin-top: 10px;
+    /* give the whole editor area a real height */
+    height: calc(100vh - 380px); /* adjust 320px to match your top controls */
+    min-height: 420px;
+}
+
+.editor-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    height: 100%;
+}
+
+/* Each panel is a card already via .editor-panel in "shared card styling" */
+.editor-panel {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0; /* IMPORTANT for grid/flex children */
+}
+
+/* The container that holds: (header/buttons) + (editor) */
+.panel-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* important: must be constrained by parent */
+    min-height: 0; /* critical for flex overflow behavior */
+}
+
+.panel-body textarea {
+    width: 100%;
+    min-height: 420px;
+}
+
+/* New: CodeMirror */
+
+/* CodeMirror host fills the panel body */
+.cm-host {
+    height: 100%;
+    width: 100%;
+}
+
+/* Make CodeMirror fill available height */
+.cm-editor {
+    height: 100%;
+    color: var(--text); /* 🔥 FIX */
+}
+
+/* Actual text layer */
+.cm-content {
+    color: var(--text); /* 🔥 FIX */
+}
+
+/* Placeholder */
+.cm-placeholder {
+    color: var(--faint);
+}
+
+/* Make it visually match your Fluent UI panel */
+.cm-scroller {
+    font-family: var(--font-mono), monospace;
+    line-height: 1.45;
+}
+
+/* Optional: remove “boxed editor” look; let your panel be the box */
+.cm-editor,
+.cm-scroller {
+    background: transparent;
+}
+
+/* the CodeMirror mount div */
+#editor-left.cm-host {
+    flex: 1;
+    min-height: 0; /* critical: allows it to shrink and scroll instead of grow */
+    overflow: hidden;
+}
+
+/* make CM fill host */
+#editor-left .cm-editor {
+    height: 100%;
+}
+
+/* ensure scroll stays inside editor */
+#editor-left .cm-scroller {
+    overflow: auto;
+}
+
+#editor-right.cm-host {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#editor-right .cm-editor {
+    height: 100%;
+}
+
+#editor-right .cm-scroller {
+    height: 100%;
+    overflow: auto;
+}
+
+/* Both editors */
+#editor-left .cm-content,
+#editor-right .cm-content {
+    font-size: var(--editor-font-size); /* try 1.1rem – 1.3rem */
+    line-height: 1.6;
+}
+
+/* Line numbers (if enabled) */
+#editor-left .cm-gutters,
+#editor-right .cm-gutters {
+    font-size: 1.00rem;
+}
+
+/* ---------- CodeMirror gutter / line numbers (dark theme polish) ---------- */
+
+/* Make gutter background match editor (transparent) */
+.cm-editor .cm-gutters {
+    background: rgba(0, 0, 0, .04); /* subtle gray */
+    border-right: 1px solid rgba(0, 0, 0, .08);
+}
+
+/* Line number color */
+.cm-editor .cm-lineNumbers .cm-gutterElement {
+    color: var(--faint);
+}
+
+/* Active line number a bit brighter */
+.cm-editor .cm-activeLineGutter {
+    background: rgba(59, 130, 246, .18);
+    color: var(--text); /* theme-aware */
+}
+
+/* Optional: reduce gutter width so it doesn't look chunky */
+.cm-editor .cm-gutter {
+    /*min-width: 2.1em;   !* tweak: 2.3em–3.2em *!*/
+    /*  Set in global value */
+}
+
+/* Optional: when hovering editor, soften gutter */
+.cm-editor:hover .cm-gutters {
+    border-right-color: rgba(255, 255, 255, .14);
+}
+
+/* CM End */
+
+.panel-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.panel-info-left {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+#lbl_char_count {
+    color: var(--muted);
+    font-family: var(--font-mono), monospace;
+    margin-left: auto; /* 👈 pushes it to the far right */
+}
+
+/* Panel actions */
+.panel-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.panel-actions button {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/* Icon action button (Reflow) */
+.icon-btn {
+    font-size: 16px;
+    font-weight: 600;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 48px;
+    min-width: 48px;
+    height: 38px;
+
+    border-radius: 10px;
+
+    transition: transform .08s ease,
+    background .15s ease,
+    box-shadow .15s ease;
+}
+
+/* Hover */
+.icon-btn:hover {
+    transform: scale(1.05);
+}
+
+/* Active click */
+.icon-btn:active {
+    transform: scale(0.96);
+}
+
+#reflow:hover{
+    border-color: rgba(59,130,246,.4);
+}
+
+/* Global actions */
+.global-actions {
+    margin-top: 12px;
+    display: flex;
+    gap: 10px;
+}
+
+.global-actions button {
+    flex: 1;
+    white-space: nowrap;
+}
+
+/* Buttons */
+button {
+    height: var(--ctl-h);
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .06);
+    color: var(--text);
+    font-weight: 650;
+    letter-spacing: .15px;
+    cursor: pointer;
+    transition: background .14s ease, border-color .14s ease, transform .06s ease, box-shadow .14s ease;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .18);
+}
+
+button:hover {
+    background: rgba(255, 255, 255, .09);
+    border-color: var(--stroke2);
+}
+
+button:active {
+    transform: translateY(1px);
+}
+
+#clear-source {
+    font-weight: 800;
+}
+
+#clear-destination {
+    font-weight: 800;
+}
+
+/*!* Converted text highlight (Fluent / GitHUb style) *!*/
+/*.cm-diff-converted{*/
+/*    background-color: var(--diff-added-bg);*/
+/*    border-radius: 4px;*/
+/*    padding: 0 2px;*/
+/*    box-shadow: inset 0 0 0 1px rgba(34,197,94,.35);*/
+/*    transition: background-color .15s ease;*/
+/*}*/
+
+.cm-diff-converted {
+    background-color: var(--diff-added-bg);
+    box-shadow: inset 0 0 0 1px rgba(46, 160, 67, .28);
+    border-radius: 3px;
+    padding: 0 1px;
+    transition: background-color .15s ease;
+}
+
+/* Converted text highlight (Fluent / VSCode style) */
+/*.cm-diff-converted{*/
+/*    background-color: var(--diff-added-bg);*/
+/*    border-radius: 3px;*/
+/*    padding: 0 1px;*/
+/*    transition: background-color .15s ease;*/
+/*}*/
+
+.compare-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    opacity: .85;
+}
+
+.compare-toggle input {
+    transform: scale(1.05);
+}
+
+#convert {
+    font-weight: 650;
+    border-color: rgba(59, 130, 246, .60);
+    background: linear-gradient(180deg, rgba(59, 130, 246, .48), rgba(59, 130, 246, .22));
+    transform: scale(1.02);
+    transition: transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background 0.15s ease;
+    box-shadow: 0 12px 26px rgba(59, 130, 246, .18),
+    0 0 0 1px rgba(59, 130, 246, .35);
+}
+
+#convert:hover {
+    font-weight: 650;
+    transform: scale(1.03);
+    background: linear-gradient(180deg, rgba(59, 130, 246, .58), rgba(59, 130, 246, .28));
+}
+
+#convert:active {
+    font-weight: 650;
+    transform: scale(1.01) translateY(2px);
+    box-shadow: 0 6px 14px rgba(59, 130, 246, .15),
+    0 0 0 1px rgba(59, 130, 246, .30);
+}
+
+/* =========================
+   Batch tab layout
+   ========================= */
+
+.batch-area {
+    margin-top: 10px;
+}
+
+.batch-panels {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.batch-panel {
+    border-radius: var(--r-xl);
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .05);
+    box-shadow: var(--shadow2);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.batch-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-weight: 650;
+    color: var(--text);
+}
+
+.batch-sub {
+    font-family: var(--font-mono), monospace;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: .92rem;
+}
+
+.batch-panel-body {
+    flex: 1;
+    display: flex;
+    gap: 10px;
+}
+
+/* Left list box */
+.batch-list {
+    width: 100%;
+    min-height: 420px;
+    padding: 10px;
+    border-radius: var(--r-xl);
+    border: 1px solid var(--stroke);
+    background: rgba(0, 0, 0, .12);
+    color: var(--text);
+    outline: none;
+}
+
+.batch-list:focus {
+    border-color: rgba(59, 130, 246, .65);
+    box-shadow: 0 0 0 4px var(--accentRing);
+}
+
+/* Right textarea uses your global textarea rules, but ensure it fills */
+#batch-log {
+    width: 100%;
+    min-height: 420px;
+}
+
+/* Bottom controls row */
+.batch-controls {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 12px;
+}
+
+.batch-controls-left,
+.batch-controls-right {
+    border-radius: var(--r-xl);
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, .05);
+    box-shadow: var(--shadow2);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.batch-controls-left button {
+    width: 64px;
+}
+
+.batch-inline-label {
+    color: var(--muted);
+    font-weight: 650;
+    margin-right: 4px;
+}
+
+#batch-outdir {
+    flex: 1;
+    height: var(--ctl-h);
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid var(--stroke);
+    background: rgba(0, 0, 0, .12);
+    color: var(--text);
+    outline: none;
+}
+
+#batch-outdir:focus {
+    border-color: rgba(59, 130, 246, .65);
+    box-shadow: 0 0 0 4px var(--accentRing);
+}
+
+/* Optional action row */
+/* ===== Batch Action Row ===== */
+.batch-actions {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Settings */
+.settings-card {
+    margin-top: 10px;
+    padding: 18px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid var(--stroke2);
+    max-width: 520px;
+}
+
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.fluent-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.fluent-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #3b82f6; /* Fluent blue */
+    cursor: pointer;
+}
+
+.settings-field {
+    margin-top: 14px;
+}
+
+.settings-label {
+    display: block;
+    margin-bottom: 6px;
+    opacity: .9;
+}
+
+.regex-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#tbHeadingRegex {
+    flex: 1;
+    min-width: 240px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    outline: none;
+    border: 1px solid var(--stroke, rgba(255, 255, 255, .12));
+    background: var(--surface, rgba(255, 255, 255, .04));
+    color: inherit;
+}
+
+#tbHeadingRegex:focus {
+    border-color: rgba(59, 130, 246, .55);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, .18);
+}
+
+#tbHeadingRegex.is-invalid {
+    border-color: rgba(239, 68, 68, .75);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, .18);
+}
+
+.regex-status {
+    font-size: 12px;
+    opacity: .85;
+    min-width: 70px;
+    text-align: right;
+}
+
+.regex-status.ok {
+    color: rgba(34, 197, 94, .95);
+}
+
+/* green */
+.regex-status.bad {
+    color: rgba(239, 68, 68, .95);
+}
+
+/* red */
+
+.settings-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    opacity: .75;
+}
+
+.regex-examples {
+    background: rgba(255, 255, 255, .05);
+    border: 1px solid rgba(255, 255, 255, .08);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-family: Consolas, monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-x: auto;
+}
+
+/* ===== Primary Button ===== */
+.btn-primary {
+    min-width: 280px;
+    padding: 14px 28px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+
+    border-radius: 14px;
+    border: none;
+
+    background: linear-gradient(180deg, #4a90ff 0%, #3b7cff 100%);
+    color: white;
+
+    box-shadow: 0 4px 12px rgba(59, 124, 255, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+    transition: all 0.18s ease;
+    cursor: pointer;
+}
+
+/* Hover */
+.btn-primary:hover {
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, #3f86ff 0%, #2f6fff 100%);
+    box-shadow: 0 6px 16px rgba(59, 124, 255, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Active (pressed) */
+.btn-primary:active {
+    transform: translateY(1px);
+    background: linear-gradient(180deg, #2f6fff 0%, #255be0 100%);
+    box-shadow: 0 2px 6px rgba(59, 124, 255, 0.25),
+    inset 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Disabled */
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+    .batch-panels {
+        grid-template-columns: 1fr;
+    }
+
+    .batch-controls {
+        grid-template-columns: 1fr;
+    }
+
+    .batch-controls-left button {
+        flex: 1;
+        width: auto;
+    }
+}
+
+/* Status bar */
+.status-bar-container {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    font-size: .92rem;
+    color: var(--muted);
+    flex: 0 0 auto; /* important */
+    min-width: 0;
+}
+
+#lbl_status_bar {
+    color: var(--text);
+    font-weight: 650;
+}
+
+/* Responsive (single breakpoint) */
+@media (max-width: 760px) {
+    .editor-panels {
+        grid-template-columns: 1fr;
+    }
+
+    #select_config {
+        margin-left: 0;
+        width: 100%;
+    }
+}
