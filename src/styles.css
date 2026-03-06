@@ -504,40 +504,40 @@ input[type="radio"] + label:active {
 .panel-actions {
     display: flex;
     gap: 10px;
+    align-items: center;
+}
+
+.panel-actions > *:first-child{
+    margin-right: auto;
 }
 
 .panel-actions button {
-    flex: 1;
-    white-space: nowrap;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    padding:4px 10px;
 }
 
-/* Icon action button (Reflow) */
-.icon-btn {
-    font-size: 16px;
-    font-weight: 600;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    width: 48px;
-    min-width: 48px;
-    height: 38px;
-
-    border-radius: 10px;
-
-    transition: transform .08s ease,
-    background .15s ease,
-    box-shadow .15s ease;
+.panel-actions button .icon{
+    width:16px;
+    height:16px;
+    pointer-events:none;
 }
 
-/* Hover */
-.icon-btn:hover {
+.btn-icon-only{
+    justify-content:center;
+    width:38px;
+    height:38px;
+    padding:0;
+    font-size:16px;
+    font-weight:600;
+}
+
+.btn-icon-only:hover{
     transform: scale(1.05);
 }
 
-/* Active click */
-.icon-btn:active {
+.btn-icon-only:active{
     transform: scale(0.96);
 }
 

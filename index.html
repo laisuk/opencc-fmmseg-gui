@@ -101,11 +101,15 @@
                         </div>
 
                         <div class="panel-actions">
-                            <button id="reflow" class="icon-btn" type="button"
+                            <button id="reflow" class="btn-icon-only" type="button"
                                     title="Reflow extracted CJK text">↳↰</button>
 
                             <button id="clear-source">AC</button>
-                            <button id="paste">Paste</button>
+
+                            <button id="paste" type="button" title="Paste clipboard to editor">
+                                <img src="/src/assets/icons/paste.svg" class="icon" alt="">
+                                <span>Paste</span>
+                            </button>
                         </div>
                     </div>
 
@@ -122,12 +126,18 @@
                         </div>
 
                         <div class="panel-actions">
-                            <label class="fluent-checkbox compare-toggle">
+                            <label class="fluent-checkbox compare-toggle"
+                                   title="Highlight converted phrases in the output editor">
                                 <input type="checkbox" id="compare-toggle">
                                 <span>Compare</span>
                             </label>
+
                             <button id="clear-destination">AC</button>
-                            <button id="copy">Copy</button>
+
+                            <button id="copy" type="button" title="Copy output">
+                                <img src="/src/assets/icons/copy.svg" class="icon" alt="">
+                                <span>Copy</span>
+                            </button>
                         </div>
                     </div>
 

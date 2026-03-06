@@ -357,8 +357,11 @@ function createApp() {
                 punctuation,
             });
 
+            compare.clear();
             setEditorText(editorRight, result);
-            compare.apply();
+            if (cbCompare.checked) {
+                compare.apply();
+            }
             updateOutputInfo(config);
 
             setStatus(
@@ -395,9 +398,9 @@ function createApp() {
                 customHeadingRegex,
             });
 
+            compare.clear();
             setEditorText(editorRight, result);
             lblOutput.innerText = lblInput.innerText;
-            compare.apply();
 
             setStatus(
                 hasSelection(editorLeft)
@@ -423,6 +426,7 @@ function createApp() {
     }
 
     function handleClearDestination() {
+        compare.clear();
         if (!clearEditor(editorRight)) return;
         setStatus("Editor destination cleared");
     }
@@ -675,7 +679,13 @@ function createApp() {
         btnReflow.addEventListener("click", handleReflow);   // ⭐ NEW
         btnClearSource.addEventListener("click", handleClearSource);
         btnClearDestination.addEventListener("click", handleClearDestination);
-        cbCompare.addEventListener("change", () => compare.apply());
+        cbCompare.addEventListener("change", () => {
+            compare.clear();
+
+            if (cbCompare.checked) {
+                compare.apply();
+            }
+        });
     }
 
     function setupBatchButtons() {

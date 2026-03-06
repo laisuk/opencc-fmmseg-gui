@@ -172,12 +172,7 @@ fn reflow_text(
     compact: bool,
     custom_heading_regex: Option<String>,
 ) -> Result<String, String> {
-    let heading_re = custom_heading_regex
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-        .map(|s| Regex::new(s).map_err(|e| format!("Invalid custom heading regex: {e}")))
-        .transpose()?;
+    let heading_re = compile_optional_regex(custom_heading_regex.as_deref())?;
 
     Ok(reflow_cjk_paragraphs_with_heading_regex(
         &text,
@@ -185,6 +180,15 @@ fn reflow_text(
         compact,
         heading_re.as_ref(),
     ))
+}
+
+fn compile_optional_regex(pattern: Option<&str>) -> Result<Option<Regex>, String> {
+    match pattern.map(str::trim) {
+        Some("") | None => Ok(None),
+        Some(p) => Regex::new(p)
+            .map(Some)
+            .map_err(|e| format!("Invalid regex: {e}")),
+    }
 }
 
 // small inner helpers (monomorphized, no heap, no extra module needed)
@@ -453,16 +457,13 @@ fn open_pdf_extract_text_with_progress(
             },
         );
 
-        let heading_re = custom_heading_regex
-            .map(str::trim)
-            .filter(|s| !s.is_empty())
-            .and_then(|s| Regex::new(s).ok()); // invalid regex -> None
+        let heading_regex = compile_optional_regex(custom_heading_regex.as_deref())?;
 
         extracted = reflow_cjk_paragraphs_with_heading_regex(
             &extracted,
             page_header,
             compact,
-            heading_re.as_ref(),
+            heading_regex.as_ref(),
         );
     }
 
@@ -697,6 +698,37 @@ async fn run_batch_convert(
         )
         .map_err(|e| format!("emit(start) failed: {e}"))?;
 
+        let heading_regex = match custom_heading_regex
+            .as_deref()
+            .map(str::trim)
+            .filter(|s| !s.is_empty())
+        {
+            Some(pattern) => match Regex::new(pattern) {
+                Ok(re) => Some(re),
+                Err(err) => {
+                    app.emit_to(
+                        "main",
+                        "batch-progress",
+                        BatchProgress {
+                            index: 0,
+                            total,
+                            input: String::new(),
+                            output: output_dir.clone(),
+                            ok: true,
+                            message: format!(
+                                "Custom heading regex rejected by Rust: {err}"
+                            ),
+                            progress: format!("[0/{total}] warning"),
+                        },
+                    )
+                    .map_err(|e| format!("emit(regex warning) failed: {e}"))?;
+
+                    None
+                }
+            },
+            None => None,
+        };
+
         for (i, path) in paths.into_iter().enumerate() {
             let idx = i + 1;
 
@@ -801,7 +833,7 @@ async fn run_batch_convert(
                     &output_path,
                     &config,
                     punctuation,
-                    custom_heading_regex.as_deref(),
+                    heading_regex.as_ref(),
                 )
             } else if is_office {
                 let office_format = ext_lower
@@ -1059,7 +1091,7 @@ fn convert_pdf_to_txt_with_progress(
     output_path: &Path,
     config: &str,
     punctuation: bool,
-    custom_heading_regex: Option<&str>, // NEW (borrow, no clone)
+    custom_heading_regex: Option<&Regex>, // NEW (borrow, no clone)
 ) -> Result<(), String> {
     // ---- ensure pdfium is loaded once and never unloaded ----
     let mut guard = pdfium_arc
@@ -1124,13 +1156,13 @@ fn convert_pdf_to_txt_with_progress(
     let mut extracted = pages.concat();
 
     // defaults
-    let heading_re = custom_heading_regex
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-        .and_then(|s| Regex::new(s).ok()); // invalid regex -> None
+    // let heading_re = custom_heading_regex
+    //     .map(str::trim)
+    //     .filter(|s| !s.is_empty())
+    //     .and_then(|s| Regex::new(s).ok()); // invalid regex -> None
 
     extracted =
-        reflow_cjk_paragraphs_with_heading_regex(&extracted, false, false, heading_re.as_ref());
+        reflow_cjk_paragraphs_with_heading_regex(&extracted, false, false, custom_heading_regex);
 
     let converted = {
         let opencc = opencc_arc

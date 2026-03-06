@@ -65,7 +65,12 @@ export async function startBatchListener(): Promise<void> {
             p.message === "overwriting existing file" ||
             p.message.startsWith("Batch done");
 
-        const shouldLog = isBatchMarker || !p.ok || isFileDoneMessage;
+        const isRegexWarning =
+            p.message.startsWith("Custom heading regex rejected by Rust:");
+
+        const shouldLog =
+            isBatchMarker || !p.ok || isFileDoneMessage || isRegexWarning;
+
         if (!shouldLog) return;
 
         if (p.input) {
@@ -81,7 +86,12 @@ export async function startBatchListener(): Promise<void> {
                 `  out: ${p.output}`
             );
         } else {
-            d.appendLog(`== ${p.message} ==`);
+            const marker = isRegexWarning ? "⚠" : "==";
+            d.appendLog(
+                isRegexWarning
+                    ? `${marker} ${p.message}`
+                    : `== ${p.message} ==`
+            );
         }
     });
 

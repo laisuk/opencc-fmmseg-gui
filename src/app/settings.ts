@@ -7,6 +7,7 @@ export type AppSettingsSnapshot = {
     autoReflow: boolean;
     overwriteOutput: boolean;
     enableEditorLog: boolean;
+    punctuation: boolean;
     customHeadingRegexText: string;
     customHeadingRegex: string | null;
 };
@@ -18,6 +19,7 @@ type SettingsElements = {
     cbAutoReflow: HTMLInputElement;
     cbOverwriteOutput: HTMLInputElement;
     cbEnableEditorLog: HTMLInputElement;
+    cbPunctuation: HTMLInputElement;
     tbHeadingRegex: HTMLInputElement | null;
     headingRegexStatus: HTMLSpanElement | null;
     headingRegexHint: HTMLSpanElement | null;
@@ -30,6 +32,7 @@ const STORAGE_KEYS = {
     autoReflow: "autoReflow",
     overwriteOutput: "cbOverwriteOutput",
     enableEditorLog: "cbEnableEditorLog",
+    punctuation: "cbPunctuation",
     customHeadingRegex: "custom_heading_regex",
 } as const;
 
@@ -43,6 +46,7 @@ const state = {
     autoReflow: true,
     overwriteOutput: true,
     enableEditorLog: true,
+    punctuation: true,
     customHeadingRegexText: "",
     customHeadingRegexRe: null as RegExp | null,
 };
@@ -76,6 +80,7 @@ function syncStateFromCheckboxes(): void {
     state.autoReflow = elements.cbAutoReflow.checked;
     state.overwriteOutput = elements.cbOverwriteOutput.checked;
     state.enableEditorLog = elements.cbEnableEditorLog.checked;
+    state.punctuation = elements.cbPunctuation.checked;
 }
 
 function applyStateToCheckboxes(): void {
@@ -86,6 +91,7 @@ function applyStateToCheckboxes(): void {
     elements.cbAutoReflow.checked = state.autoReflow;
     elements.cbOverwriteOutput.checked = state.overwriteOutput;
     elements.cbEnableEditorLog.checked = state.enableEditorLog;
+    elements.cbPunctuation.checked = state.punctuation;
 }
 
 function persistCheckboxState(): void {
@@ -95,6 +101,7 @@ function persistCheckboxState(): void {
     localStorage.setItem(STORAGE_KEYS.autoReflow, String(state.autoReflow));
     localStorage.setItem(STORAGE_KEYS.overwriteOutput, String(state.overwriteOutput));
     localStorage.setItem(STORAGE_KEYS.enableEditorLog, String(state.enableEditorLog));
+    localStorage.setItem(STORAGE_KEYS.punctuation, String(state.punctuation));
 }
 
 function renderHeadingRegexState(): void {
@@ -113,6 +120,7 @@ function renderHeadingRegexState(): void {
     }
 
     if (state.customHeadingRegexRe) {
+        tb.classList.remove("is-invalid");
         status.textContent = "OK";
         hint.textContent = DEFAULT_HINT;
         status.classList.remove("bad");
@@ -164,6 +172,7 @@ export function initAppSettings(): void {
         cbAutoReflow: mustGetEl<HTMLInputElement>("cbAutoReflow"),
         cbOverwriteOutput: mustGetEl<HTMLInputElement>("cbOverwriteOutput"),
         cbEnableEditorLog: mustGetEl<HTMLInputElement>("cbEnableEditorLog"),
+        cbPunctuation: mustGetEl<HTMLInputElement>("cb_punctuation"),
         tbHeadingRegex: document.getElementById("tbHeadingRegex") as HTMLInputElement | null,
         headingRegexStatus: document.getElementById("headingRegexStatus") as HTMLSpanElement | null,
         headingRegexHint: document.getElementById("headingRegexHint") as HTMLSpanElement | null,
@@ -175,6 +184,7 @@ export function initAppSettings(): void {
     state.autoReflow = readBoolean(STORAGE_KEYS.autoReflow, true);
     state.overwriteOutput = readBoolean(STORAGE_KEYS.overwriteOutput, true);
     state.enableEditorLog = readBoolean(STORAGE_KEYS.enableEditorLog, true);
+    state.punctuation = readBoolean(STORAGE_KEYS.punctuation, true);
 
     applyStateToCheckboxes();
 
@@ -185,6 +195,7 @@ export function initAppSettings(): void {
         elements.cbAutoReflow,
         elements.cbOverwriteOutput,
         elements.cbEnableEditorLog,
+        elements.cbPunctuation,
     ].forEach((cb) => {
         cb.addEventListener("change", () => {
             syncStateFromCheckboxes();
@@ -208,8 +219,9 @@ export function initAppSettings(): void {
 }
 
 export function getCustomHeadingRegex(): string | null {
-    if (!state.customHeadingRegexRe) return null;
-    return state.customHeadingRegexText;
+    const text = state.customHeadingRegexText.trim();
+    if (!text || !state.customHeadingRegexRe) return null;
+    return text;
 }
 
 export function isEditorLogEnabled(): boolean {
@@ -224,6 +236,7 @@ export function getAppSettings(): AppSettingsSnapshot {
         autoReflow: state.autoReflow,
         overwriteOutput: state.overwriteOutput,
         enableEditorLog: state.enableEditorLog,
+        punctuation: state.punctuation,
         customHeadingRegexText: state.customHeadingRegexText,
         customHeadingRegex: getCustomHeadingRegex(),
     };
