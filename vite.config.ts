@@ -28,7 +28,7 @@ export default defineConfig(async () => ({
         },
     },
     build: {
-        minify: "terser" as const,
+        minify: "esbuild" as const,
         sourcemap: false
     }
 }));
