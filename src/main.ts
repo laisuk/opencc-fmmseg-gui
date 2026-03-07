@@ -115,7 +115,7 @@ function createApp() {
             hasSelection(editorLeft) ? getSelectedText(editorLeft) : getEditorText(editorLeft),
         getDestText: () => getEditorText(editorRight),
         isEnabled: () => cbCompare.checked,
-        onRefreshDest: () => editorRight.dispatch({}),
+        dispatchToDest: (spec) => editorRight.dispatch(spec),
     });
 
     function createEditors() {

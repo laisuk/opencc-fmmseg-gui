@@ -715,9 +715,7 @@ async fn run_batch_convert(
                             input: String::new(),
                             output: output_dir.clone(),
                             ok: true,
-                            message: format!(
-                                "Custom heading regex rejected by Rust: {err}"
-                            ),
+                            message: format!("Custom heading regex rejected by Rust: {err}"),
                             progress: format!("[0/{total}] warning"),
                         },
                     )

@@ -1,6 +1,6 @@
 [package]
 name = "opencc-fmmseg-gui"
-version = "0.1.0"
+version = "0.9.0"
 description = "Open Simplified/Traditional Chinese Converter"
 authors = ["laisuk"]
 edition = "2021"
