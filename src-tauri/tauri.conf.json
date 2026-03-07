@@ -14,8 +14,8 @@
     "windows": [
       {
         "title": "opencc-fmmseg-gui",
-        "width": 1220,
-        "height": 930,
+        "width": 1200,
+        "height": 880,
         "center": true,
         "dragDropEnabled": true
       }

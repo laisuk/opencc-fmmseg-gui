@@ -34,6 +34,9 @@ import {
 import {getCurrentConfigFromUi, TextCode, ZhoConfig} from "./app/config";
 import {setupUnifiedDrop} from "./tauri/dragdrop";
 
+import {initUiLanguage} from "./i18n/initUiLanguage";
+import {getRuntimeLabel, formatCharCount} from "./i18n/runtimeLabels";
+
 window.addEventListener("error", (e) => {
     console.error("JS error:", e.error || e.message);
 });
@@ -42,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initAppSettings();
     const app = createApp();
     app.init();
+    initUiLanguage();
 });
 
 function createApp() {
@@ -159,7 +163,7 @@ function createApp() {
     }
 
     function setCharCountFast(charCount: number) {
-        lblCharCount.textContent = `[ ${charCount.toLocaleString()} Chars ]`;
+        lblCharCount.textContent = formatCharCount(charCount);
     }
 
     function appendLog(line: string) {
@@ -197,26 +201,33 @@ function createApp() {
     function updateInputInfo(textCode: TextCode) {
         if (textCode === 1) {
             rbT2s.checked = true;
-            lblInput.innerText = "zh-Hant（繁体）";
+            lblInput.innerText = getRuntimeLabel("zhHant");
+            lblInput.dataset.kind = "zhHant";
         } else if (textCode === 2) {
             rbS2t.checked = true;
-            lblInput.innerText = "zh-Hans（简体）";
+            lblInput.innerText = getRuntimeLabel("zhHans");
+            lblInput.dataset.kind = "zhHans";
         } else {
-            lblInput.innerText = "Others（其它）";
+            lblInput.innerText = getRuntimeLabel("others");
+            lblInput.dataset.kind = "others";
         }
 
         setCharCountFast(editorLeft.state.doc.length);
     }
 
     function updateOutputInfo(config: ZhoConfig) {
-        if (lblInput.innerText.startsWith("Others")) {
-            lblOutput.innerText = "Others（其它）";
+        if (lblInput.dataset.kind === "others") {
+            lblOutput.innerText = getRuntimeLabel("others");
+            lblOutput.dataset.kind = "others";
         } else if (config.includes("jp")) {
-            lblOutput.innerText = "Japanese（日文）";
+            lblOutput.innerText = getRuntimeLabel("japanese");
+            lblOutput.dataset.kind = "japanese";
         } else if (config.startsWith("s") || !config.includes("s")) {
-            lblOutput.innerText = "zh-Hant（繁体）";
+            lblOutput.innerText = getRuntimeLabel("zhHant");
+            lblOutput.dataset.kind = "zhHant";
         } else {
-            lblOutput.innerText = "zh-Hans（简体）";
+            lblOutput.innerText = getRuntimeLabel("zhHans");
+            lblOutput.dataset.kind = "zhHans";
         }
     }
 

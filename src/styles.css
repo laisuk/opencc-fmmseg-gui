@@ -36,7 +36,7 @@
     --shadow: 0 26px 80px rgba(0, 0, 0, .55);
     --shadow2: 0 10px 24px rgba(0, 0, 0, .25);
 
-    --ctl-h: 40px;
+    --ctl-h: 34px;
     --gap: 12px;
 
     --editor-font-size: 1.05rem; /* try 1.1rem – 1.3rem */
@@ -126,7 +126,7 @@ body {
     align-items: center;
     flex-wrap: wrap;
     gap: 10px;
-    padding: 12px;
+    padding: 6px;
 }
 
 /* Labels */
@@ -299,7 +299,7 @@ input[type="radio"] + label:active {
     display: flex;
     flex-direction: column;
     position: relative; /* key */
-    padding-bottom: 70px; /* status bar height + margin, tune 60~90 */
+    /*padding-bottom: 70px; !* status bar height + margin, tune 60~90 *!*/
 }
 
 /* all panels are layered on top of each other (NOT stacked) */
@@ -336,7 +336,7 @@ input[type="radio"] + label:active {
 .editor-area {
     margin-top: 10px;
     /* give the whole editor area a real height */
-    height: calc(100vh - 380px); /* adjust 320px to match your top controls */
+    height: calc(100vh - 330px); /* adjust 320px to match your top controls */
     min-height: 420px;
 }
 
@@ -516,7 +516,7 @@ input[type="radio"] + label:active {
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
 
     border-top: 1px solid rgba(0, 0, 0, 0.08);
-    min-height: 42px;
+    min-height: 40px;
 }
 
 .panel-actions > *:first-child {
@@ -524,6 +524,7 @@ input[type="radio"] + label:active {
 }
 
 .panel-actions button {
+    /*margin-top: 3px;*/
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -531,8 +532,8 @@ input[type="radio"] + label:active {
 }
 
 .panel-actions button .icon {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
     pointer-events: none;
 }
 
@@ -559,7 +560,7 @@ input[type="radio"] + label:active {
 
 /* Global actions */
 .global-actions {
-    margin-top: 12px;
+    margin-top: 18px;
     display: flex;
     gap: 10px;
 }
@@ -567,7 +568,14 @@ input[type="radio"] + label:active {
 .global-actions button {
     flex: 1;
     white-space: nowrap;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 38px;
 }
+
 
 /* Buttons */
 button {
@@ -582,6 +590,14 @@ button {
     cursor: pointer;
     transition: background .14s ease, border-color .14s ease, transform .06s ease, box-shadow .14s ease;
     box-shadow: 0 8px 18px rgba(0, 0, 0, .18);
+}
+
+.global-actions button .icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    flex-shrink: 0;
+    pointer-events: none;
 }
 
 button:hover {
@@ -738,6 +754,7 @@ button:active {
 
 .batch-controls-left button {
     width: 64px;
+    justify-content: center;
 }
 
 .batch-inline-label {
@@ -768,6 +785,23 @@ button:active {
     margin-top: 18px;
     display: flex;
     justify-content: center;
+}
+
+.batch-actions button {
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+}
+
+.batch-actions button .icon {
+    width: 20px;
+    height: 20px;
+    display: block;
+    flex-shrink: 0;
+    pointer-events: none;
 }
 
 /* Settings */
@@ -828,6 +862,7 @@ button:active {
     border: 1px solid var(--stroke, rgba(255, 255, 255, .12));
     background: var(--surface, rgba(255, 255, 255, .04));
     color: inherit;
+    font-family: "Cascadia Mono", "Consolas", "Courier New", monospace;
 }
 
 #tbHeadingRegex:focus {
@@ -938,11 +973,11 @@ button:active {
 /* Status bar */
 .status-bar-container {
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 12px;
+    padding: 8px 12px;
     font-size: .92rem;
     color: var(--muted);
     flex: 0 0 auto; /* important */
@@ -951,7 +986,7 @@ button:active {
 
 #lbl_status_bar {
     color: var(--text);
-    font-weight: 650;
+    font-weight: 480;
 }
 
 /* Responsive (single breakpoint) */
