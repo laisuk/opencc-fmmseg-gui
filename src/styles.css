@@ -491,6 +491,14 @@ input[type="radio"] + label:active {
     display: flex;
     align-items: center;
     width: 100%;
+    gap: 8px;
+}
+
+.panel-info-right {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 8px;
 }
 
 #lbl_char_count {
