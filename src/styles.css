@@ -192,15 +192,22 @@ input[type="radio"] + label:active {
     transform: translateY(1px);
 }
 
-/* =========================
-   Checkboxes (current HTML)
-   <div style="...margin-top..."><label><input>Text</label>...</div>
-   ========================= */
-.region-container div[style*="margin-top"] {
-    margin-top: 0 !important;
+#rb-manual-text {
+    white-space: nowrap;
 }
 
-.region-container div[style*="margin-top"] label {
+/* =========================
+   Region checkboxes
+   ========================= */
+.region-checkbox {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.region-check-item {
     display: inline-flex;
     align-items: center;
     gap: 10px;
@@ -211,28 +218,24 @@ input[type="radio"] + label:active {
     background: rgba(255, 255, 255, .04);
     cursor: pointer;
     transition: background .14s ease, border-color .14s ease, transform .06s ease;
+    white-space: nowrap;
 }
 
-.region-container div[style*="margin-top"] label:hover {
+.region-check-item:hover {
     background: rgba(255, 255, 255, .07);
     border-color: var(--stroke2);
 }
 
-.region-container div[style*="margin-top"] label:active {
+.region-check-item:active {
     transform: translateY(1px);
 }
 
-.region-container input[type="checkbox"] {
+.region-check-item input[type="checkbox"] {
     accent-color: var(--accent);
     width: 16px;
     height: 16px;
+    margin: 0;
 }
-
-.region-checkbox input[type="checkbox"],
-.region-checkbox label {
-    cursor: pointer;
-}
-
 /* Manual config select */
 .config-select-group {
     display: inline-flex;
@@ -324,15 +327,6 @@ input[type="radio"] + label:active {
     min-height: 0;
     overflow-y: auto; /* ✅ allow stacked layout to scroll */
     overflow-x: hidden;
-}
-
-/* Optional: a card look for settings tab */
-.settings-card {
-    border-radius: var(--r-xl);
-    border: 1px solid var(--stroke);
-    background: rgba(255, 255, 255, .05);
-    box-shadow: var(--shadow2);
-    padding: 16px;
 }
 
 /* =========================
@@ -594,7 +588,10 @@ button {
     letter-spacing: .15px;
     cursor: pointer;
     transition: background .14s ease, border-color .14s ease, transform .06s ease, box-shadow .14s ease;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, .18);
+    /*box-shadow: 0 8px 18px rgba(0, 0, 0, .18);*/
+    box-shadow:
+            0 3px 6px rgba(0,0,0,.18),
+            0 8px 20px rgba(0,0,0,.08);
 }
 
 .global-actions button .icon {
@@ -629,6 +626,7 @@ button:active {
     border-radius: 3px;
     padding: 0 1px;
     transition: background-color .15s ease;
+    cursor: help;
 }
 
 .compare-toggle {
@@ -651,7 +649,7 @@ button:active {
     transition: transform 0.12s ease,
     box-shadow 0.12s ease,
     background 0.15s ease;
-    box-shadow: 0 12px 26px rgba(59, 130, 246, .18),
+    box-shadow: 0 12px 26px rgba(59, 130, 246, .25),
     0 0 0 1px rgba(59, 130, 246, .35);
 }
 

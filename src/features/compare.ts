@@ -82,7 +82,7 @@ export function createCompareFeature(opts: {
 }): CompareFeature {
     const tooltipText =
         opts.tooltipText ??
-        ((orig, conv) => `原文: ${orig} → 转换: ${conv}`);
+        ((orig, conv) => `Change: ${orig} → ${conv}`);
 
     /**
      * Effect used to replace the entire compare decoration set.
@@ -195,6 +195,7 @@ export function createCompareFeature(opts: {
                 class: "cm-diff-converted",
                 attributes: {
                     title: tooltipText(original, converted),
+                    // "data-tooltip": tooltipText(original, converted),
                 },
             });
 
