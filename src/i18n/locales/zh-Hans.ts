@@ -11,7 +11,7 @@ export const zhHans = {
         s2t: "zh-Hans（简体） to zh-Hant（繁体）",
         t2s: "zh-Hant（繁体） to zh-Hans（简体）",
         manual: "Manual（自定义）",
-        standard: "Standard（通用简繁）",
+        standard: "General（通用简繁）",
         zhTw: "ZH-TW（中台简繁）",
         zhHk: "ZH-HK（中港简繁）",
         zhTwIdioms: "ZH-TW Idioms（中台惯用语）",
