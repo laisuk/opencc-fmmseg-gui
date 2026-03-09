@@ -32,10 +32,10 @@
             "core:default",
             "core:event:allow-listen",
             {
-              "identifier": "shell:allow-open",
+              "identifier": "opener:allow-open-url",
               "allow": [
                 {
-                  "open": "^https://github\\.com/laisuk/opencc-fmmseg-gui/?$"
+                  "url": "https://github.com/laisuk/opencc-fmmseg-gui"
                 }
               ]
             }

@@ -985,6 +985,7 @@ button:active {
     gap: 8px;
     text-decoration: none;
     color: inherit;
+    cursor: pointer;
 }
 
 .about-link svg {

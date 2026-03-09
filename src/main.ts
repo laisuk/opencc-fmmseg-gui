@@ -36,6 +36,7 @@ import {setupUnifiedDrop} from "./tauri/dragdrop";
 
 import {initUiLanguage} from "./i18n/initUiLanguage";
 import {getRuntimeLabel, formatCharCount} from "./i18n/runtimeLabels";
+import {openUrl} from "@tauri-apps/plugin-opener";
 
 window.addEventListener("error", (e) => {
     console.error("JS error:", e.error || e.message);
@@ -53,7 +54,7 @@ document.getElementById("about-github")?.addEventListener("click", async (e) => 
     e.preventDefault();
 
     try {
-        open("https://github.com/laisuk/opencc-fmmseg-gui");
+        await openUrl("https://github.com/laisuk/opencc-fmmseg-gui");
     } catch (err) {
         console.error("Failed to open GitHub URL:", err);
     }
