@@ -366,9 +366,19 @@ input[type="radio"] + label:active {
     min-height: 0; /* critical for flex overflow behavior */
 }
 
+textarea {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    padding: 10px;
+    resize: vertical;
+}
+
 .panel-body textarea {
     width: 100%;
     min-height: 420px;
+
+    background: rgba(0,0,0,0.03);
+    color: currentColor;
+    border: 1px solid rgba(255,255,255,.08);
 }
 
 /* New: CodeMirror */
@@ -740,9 +750,14 @@ button:active {
 }
 
 /* Right textarea uses your global textarea rules, but ensure it fills */
+/* Batch log textarea */
 #batch-log {
     width: 100%;
     min-height: 420px;
+
+    background: rgba(0,0,0,0.03);
+    color: currentColor;
+    border: 1px solid rgba(255,255,255,.08);
 }
 
 /* Bottom controls row */
