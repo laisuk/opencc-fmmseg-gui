@@ -21,6 +21,7 @@ and batch processing in a lightweight desktop GUI.
 • 🔍 **Compare mode to highlight conversion differences**  
 • 📂 **Batch conversion**  
 • 🎨 **Modern UI (Tauri + Vite)**
+
 ---
 
 # 🚀 Download
@@ -60,33 +61,15 @@ https://github.com/laisuk/opencc-fmmseg
 
 # 📄 Supported Formats
 
-The application supports most **text‑based document formats**.
+The application supports most **text-based document formats**.
 
-### Text
-
-- `.txt`
-- `.md`
-
-### Subtitles
-
-- `.srt`
-- `.vtt`
-- `.ass`
-
-### Office
-
-- `.docx`
-- `.xlsx`
-- `.pptx`
-- `.odt`
-
-### eBook
-
-- `.epub`
-
-### PDF
-
-- `.pdf` (text‑embedded)
+| Category  | Formats                                           |
+|-----------|---------------------------------------------------|
+| Text      | `.txt`, `.md` (any text-based filetypes)          |
+| Subtitles | `.srt`, `.vtt`, `.ass`                            |
+| Office    | `.docx`, `.xlsx`, `.pptx`, `.odt`, `.ods`, `.odp` |
+| eBook     | `.epub`                                           |
+| PDF       | `.pdf` (text-embedded)                            |
 
 ---
 
