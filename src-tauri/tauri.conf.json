@@ -29,7 +29,7 @@
             "main"
           ],
           "permissions": [
-            "core:event:allow-listen",
+            "core:event:default",
             {
               "identifier": "opener:allow-open-url",
               "allow": [
