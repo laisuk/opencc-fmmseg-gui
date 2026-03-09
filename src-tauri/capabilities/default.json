@@ -8,20 +8,10 @@
   "permissions": [
     "core:default",
     "core:event:default",
-    "core:event:allow-listen",
     "dialog:default",
     "dialog:allow-open",
     "dialog:allow-message",
-    "dialog:allow-confirm",
-    "opener:default",
-    {
-      "identifier": "opener:allow-open-path",
-      "allow": [
-        {
-          "path": "**"
-        }
-      ]
-    }
+    "dialog:allow-confirm"
   ],
   "capabilities": []
 }
