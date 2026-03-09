@@ -1,314 +1,275 @@
-# OpenccNetLibGui
+# opencc-fmmseg-gui
 
-[![GitHub Release](https://img.shields.io/github/v/release/laisuk/OpenccNetLibGui?display_name=tag&sort=semver)](https://github.com/laisuk/OpenccNetLibGui/releases/latest)
-[![Total Downloads](https://img.shields.io/github/downloads/laisuk/openccnetlibgui/total.svg)](https://github.com/laisuk/openccnetlibgui/releases)
-[![Latest Downloads](https://img.shields.io/github/downloads/laisuk/openccnetlibgui/latest/total.svg)](https://github.com/laisuk/openccnetlibgui/releases/latest)
-![Release](https://github.com/laisuk/OpenccNetLibGui/actions/workflows/release.yml/badge.svg)
+[![GitHub Release](https://img.shields.io/github/v/release/laisuk/opencc-fmmseg-gui?display_name=tag&sort=semver)](https://github.com/laisuk/opencc-fmmseg-gui/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/laisuk/opencc-fmmseg-gui/total)](https://github.com/laisuk/opencc-fmmseg-gui/releases)
+[![License](https://img.shields.io/github/license/laisuk/opencc-fmmseg-gui)](LICENSE)
 
-**OpenccNetLibGui** is a Chinese text conversion application built with Avalonia and the MVVM design pattern. It
-leverages the [OpenccNetLib](https://www.nuget.org/packages/OpenccNetLib) library to provide simplified and traditional
-Chinese conversion.
+A **modern cross‑platform Chinese text converter** built with **Tauri + Vite** and powered by the Rust
+**opencc-fmmseg** engine.
 
-## 🚀 Download
-
-Always get the **latest version** of `OpenccNetLibGui` from the GitHub Releases page:
-
-- 🔖 **[Latest release (all platforms)](https://github.com/laisuk/OpenccNetLibGui/releases/latest)**
-
-On the release page, look for assets named:
-
-- `OpenccNetLibGui-vX.Y.Z-win-x64.zip` – **Windows (win-x64)**
-- `OpenccNetLibGui-vX.Y.Z-linux-x64.tar.gz` – **Linux (linux-x64)**
-- `OpenccNetLibGui-vX.Y.Z-osx-arm64.tar.gz` – **macOS (Apple Silicon, osx-arm64)**
-
-> 📦 These are **framework-dependent builds** targeting **.NET 10** (starting from **v1.4.0**).
-> The **.NET 10 Runtime** must be installed on your system to run these builds:  
-> [.NET 10 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/10.0/runtime)
-
-## Features
-
-- **Chinese Conversion**  
-  Convert text between Simplified and Traditional Chinese using optimized OpenCC lexicons combined with an efficient
-  FMM-based dictionary matcher.
-
-- **Single & Batch Conversion**  
-  Convert individual files or entire directories in one operation.
-
-- **Wide File Format Support**  
-  Supports most **text-based file types**, including:
-    - Plain text (`.txt`, `.md`)
-    - Subtitles (`.srt`, `.vtt`, `.ass`, `.ttml2`)
-    - **Office documents** (`.docx`, `.xlsx`, `.pptx`, `.odt`)
-    - **EPUB** (`.epub`)
-    - **PDF** (`.pdf`) with intelligent CJK text reflow
-
-- **PDF Extraction & CJK Reflow**  
-  Import PDF files and automatically:
-    - Extract text using **Pdfium** or **PdfPig**
-    - Remove repetitive headers and footers (optional)
-    - Merge broken lines across pages (e.g., `面` + `容` → `面容`)
-    - Preserve chapter titles and headings
-    - Produce clean, continuous text suitable for reading or conversion
-
-- **Drag-and-Drop Support**  
-  Drop text, PDF, EPUB, or Office files directly into the Source panel.
-
-- **CJK-Aware Reflow Engine**  
-  Smart handling of:
-    - Paragraph boundaries
-    - Chapter markers (`第一章`, `序章`, etc.)
-    - Chinese punctuation
-    - Page-break artifacts
-    - Indentation and spacing heuristics
-
-- **Cross-Platform Avalonia GUI**  
-  Modern MVVM-based UI that runs consistently on **Windows**, **macOS**, and **Linux**.
+The application provides fast **Simplified ↔ Traditional Chinese conversion**, PDF text extraction,
+and batch processing in a lightweight desktop GUI.
 
 ---
 
-## Notes
+# ✨ Highlights
 
-### **PDF Support**
+• ⚡ **Fast Rust conversion engine** (opencc-fmmseg)  
+• 🖥 **Cross-platform desktop app** (Windows / Linux / macOS)  
+• 📚 **Office / EPUB / PDF support**  
+• 📄 **PDF text extraction with CJK reflow**  
+• 🔍 **Compare mode to highlight conversion differences**  
+• 📂 **Batch conversion**  
+• 🎨 **Modern UI (Tauri + Vite)**
+---
 
-Only **text-embedded PDFs** are supported.  
-`OpenccNetLibGui` reads Unicode text directly from the PDF content stream using either `Pdfium` or `PdfPig`.
+# 🚀 Download
 
-❌ Scanned PDFs or pure image-based PDFs **are not supported**.  
-Such files require OCR (Optical Character Recognition), which is **not included** in this application.
+Download the latest release:
+
+https://github.com/laisuk/opencc-fmmseg-gui/releases/latest
+
+Example release assets:
+
+| Platform | Package                                       |
+|----------|-----------------------------------------------|
+| Windows  | `opencc-fmmseg-gui-vX.Y.Z-win-x64.zip`        |
+| Linux    | `opencc-fmmseg-gui-vX.Y.Z-linux-x64.tar.gz`   |
+| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-arm64.tar.gz` |
+
+The application is distributed as a **stand‑alone desktop app** and requires no additional runtime.
 
 ---
 
-### **PDF Extraction Engines**
+# 🧠 Conversion Engine
 
-`OpenccNetLibGui` offers two selectable engines for PDF text extraction:
+The GUI is powered by **opencc-fmmseg**, a Rust implementation inspired by OpenCC.
 
-- **Pdfium (native)**  
-  A high-accuracy native engine with superior handling of:
-    - CJK characters
-    - complex layouts
-    - overlapping glyphs
-    - repeated text tokens
-    - tricky multi-column or multi-page flows
+Features include:
 
-- **PdfPig**  
-  A pure-managed, cross-platform engine suitable for most standard text-embedded PDFs.
+- OpenCC‑compatible dictionaries
+- Forward Maximum Matching (FMM) segmentation
+- multi‑stage dictionary conversion
+- optimized Rust performance
 
-The preferred engine can be changed in the **Settings** context menu.
+Repository:
+
+https://github.com/laisuk/opencc-fmmseg
 
 ---
 
-### **CJK Paragraph Reflow**
+# 📄 Supported Formats
 
-The CJK paragraph reflow module is designed as a **lightweight, text-only readability enhancement** for extracted
-`PDF/EPUB` content.  
-Its goal is to restore a **natural reading flow** for continuous text, especially CJK novels and prose.
+The application supports most **text‑based document formats**.
 
-It focuses on:
+### Text
 
-- Line merging for broken paragraph fragments
-- Dialogue reconstruction across line breaks
-- Basic chapter heading detection
-- Removal of common page-level extraction artifacts
+- `.txt`
+- `.md`
 
-Reflowed output aims for **cleaner, novel-style plain-text readability**, but it is **not intended to:**
+### Subtitles
 
-- reproduce original page layout
-- preserve columns, tables, or typography
-- support professional publishing or academic typesetting
-- generate print-ready or editorial-grade output
+- `.srt`
+- `.vtt`
+- `.ass`
 
-Reflow intentionally applies **conservative, general heuristics** that work reasonably well across *many* documents,
-rather than being optimized for any single PDF or personal formatting preference.
+### Office
 
-Users should treat reflowed text as a **draft-quality starting point**.  
-If exact formatting or document-specific behavior is required, disabling Reflow and working with raw extracted text
-is recommended.
+- `.docx`
+- `.xlsx`
+- `.pptx`
+- `.odt`
 
----
+### eBook
 
-## Dependencies
+- `.epub`
 
-- **[Avalonia](https://avaloniaui.net/)**  
-  Cross-platform .NET UI framework used to build the application’s user interface.
+### PDF
 
-- **[AvaloniaEdit](https://github.com/AvaloniaUI/AvaloniaEdit)**  
-  A performant text editor control with syntax-highlighting, line numbers, and virtualization support.
-
-- **[OpenccNetLib](https://github.com/laisuk/OpenccNet)**  
-  Core conversion engine providing optimized OpenCC dictionary handling, FMM segmentation and multi-stage dictionary
-  pipelines for Simplified/Traditional conversion.
-
-- **[Newtonsoft.Json](https://www.newtonsoft.com/json)**  
-  High-performance JSON serialization/deserialization library used for settings, layout recovery,  
-  and application configuration files.
-
-- **[UglyToad.PdfPig](https://github.com/UglyToad/PdfPig)**  
-  A fully managed PDF text extraction library used for:
-    - Parsing PDF structure
-    - Extracting raw Unicode text
-    - Fallback extraction when PDFium is unavailable  
-      Ideal for CPU-only scenarios or when using a 100% managed dependency chain.
-
-- **PDFium (native library + .NET binding)**  
-  High-performance native PDF rendering & text extraction engine used for:
-    - Faster page loading on large PDFs
-    - More accurate CJK character extraction
-    - Improved handling of rotated text, clipped glyphs, and embedded fonts  
-      Provides the “fast mode” when users choose **PDFium** in PDF Engine settings.
+- `.pdf` (text‑embedded)
 
 ---
 
-## Getting Started
+# 📑 PDF Extraction
 
-1. **Clone the repository**:
+PDF files are processed using **PDFium** for accurate text extraction.
 
-```bash
-git clone https://github.com/laisuk/OpenccNetLibGui.git
+Advantages:
+
+- reliable CJK character extraction
+- correct handling of embedded fonts
+- improved multi‑column handling
+- better layout reconstruction
+
+⚠ **Scanned PDFs are not supported** (OCR is outside the scope of this project).
+
+---
+
+# 🧩 CJK Paragraph Reflow
+
+Extracted PDF text can optionally apply **CJK reflow** to improve readability.
+
+The reflow system attempts to:
+
+- merge broken lines
+- reconstruct dialogue
+- detect chapter titles
+- remove page extraction artifacts
+
+Example:
+
+```
+面
+容
 ```
 
-2. **Navigate to the project directory**:
+becomes
 
-```bash
-cd OpenccNetLibGui
+```
+面容
 ```
 
-3. **Restore dependencies**:
+The goal is **clean reading text**, not exact layout reconstruction.
 
-```bash
-dotnet restore
+---
+
+# 🖥 User Interface
+
+## Single Conversion
+
+![Single Mode](Assets/image01.png)
+
+Workflow:
+
+1. Paste text or open a file
+2. Choose conversion configuration
+3. Click **Convert**
+
+## Compare Mode
+
+After conversion, the **Compare** option can be enabled to highlight
+differences between the source text and converted output.
+
+Changed characters are visually marked so users can quickly review
+conversion results.
+
+---
+
+## Batch Conversion
+
+![Batch Mode](Assets/image02.png)
+
+Workflow:
+
+1. Add files to the list
+2. Select conversion configuration
+3. Choose output directory
+4. Click **Batch Start**
+
+---
+
+## Dark Theme
+
+![Dark Mode](Assets/image05.png)
+
+The interface supports **dark‑mode friendly UI**.
+
+---
+
+# 🏗 Architecture
+
+```
+opencc-fmmseg-gui
+        │
+        ▼
+   opencc-fmmseg (Rust engine)
+        │
+        ▼
+   OpenCC dictionaries
 ```
 
-4. **Build the project**:
+### Frontend
 
-```bash
-dotnet build
+- Tauri
+- Vite
+- TypeScript
+- HTML / CSS
+- CodeMirror 6
+
+### Backend
+
+- Rust
+- opencc-fmmseg
+- PDFium
+
+---
+
+# 🛠 Development
+
+Clone the repository:
+
+```
+git clone https://github.com/laisuk/opencc-fmmseg-gui.git
 ```
 
-5. **Run the application**:
+Enter the directory:
 
-```bash
-dotnet run
+```
+cd opencc-fmmseg-gui
 ```
 
-## Usage
+Install frontend dependencies:
 
-### Single Mode
+```
+npm install
+```
 
-![image01](./Assets/image01.png)
+Run development mode:
 
-#### PDF Text Extraction (Text-Embedded PDF) and conversion
+```
+npm run tauri dev
+```
 
-![image04](./Assets/image04.png)
+Build release version:
 
-Support most **text base** file types, OpenDocuments (`DOCX`, `ODT`, `EPUB`) and **Text-Embedded PDF documents**.
-
-1. Paste the text or open a file (text, DOCX, ODT, EPUB or PDF file) you wish to convert (file/text drag and drop are
-   supported on
-   Windows and macOS).
-2. Select the desired conversion configuration (e.g., Simplified to Traditional).
-3. `PDF options` can be set in reight-click context menu.
-4. Click the **Process** button to see the results.
-
-#### Notes
-
-PDF Engine can be set in `LanguageSettings.json` as well:
-Where:  
-`1` = `PdfPig`, `2`= `Pdfium`
-
-```json
-{
-  "pdfEngine": 1
-}
+```
+npm run tauri build
 ```
 
 ---
 
-### Batch Mode
+# 🤝 Contributing
 
-![image02](./Assets/image02.png)
-![image03](./Assets/image03.png)
+Contributions are welcome.
 
-Support most **text base** file types, **Office documents** (`.docx`, `.xlsx`, `.pptx`, `.odt`, `.ods`, `.odp`), EPUB (
-`.epub`) and **PDF** (`.pdf`, introduced in `OpenccNetLibGui` v1.3.2).
+If you'd like to improve the project:
 
-1. Select or drag file(s) into the source list box (File(s), drag and drop currently only supported on Windows and
-   macOS).
-2. Select the desired conversion configuration.
-3. Set the output folder.
-4. For **PDF document** conversion, **right-click** List Box to set `PDF Options`. (`PDF engine`, `add page header`,
-   `auto-reflow CJK text` etc.)
-5. Click the **Batch Start** button to begin batch conversion.
+1. Fork the repository
+2. Create a feature branch
+3. Submit a pull request
 
-### Dark Theme
-
-![image05](./Assets/image05.png)
-
-`OpenccNetLibGui` is **Dark Theme Mode** friendly.
+Bug reports and feature suggestions are also appreciated.
 
 ---
 
-### Custom Dictionary
+# 📜 License
 
-Usage of custom dictionary can be set in `LanguageSettings.json`:
-
-```json
-{
-  "dictionary": "dicts"
-}
-```
-
-Options are:
-
-1. `"dicts"` - _*.txt_ in directory `dicts`
-2. `"json"` - _dictionary_maxlength.json_
-3. `"cbor"` - _dictionary_maxlength.cbor_
-4. None of above, default to `"zstd"` - _dictionary_maxlength.zstd_
+MIT License
 
 ---
 
-### Custom Chinese Language in UI Settings (繁體界面 / 简体界面)
+# 🙏 Acknowledgements
 
-![image06](./Assets/image06.png)
+• **OpenCC** – Chinese conversion dictionaries  
+https://github.com/BYVoid/OpenCC
 
-Custom Chinese Language in UI can be set in `LanguageSettings.json`:
+• **opencc-fmmseg** – Rust implementation  
+https://github.com/laisuk/opencc-fmmseg
 
-```json
-{
-  "Locale": 1
-}
-```
+• **PDFium** – PDF rendering and extraction engine
 
-Options are:
+• **CodeMirror 6** – high-performance text editor used in the GUI  
+https://codemirror.net/
 
-1. `1` - Traditional Chinese (繁體字/傳統漢字)
-2. `2` - Simplified Chinese (简体字)
-3. `0` - English
-4. Other values - Reset to Simplified Chinese (简体字)
-
----
-
-## Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
-
-## Acknowledgements
-
-- **[OpenCC](https://github.com/BYVoid/OpenCC)**  
-  For providing the high-quality Chinese conversion lexicons.
-- **[OpenccNet](https://github.com/laisuk/OpenccNet)**  
-  For the optimized .NET implementation of OpenCC used as the core engine.
-- **[Avalonia](https://avaloniaui.net/)**  
-  For the modern, cross-platform UI framework powering the application.
-- **[AvaloniaEdit](https://github.com/AvaloniaUI/AvaloniaEdit)**  
-  For the performant text editor component with line numbers and virtualization.
-- **[Newtonsoft.Json](https://www.newtonsoft.com/json)**  
-  For the robust and flexible JSON serialization and configuration handling.
-- **[PdfPig](https://github.com/UglyToad/PdfPig)**  
-  For the fully-managed PDF text extraction engine used in the standard extraction mode.
-- **PDFium (native library + .NET bindings)**  
-  For providing high-performance PDF rendering and fast CJK text extraction in Pdfium mode.
-
+• **Tauri** – cross-platform desktop framework  
+https://tauri.app
