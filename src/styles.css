@@ -376,9 +376,9 @@ textarea {
     width: 100%;
     min-height: 420px;
 
-    background: rgba(0,0,0,0.03);
+    background: transparent;
     color: currentColor;
-    border: 1px solid rgba(255,255,255,.08);
+    border: 1px solid rgba(255, 255, 255, .08);
 }
 
 /* New: CodeMirror */
@@ -749,15 +749,19 @@ button:active {
     box-shadow: 0 0 0 4px var(--accentRing);
 }
 
-/* Right textarea uses your global textarea rules, but ensure it fills */
 /* Batch log textarea */
 #batch-log {
     width: 100%;
     min-height: 420px;
 
-    background: rgba(0,0,0,0.03);
+    background: rgba(0, 0, 0, 0.03);
     color: currentColor;
-    border: 1px solid rgba(255,255,255,.08);
+    border: 1px solid rgba(255, 255, 255, .08);
+}
+
+#batch-log:focus {
+    outline: none;
+    border-color: rgba(59, 130, 246, .5);
 }
 
 /* Bottom controls row */
