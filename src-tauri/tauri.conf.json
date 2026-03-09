@@ -21,26 +21,7 @@
       }
     ],
     "security": {
-      "csp": null,
-      "capabilities": [
-        {
-          "identifier": "default",
-          "windows": [
-            "main"
-          ],
-          "permissions": [
-            "core:event:default",
-            {
-              "identifier": "opener:allow-open-url",
-              "allow": [
-                {
-                  "url": "https://github.com/laisuk/opencc-fmmseg-gui"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "csp": null
     }
   },
   "bundle": {

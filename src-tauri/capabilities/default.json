@@ -7,11 +7,13 @@
   ],
   "permissions": [
     "core:default",
-    "core:event:default",
-    "dialog:default",
-    "dialog:allow-open",
-    "dialog:allow-message",
-    "dialog:allow-confirm"
-  ],
-  "capabilities": []
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        {
+          "url": "https://github.com/laisuk/opencc-fmmseg-gui"
+        }
+      ]
+    }
+  ]
 }
