@@ -17,10 +17,12 @@
     --bg: #0b0f19;
 
     --surface: rgba(255, 255, 255, .04);
+    --layer1: rgba(255, 255, 255, .05);
     --micaA: rgba(255, 255, 255, .06);
     --micaB: rgba(255, 255, 255, .09);
 
     --stroke: rgba(255, 255, 255, .12);
+    --stroke1: rgba(255, 255, 255, .15);
     --stroke2: rgba(255, 255, 255, .18);
 
     --text: rgba(255, 255, 255, .92);
@@ -236,6 +238,7 @@ input[type="radio"] + label:active {
     height: 16px;
     margin: 0;
 }
+
 /* Manual config select */
 .config-select-group {
     display: inline-flex;
@@ -597,9 +600,8 @@ button {
     cursor: pointer;
     transition: background .14s ease, border-color .14s ease, transform .06s ease, box-shadow .14s ease;
     /*box-shadow: 0 8px 18px rgba(0, 0, 0, .18);*/
-    box-shadow:
-            0 3px 6px rgba(0,0,0,.18),
-            0 8px 20px rgba(0,0,0,.08);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, .18),
+    0 8px 20px rgba(0, 0, 0, .08);
 }
 
 .global-actions button .icon {
@@ -839,7 +841,7 @@ button:active {
     font-size: 14px;
     cursor: pointer;
     user-select: none;
-    width: fit-content;     /* important */
+    width: fit-content; /* important */
 }
 
 .fluent-checkbox input[type="checkbox"] {
@@ -920,6 +922,79 @@ button:active {
     font-size: 12px;
     line-height: 1.4;
     overflow-x: auto;
+}
+
+/* About */
+#tab-about {
+    margin-left: auto;
+}
+
+.about-card {
+    max-width: 600px;
+    margin: auto;
+    padding: 24px;
+    border-radius: 10px;
+    background: var(--layer1, rgba(255, 255, 255, .04));
+    border: 1px solid var(--stroke1, rgba(255, 255, 255, .08));
+}
+
+.about-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.about-icon {
+    width: 28px;
+    height: 28px;
+    fill: #0078D4;
+}
+
+.about-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.version-badge {
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: #0078D420;
+    color: #0078D4;
+}
+
+.about-desc {
+    margin: 10px 0 14px;
+    opacity: .85;
+}
+
+.about-features {
+    padding-left: 18px;
+    margin-bottom: 18px;
+}
+
+.about-links {
+    margin-bottom: 12px;
+}
+
+.about-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: inherit;
+}
+
+.about-link svg {
+    width: 18px;
+    height: 18px;
+}
+
+.about-footer {
+    font-size: 12px;
+    opacity: .6;
 }
 
 /* ===== Primary Button ===== */

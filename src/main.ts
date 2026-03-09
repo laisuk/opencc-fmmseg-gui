@@ -41,12 +41,33 @@ window.addEventListener("error", (e) => {
     console.error("JS error:", e.error || e.message);
 });
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     initAppSettings();
     const app = createApp();
     app.init();
     initUiLanguage();
+    await initAboutVersion();
 });
+
+document.getElementById("about-github")?.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    try {
+        open("https://github.com/laisuk/opencc-fmmseg-gui");
+    } catch (err) {
+        console.error("Failed to open GitHub URL:", err);
+    }
+});
+
+async function initAboutVersion() {
+    try {
+        const version = await invoke<string>("get_app_version");
+        const el = document.getElementById("about-version")!;
+        el.textContent = `v${version}`;
+    } catch (err) {
+        console.error("Failed to load app version:", err);
+    }
+}
 
 function createApp() {
     // =========================================================
