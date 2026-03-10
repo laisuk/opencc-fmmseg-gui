@@ -95,7 +95,7 @@ export async function startBatchListener(): Promise<void> {
         }
     });
 
-    d.appendLog("Listener register: OK (batch-progress)");
+    d.appendLog(`[${new Date().toLocaleString()}] Listener register: OK (batch-progress)`);
 }
 
 export function stopBatchListener(): void {
@@ -145,7 +145,7 @@ export async function startOpenFileListener(): Promise<void> {
         }
     });
 
-    d.appendEditorLog("Listener register: OK (open-progress)");
+    d.appendEditorLog(`[${new Date().toLocaleString()}] Listener register: OK (open-progress)`);
 }
 
 export function stopOpenFileListener(): void {
