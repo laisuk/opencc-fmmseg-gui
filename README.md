@@ -32,11 +32,27 @@ https://github.com/laisuk/opencc-fmmseg-gui/releases/latest
 
 Example release assets:
 
-| Platform | Package                                       |
-|----------|-----------------------------------------------|
-| Windows  | `opencc-fmmseg-gui-vX.Y.Z-win-x64.zip`        |
-| Linux    | `opencc-fmmseg-gui-vX.Y.Z-linux-x64.tar.gz`   |
-| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-arm64.tar.gz` |
+| Platform | Package                                                        |
+|----------|----------------------------------------------------------------|
+| Windows  | `opencc-fmmseg-gui-vX.Y.Z-windows-x64-portable.exe` (portable) |
+| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64-setup.exe` (installer)            |
+| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64_en-US.msi` (MSI installer)        |
+| Linux    | `opencc-fmmseg-gui_X.Y.Z_amd64.AppImage` (portable)            |
+| Linux    | `opencc-fmmseg-gui_X.Y.Z_amd64.deb`                            |
+| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.x86_64.rpm`                         |
+| macOS    | `opencc-fmmseg-gui_X.Y.Z_x64.dmg`                              |
+| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos.app.zip` (portable)            |
+
+### Notes
+
+* **Portable** builds run without installation.
+* **Installers** integrate the application with the operating system.
+* Linux users can run the portable version directly:
+
+    ```
+    chmod +x opencc-fmmseg-gui_*.AppImage
+    ./opencc-fmmseg-gui_*.AppImage
+    ```
 
 The application is distributed as a **stand‑alone desktop app** and requires no additional runtime.
 
