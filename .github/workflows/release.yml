@@ -19,8 +19,6 @@ jobs:
             platform: macos
 
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
 
     steps:
       - name: Checkout
@@ -84,14 +82,50 @@ jobs:
           # macOS
           if [[ "${{ runner.os }}" == "macOS" ]]; then
             cp src-tauri/target/release/bundle/dmg/*.dmg release/ || true
-            
-            APP=$(ls src-tauri/target/release/bundle/macos/*.app | head -n 1)
-            ZIP="release/opencc-fmmseg-gui-${{ github.ref_name }}-macos.app.zip"
-            zip -r "$ZIP" "$APP"
+
+            APP_PATH="src-tauri/target/release/bundle/macos/opencc-fmmseg-gui.app"
+            ZIP_PATH="release/opencc-fmmseg-gui-${{ github.ref_name }}-macos.app.zip"
+
+            zip -r "$ZIP_PATH" "$APP_PATH"
           fi
+
+      - name: Upload collected artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.platform }}
+          path: release/*
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-windows-x64
+          path: release-assets/windows
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-linux-x64
+          path: release-assets/linux
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: release-macos
+          path: release-assets/macos
 
       - name: Publish release assets
         uses: softprops/action-gh-release@v2
         with:
-          files: release/*
+          files: |
+            release-assets/windows/*
+            release-assets/linux/*
+            release-assets/macos/*
           generate_release_notes: true
