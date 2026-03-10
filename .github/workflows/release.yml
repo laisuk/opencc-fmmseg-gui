@@ -1,0 +1,97 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows-x64
+          - os: ubuntu-latest
+            platform: linux-x64
+          - os: macos-latest
+            platform: macos
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libssl-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev
+
+      - name: Build Tauri app
+        run: npx tauri build
+
+      - name: Collect artifacts
+        shell: bash
+        run: |
+          mkdir -p release
+
+          # Linux
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            cp src-tauri/target/release/bundle/appimage/*.AppImage release/ || true
+            cp src-tauri/target/release/bundle/deb/*.deb release/ || true
+            cp src-tauri/target/release/bundle/rpm/*.rpm release/ || true
+          fi
+
+          # Windows
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            cp src-tauri/target/release/bundle/nsis/* release/ || true
+            cp src-tauri/target/release/bundle/msi/* release/ || true
+            cp src-tauri/target/release/opencc-fmmseg-gui.exe \
+              release/opencc-fmmseg-gui-${{ github.ref_name }}-windows-x64-portable.exe || true
+          fi
+
+          # macOS
+          if [[ "${{ runner.os }}" == "macOS" ]]; then
+            cp src-tauri/target/release/bundle/dmg/*.dmg release/ || true
+            
+            APP=$(ls src-tauri/target/release/bundle/macos/*.app | head -n 1)
+            ZIP="release/opencc-fmmseg-gui-${{ github.ref_name }}-macos.app.zip"
+            zip -r "$ZIP" "$APP"
+          fi
+
+      - name: Publish release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
