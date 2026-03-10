@@ -102,14 +102,14 @@ The reflow system attempts to:
 Example:
 
 ```
-面
-容
+不抱任何期待点了国产红酒，却出乎意料地回味悠长。这难道是料理的魔
+力？
 ```
 
 becomes
 
 ```
-面容
+不抱任何期待点了国产红酒，却出乎意料地回味悠长。这难道是料理的魔力？
 ```
 
 The goal is **clean reading text**, not exact layout reconstruction.
@@ -120,7 +120,7 @@ The goal is **clean reading text**, not exact layout reconstruction.
 
 ## Single Conversion
 
-![Single Mode](Assets/image01.png)
+![Single Mode](src/assets/image01.png)
 
 Workflow:
 
@@ -140,20 +140,20 @@ conversion results.
 
 ## Batch Conversion
 
-![Batch Mode](Assets/image02.png)
+![Batch Mode](src/assets/image02.png)
 
 Workflow:
 
 1. Add files to the list
 2. Select conversion configuration
 3. Choose output directory
-4. Click **Batch Start**
+4. Click **Batch Convert**
 
 ---
 
 ## Dark Theme
 
-![Dark Mode](Assets/image05.png)
+![Dark Mode](src/assets/image03.png)
 
 The interface supports **dark‑mode friendly UI**.
 
