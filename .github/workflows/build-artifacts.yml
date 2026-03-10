@@ -63,7 +63,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: opencc-fmmseg-gui-linux-x64-appimage
-          path: src-tauri/target/release/bundle/appimage/*
+          path: src-tauri/target/release/bundle/appimage/*.AppImage
           if-no-files-found: error
 
       - name: Upload Linux DEB
@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: opencc-fmmseg-gui-linux-x64-deb
-          path: src-tauri/target/release/bundle/deb/*
+          path: src-tauri/target/release/bundle/deb/*.deb
           if-no-files-found: error
 
       - name: Upload Linux RPM
@@ -79,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: opencc-fmmseg-gui-linux-x64-rpm
-          path: src-tauri/target/release/bundle/rpm/*
+          path: src-tauri/target/release/bundle/rpm/*.rpm
           if-no-files-found: error
 
       # Windows
