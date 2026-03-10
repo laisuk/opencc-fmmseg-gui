@@ -10,11 +10,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
-            artifact_name: windows-x64
+            platform: windows-x64
           - os: ubuntu-latest
-            artifact_name: linux-x64
+            platform: linux-x64
           - os: macos-latest
-            artifact_name: macos
+            platform: macos
 
     runs-on: ${{ matrix.os }}
 
@@ -55,11 +55,63 @@ jobs:
             librsvg2-dev
 
       - name: Build Tauri app
-        run: npm run tauri build
+        run: npx tauri build
 
-      - name: Upload Tauri bundle artifacts
+      # Linux
+      - name: Upload Linux AppImage
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@v4
         with:
-          name: opencc-fmmseg-gui-${{ matrix.artifact_name }}
-          path: src-tauri/target/release/bundle/
+          name: opencc-fmmseg-gui-linux-x64-appimage
+          path: src-tauri/target/release/bundle/appimage/*
+          if-no-files-found: error
+
+      - name: Upload Linux DEB
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencc-fmmseg-gui-linux-x64-deb
+          path: src-tauri/target/release/bundle/deb/*
+          if-no-files-found: error
+
+      - name: Upload Linux RPM
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencc-fmmseg-gui-linux-x64-rpm
+          path: src-tauri/target/release/bundle/rpm/*
+          if-no-files-found: error
+
+      # Windows
+      - name: Upload Windows MSI
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencc-fmmseg-gui-windows-x64-msi
+          path: src-tauri/target/release/bundle/msi/*
+          if-no-files-found: error
+
+      - name: Upload Windows NSIS
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencc-fmmseg-gui-windows-x64-nsis
+          path: src-tauri/target/release/bundle/nsis/*
+          if-no-files-found: error
+
+      # macOS
+      - name: Upload macOS DMG
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencc-fmmseg-gui-macos-dmg
+          path: src-tauri/target/release/bundle/dmg/*
+          if-no-files-found: error
+
+      - name: Upload macOS App Bundle
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: opencc-fmmseg-gui-macos-app
+          path: src-tauri/target/release/bundle/macos/*
           if-no-files-found: error
