@@ -2,7 +2,7 @@
 
 [![GitHub Release](https://img.shields.io/github/v/release/laisuk/opencc-fmmseg-gui?display_name=tag&sort=semver)](https://github.com/laisuk/opencc-fmmseg-gui/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/laisuk/opencc-fmmseg-gui/total)](https://github.com/laisuk/opencc-fmmseg-gui/releases)
-[![License](https://img.shields.io/github/license/laisuk/opencc-fmmseg-gui)](./LICENSE)
+[![License](https://img.shields.io/github/license/laisuk/opencc-fmmseg-gui)](https://github.com/laisuk/opencc-fmmseg-gui/blob/master/LICENSE)
 
 A **modern cross‑platform Chinese text converter** built with **Tauri + Vite** and powered by the Rust
 **opencc-fmmseg** engine.
