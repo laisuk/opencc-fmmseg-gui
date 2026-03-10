@@ -30,6 +30,12 @@ export default defineConfig(async () => ({
     build: {
         minify: "esbuild" as const,
         sourcemap: false
+    },
+    optimizeDeps: {
+        include: [
+            "@codemirror/state",
+            "@codemirror/view"
+        ]
     }
 }));
 
