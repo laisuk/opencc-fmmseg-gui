@@ -82,11 +82,10 @@ jobs:
           # macOS
           if [[ "${{ runner.os }}" == "macOS" ]]; then
             cp src-tauri/target/release/bundle/dmg/*.dmg release/ || true
-
-            APP_PATH="src-tauri/target/release/bundle/macos/opencc-fmmseg-gui.app"
-            ZIP_PATH="release/opencc-fmmseg-gui-${{ github.ref_name }}-macos.app.zip"
-
-            zip -r "$ZIP_PATH" "$APP_PATH"
+            
+            ZIP_PATH="$GITHUB_WORKSPACE/release/opencc-fmmseg-gui-${{ github.ref_name }}-macos.app.zip"
+            cd src-tauri/target/release/bundle/macos
+            zip -r "$ZIP_PATH" opencc-fmmseg-gui.app
           fi
 
       - name: Upload collected artifacts
