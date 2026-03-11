@@ -73,10 +73,14 @@ jobs:
 
           # Windows
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            cp src-tauri/target/release/bundle/nsis/* release/ || true
-            cp src-tauri/target/release/bundle/msi/* release/ || true
-            cp src-tauri/target/release/opencc-fmmseg-gui.exe \
-              release/opencc-fmmseg-gui-${{ github.ref_name }}-windows-x64-portable.exe || true
+            cp src-tauri/target/release/bundle/nsis/*.exe release/ || true
+            cp src-tauri/target/release/bundle/msi/*.msi release/ || true
+          
+            cp src-tauri/target/release/opencc-fmmseg-gui.exe release/ || true          
+            cd release
+            zip "opencc-fmmseg-gui-${{ github.ref_name }}-windows-x64-portable.zip" opencc-fmmseg-gui.exe
+            rm -f opencc-fmmseg-gui.exe
+            cd ..
           fi
 
           # macOS
@@ -86,6 +90,7 @@ jobs:
             ZIP_PATH="$GITHUB_WORKSPACE/release/opencc-fmmseg-gui-${{ github.ref_name }}-macos.app.zip"
             cd src-tauri/target/release/bundle/macos
             zip -r "$ZIP_PATH" opencc-fmmseg-gui.app
+            cd "$GITHUB_WORKSPACE"
           fi
 
       - name: Upload collected artifacts
