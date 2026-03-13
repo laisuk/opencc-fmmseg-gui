@@ -23,14 +23,14 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 
 pub struct AppState {
-    opencc: Arc<Mutex<OpenCC>>,
+    opencc: Arc<OpenCC>,
     pdfium: Arc<Mutex<Option<(PdfiumLibrary, PathBuf)>>>, // ✅ keep loaded
 }
 
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            opencc: Arc::new(Mutex::new(OpenCC::new())),
+            opencc: Arc::new(OpenCC::new()),
             pdfium: Arc::new(Mutex::new(None)),
         }
     }
@@ -107,14 +107,12 @@ fn convert_text(
     config: String,
     punctuation: bool,
 ) -> String {
-    let opencc = state.opencc.lock().unwrap();
-    opencc.convert(&text, &config, punctuation)
+    state.opencc.convert(&text, &config, punctuation)
 }
 
 #[tauri::command]
 fn zho_check(state: State<'_, AppState>, text: String) -> i32 {
-    let opencc = state.opencc.lock().unwrap();
-    opencc.zho_check(&text)
+    state.opencc.zho_check(&text)
 }
 
 // ----- Open File to Editor ------
@@ -378,7 +376,7 @@ async fn open_path_to_editor(
 fn open_pdf_extract_text_with_progress(
     app: &AppHandle,
     pdfium_arc: &Arc<Mutex<Option<(PdfiumLibrary, PathBuf)>>>,
-    opencc_arc: &Arc<Mutex<OpenCC>>,
+    opencc_arc: &Arc<OpenCC>,
     input_path: &str,
     is_reflow: bool,
     page_header: bool,
@@ -489,12 +487,7 @@ fn open_pdf_extract_text_with_progress(
             },
         );
 
-        extracted = {
-            let opencc = opencc_arc
-                .lock()
-                .map_err(|_| "OpenCC lock poisoned".to_string())?;
-            opencc.convert(&extracted, config, punctuation)
-        };
+        extracted = opencc_arc.convert(&extracted, config, punctuation);
     }
 
     // ---- done ----
@@ -746,11 +739,7 @@ async fn run_batch_convert(
 
             // compute path used for output naming
             let path_for_output = if convert_filename {
-                let opencc = opencc_arc
-                    .lock()
-                    .map_err(|_| "OpenCC lock poisoned".to_string())?;
-
-                convert_filename_only(&*opencc, &path, &config, punctuation)
+                convert_filename_only(&*opencc_arc, &path, &config, punctuation)
                     .map_err(|e| format!("[{idx}/{total}] convert_filename failed: {e}"))?
             } else {
                 path.clone()
@@ -846,15 +835,11 @@ async fn run_batch_convert(
                     .ok_or_else(|| format!("[{idx}/{total}] Cannot infer extension: {path}"))?;
 
                 let r = {
-                    let opencc = opencc_arc
-                        .lock()
-                        .map_err(|_| "OpenCC lock poisoned".to_string())?;
-
                     OfficeConverter::convert(
                         &path,
                         &output_path.to_string_lossy(),
                         &office_format,
-                        &*opencc,
+                        &*opencc_arc,
                         &config,
                         punctuation,
                         true, // keep_font
@@ -878,12 +863,7 @@ async fn run_batch_convert(
                 let contents = String::from_utf8(data)
                     .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).to_string());
 
-                let converted = {
-                    let opencc = opencc_arc
-                        .lock()
-                        .map_err(|_| "OpenCC lock poisoned".to_string())?;
-                    opencc.convert(&contents, &config, punctuation)
-                };
+                let converted = { opencc_arc.convert(&contents, &config, punctuation) };
 
                 // keep your current behavior; or switch to write_text_unix_newlines if you want consistent \n
                 fs::write(&output_path, converted)
@@ -1089,7 +1069,7 @@ fn normalize_input_path_for_os(input: &str) -> String {
 fn convert_pdf_to_txt_with_progress(
     app: &AppHandle,
     pdfium_arc: &Arc<Mutex<Option<(PdfiumLibrary, PathBuf)>>>,
-    opencc_arc: &Arc<Mutex<OpenCC>>,
+    opencc_arc: &Arc<OpenCC>,
     idx: usize,
     total: usize,
     input_path: &str,
@@ -1160,21 +1140,10 @@ fn convert_pdf_to_txt_with_progress(
 
     let mut extracted = pages.concat();
 
-    // defaults
-    // let heading_re = custom_heading_regex
-    //     .map(str::trim)
-    //     .filter(|s| !s.is_empty())
-    //     .and_then(|s| Regex::new(s).ok()); // invalid regex -> None
-
     extracted =
         reflow_cjk_paragraphs_with_heading_regex(&extracted, false, false, custom_heading_regex);
 
-    let converted = {
-        let opencc = opencc_arc
-            .lock()
-            .map_err(|_| "OpenCC lock poisoned".to_string())?;
-        opencc.convert(&extracted, config, punctuation)
-    };
+    let converted = { opencc_arc.convert(&extracted, config, punctuation) };
 
     write_text_unix_newlines(output_path, &converted)
         .map_err(|e| format!("[{idx}/{total}] write {}: {e}", output_path.display()))?;
