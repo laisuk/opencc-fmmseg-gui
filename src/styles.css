@@ -742,11 +742,17 @@ button:active {
     background: rgba(0, 0, 0, .12);
     color: var(--text);
     outline: none;
+    overflow-x: auto;
+    white-space: nowrap;
 }
 
 .batch-list:focus {
     border-color: rgba(59, 130, 246, .65);
     box-shadow: 0 0 0 4px var(--accentRing);
+}
+
+.batch-list option {
+    font-family: Consolas, monospace;
 }
 
 /* Batch log textarea */
