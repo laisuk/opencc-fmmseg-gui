@@ -455,12 +455,14 @@ function createApp() {
 
         updateCharCount(editorLeft, lblCharCount);
         focusInput(editorLeft);
+        lblInput.innerText = "";
         setStatus("Editor source cleared");
     }
 
     function handleClearDestination() {
         compare.clear();
         if (!clearEditor(editorRight)) return;
+        lblOutput.innerText = "";
         setStatus("Editor destination cleared");
     }
 
