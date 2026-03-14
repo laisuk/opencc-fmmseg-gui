@@ -50,14 +50,20 @@ document.addEventListener("DOMContentLoaded", async () => {
     await initAboutVersion();
 });
 
-document.getElementById("about-github")?.addEventListener("click", async (e) => {
-    e.preventDefault();
+document.querySelectorAll<HTMLElement>("[data-url]").forEach((el) => {
+    el.addEventListener("click", async (e) => {
+        e.preventDefault();
 
-    try {
-        await openUrl("https://github.com/laisuk/opencc-fmmseg-gui");
-    } catch (err) {
-        console.error("Failed to open GitHub URL:", err);
-    }
+        const target = e.currentTarget as HTMLElement;
+        const url = target.dataset.url;
+        if (!url) return;
+
+        try {
+            await openUrl(url);
+        } catch (err) {
+            console.error("Failed to open URL:", err);
+        }
+    });
 });
 
 async function initAboutVersion() {

@@ -135,7 +135,8 @@ body {
 label {
     user-select: none;
     font-weight: 600;
-    letter-spacing: .1px;
+    /*letter-spacing: .1px;*/
+    letter-spacing: 0.01em;
     color: var(--text);
 }
 
@@ -606,7 +607,8 @@ button {
     background: rgba(255, 255, 255, .06);
     color: var(--text);
     font-weight: 650;
-    letter-spacing: .15px;
+    /*letter-spacing: .15px;*/
+    letter-spacing: 0.015em;
     cursor: pointer;
     transition: background .14s ease, border-color .14s ease, transform .06s ease, box-shadow .14s ease;
     /*box-shadow: 0 8px 18px rgba(0, 0, 0, .18);*/
@@ -1029,7 +1031,8 @@ button:active {
     padding: 14px 28px;
     font-size: 15px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    /*letter-spacing: 0.5px;*/
+    letter-spacing: 0.05em;
 
     border-radius: 14px;
     border: none;
