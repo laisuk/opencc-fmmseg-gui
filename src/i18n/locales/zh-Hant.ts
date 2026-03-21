@@ -12,7 +12,7 @@ export const zhHant = {
         t2s: "zh-Hant（正體） to zh-Hans（簡體）",
         manual: "Manual（自定義）",
         standard: "General（通用簡繁）",
-        zhTw: "ZH-TW（中台簡正）",
+        zhTw: "ZH-TW（中台簡繁）",
         zhHk: "ZH-HK（中港簡繁）",
         zhTwIdioms: "ZH-TW Idioms（中台慣用語）",
         punctuation: "Punctuation（標點）",
