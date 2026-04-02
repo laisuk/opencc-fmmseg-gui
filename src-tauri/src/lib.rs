@@ -17,21 +17,19 @@ use rfd::AsyncFileDialog;
 use serde::Serialize;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 use std::{fs, io};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 
 pub struct AppState {
     opencc: Arc<OpenCC>,
-    pdfium: Arc<Mutex<Option<(PdfiumLibrary, PathBuf)>>>, // ✅ keep loaded
 }
 
 impl Default for AppState {
     fn default() -> Self {
         Self {
             opencc: Arc::new(OpenCC::new()),
-            pdfium: Arc::new(Mutex::new(None)),
         }
     }
 }
@@ -167,7 +165,7 @@ async fn open_file(
         punctuation,
         custom_heading_regex,
     )
-    .await
+        .await
 }
 
 #[tauri::command]
@@ -254,7 +252,6 @@ async fn open_path_to_editor(
 
     // -------------------- PDF --------------------
     if ext == "pdf" {
-        let pdfium_arc = state.pdfium.clone();
         let opencc_arc = state.opencc.clone();
         let app2 = app.clone();
         let path2 = path_str.clone();
@@ -263,7 +260,6 @@ async fn open_path_to_editor(
         let text = tauri::async_runtime::spawn_blocking(move || {
             open_pdf_extract_text_with_progress(
                 &app2,
-                &pdfium_arc,
                 &opencc_arc,
                 &path2,
                 is_reflow,
@@ -275,8 +271,8 @@ async fn open_path_to_editor(
                 custom_heading_regex.as_deref(),
             )
         })
-        .await
-        .map_err(|e| e.to_string())??;
+            .await
+            .map_err(|e| e.to_string())??;
 
         return Ok((path_str, text));
     }
@@ -302,8 +298,8 @@ async fn open_path_to_editor(
             epub_helper::extract_epub_all_text(&path2, opts)
                 .map_err(|e| format!("extract epub {}: {}", path2.display(), e))
         })
-        .await
-        .map_err(|e| e.to_string())??;
+            .await
+            .map_err(|e| e.to_string())??;
 
         emit_done(&app2, &path_str);
 
@@ -326,8 +322,8 @@ async fn open_path_to_editor(
             open_xml_helper::extract_docx_all_text(&path2, false, true)
                 .map_err(|e| format!("extract docx {}: {}", path2.display(), e))
         })
-        .await
-        .map_err(|e| e.to_string())??;
+            .await
+            .map_err(|e| e.to_string())??;
 
         emit_done(&app2, &path_str);
         return Ok((path_str, text));
@@ -349,8 +345,8 @@ async fn open_path_to_editor(
             open_doc_helper::extract_odt_all_text(&path2)
                 .map_err(|e| format!("extract odt {}: {}", path2.display(), e))
         })
-        .await
-        .map_err(|e| e.to_string())??;
+            .await
+            .map_err(|e| e.to_string())??;
 
         emit_done(&app2, &path_str);
         return Ok((path_str, text));
@@ -375,7 +371,6 @@ async fn open_path_to_editor(
 
 fn open_pdf_extract_text_with_progress(
     app: &AppHandle,
-    pdfium_arc: &Arc<Mutex<Option<(PdfiumLibrary, PathBuf)>>>,
     opencc_arc: &Arc<OpenCC>,
     input_path: &str,
     is_reflow: bool,
@@ -391,18 +386,9 @@ fn open_pdf_extract_text_with_progress(
     // ---- marker: open start ----
     emit_start(&app);
 
-    // ---- ensure pdfium is loaded once ----
-    let mut guard = pdfium_arc
-        .lock()
-        .map_err(|_| "PDFium lock poisoned".to_string())?;
-
-    if guard.is_none() {
-        let (lib, lib_path) = PdfiumLibrary::load_with_fallbacks()
-            .map_err(|e| format!("[1/1] pdfium load failed: {e}"))?;
-        *guard = Some((lib, lib_path));
-    }
-
-    let (pdfium, _lib_path) = guard.as_ref().unwrap();
+    // ---- ensure pdfium is loaded once per process ----
+    let (pdfium, _lib_path) = PdfiumLibrary::global_with_fallbacks()
+        .map_err(|e| format!("[1/1] pdfium load failed: {e}"))?;
 
     // ---- extract pages ----
     let input_norm = normalize_input_path_for_os(input_path);
@@ -443,7 +429,7 @@ fn open_pdf_extract_text_with_progress(
             }
         },
     )
-    .map_err(|e| format!("[1/1] pdf extract failed: {e}"))?;
+        .map_err(|e| format!("[1/1] pdf extract failed: {e}"))?;
 
     let mut extracted = pages.concat();
 
@@ -673,7 +659,6 @@ async fn run_batch_convert(
     custom_heading_regex: Option<String>, // NEW
 ) -> Result<(), String> {
     let opencc_arc = state.opencc.clone();
-    let pdfium_arc = state.pdfium.clone(); // ✅ new
 
     tauri::async_runtime::spawn_blocking(move || -> Result<(), String> {
         let out_dir = Path::new(&output_dir);
@@ -696,7 +681,7 @@ async fn run_batch_convert(
                 progress: format!("[0/{total}] starting..."),
             },
         )
-        .map_err(|e| format!("emit(start) failed: {e}"))?;
+            .map_err(|e| format!("emit(start) failed: {e}"))?;
 
         let heading_regex = match custom_heading_regex
             .as_deref()
@@ -719,7 +704,7 @@ async fn run_batch_convert(
                             progress: format!("[0/{total}] warning"),
                         },
                     )
-                    .map_err(|e| format!("emit(regex warning) failed: {e}"))?;
+                        .map_err(|e| format!("emit(regex warning) failed: {e}"))?;
 
                     None
                 }
@@ -770,7 +755,7 @@ async fn run_batch_convert(
                             progress: format!("[{idx}/{total}] ⏭ skipped (exists)"),
                         },
                     )
-                    .map_err(|e| format!("emit(skip {idx}/{total}) failed: {e}"))?;
+                        .map_err(|e| format!("emit(skip {idx}/{total}) failed: {e}"))?;
 
                     continue;
                 }
@@ -797,7 +782,7 @@ async fn run_batch_convert(
                         progress: format!("[{idx}/{total}] ♻ overwriting..."),
                     },
                 )
-                .map_err(|e| format!("emit(overwrite {idx}/{total}) failed: {e}"))?;
+                    .map_err(|e| format!("emit(overwrite {idx}/{total}) failed: {e}"))?;
             }
 
             // per-file "start" emit (nice for UI)
@@ -814,12 +799,11 @@ async fn run_batch_convert(
                     progress: format!("[{idx}/{total}] processing..."),
                 },
             )
-            .map_err(|e| format!("emit(file start {idx}/{total}) failed: {e}"))?;
+                .map_err(|e| format!("emit(file start {idx}/{total}) failed: {e}"))?;
 
             let result: Result<(), String> = if is_pdf {
                 convert_pdf_to_txt_with_progress(
                     &app,
-                    &pdfium_arc, // ✅ new
                     &opencc_arc,
                     idx,
                     total,
@@ -844,7 +828,7 @@ async fn run_batch_convert(
                         punctuation,
                         true, // keep_font
                     )
-                    .map_err(|e| format!("[{idx}/{total}] office convert failed: {e}"))?
+                        .map_err(|e| format!("[{idx}/{total}] office convert failed: {e}"))?
                 };
 
                 if r.success {
@@ -890,11 +874,11 @@ async fn run_batch_convert(
                             } else {
                                 "converted"
                             }
-                            .into(),
+                                .into(),
                             progress: format!("[{idx}/{total}] ✅ done"),
                         },
                     )
-                    .map_err(|e| format!("emit(ok {idx}/{total}) failed: {e}"))?;
+                        .map_err(|e| format!("emit(ok {idx}/{total}) failed: {e}"))?;
                 }
                 Err(msg) => {
                     app.emit_to(
@@ -910,7 +894,7 @@ async fn run_batch_convert(
                             progress: format!("[{idx}/{total}] ❌ failed"),
                         },
                     )
-                    .map_err(|e| format!("emit(err {idx}/{total}) failed: {e}"))?;
+                        .map_err(|e| format!("emit(err {idx}/{total}) failed: {e}"))?;
                 }
             }
         }
@@ -928,12 +912,12 @@ async fn run_batch_convert(
                 progress: format!("[{total}/{total}] all done"),
             },
         )
-        .map_err(|e| format!("emit(done) failed: {e}"))?;
+            .map_err(|e| format!("emit(done) failed: {e}"))?;
 
         Ok(())
     })
-    .await
-    .map_err(|e| e.to_string())?
+        .await
+        .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -1068,7 +1052,6 @@ fn normalize_input_path_for_os(input: &str) -> String {
 
 fn convert_pdf_to_txt_with_progress(
     app: &AppHandle,
-    pdfium_arc: &Arc<Mutex<Option<(PdfiumLibrary, PathBuf)>>>,
     opencc_arc: &Arc<OpenCC>,
     idx: usize,
     total: usize,
@@ -1078,18 +1061,9 @@ fn convert_pdf_to_txt_with_progress(
     punctuation: bool,
     custom_heading_regex: Option<&Regex>, // NEW (borrow, no clone)
 ) -> Result<(), String> {
-    // ---- ensure pdfium is loaded once and never unloaded ----
-    let mut guard = pdfium_arc
-        .lock()
-        .map_err(|_| "PDFium lock poisoned".to_string())?;
-
-    if guard.is_none() {
-        let (lib, lib_path) = PdfiumLibrary::load_with_fallbacks()
-            .map_err(|e| format!("[{idx}/{total}] pdfium load failed: {e}"))?;
-        *guard = Some((lib, lib_path));
-    }
-
-    let (pdfium, _lib_path) = guard.as_ref().unwrap();
+    // ---- ensure pdfium is loaded once per process ----
+    let (pdfium, _lib_path) = PdfiumLibrary::global_with_fallbacks()
+        .map_err(|e| format!("[{idx}/{total}] pdfium load failed: {e}"))?;
 
     // ---- extract pages (your throttled progress + map_err) ----
     let input_norm = normalize_input_path_for_os(input_path);
@@ -1134,7 +1108,7 @@ fn convert_pdf_to_txt_with_progress(
             }
         },
     )
-    .map_err(|e| format!("[{idx}/{total}] pdf extract failed: {e}"))?;
+        .map_err(|e| format!("[{idx}/{total}] pdf extract failed: {e}"))?;
 
     // drop(guard)?  <-- keep it or drop it, both fine; key is pdfium stays in AppState
 
