@@ -31,7 +31,7 @@ tauri-plugin-clipboard-manager = "2.3"
 opener = "0.8"
 serde = { version = "1.0", features = ["derive"] }
 regex = "1.12"
-zip = "8.3"
+zip = "8.5"
 pdfium-helper = {path="../../pdfium-helper", features = ["pdfium-embed"] }
 #pdfium-helper = { git = "https://github.com/laisuk/pdfium-helper", features = ["pdfium-embed"] }
 kuchiki = "0.8"
