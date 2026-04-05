@@ -520,7 +520,7 @@ textarea {
     font-family: var(--editor-font, ui-monospace, SFMono-Regular, Consolas, monospace), monospace;
     font-size: var(--editor-font-size, 1.05rem);
     line-height: 1.6;
-    padding: 5px
+    /*padding: 5px*/
 }
 
 /* Line numbers (if enabled) */
