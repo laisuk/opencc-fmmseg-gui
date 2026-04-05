@@ -271,7 +271,7 @@
                     <!-- Right controls -->
                     <div class="batch-controls-right">
                         <label class="batch-inline-label" for="batch-outdir">Output</label>
-                        <input id="batch-outdir" type="text" placeholder="Select batch output folder..." />
+                        <input id="batch-outdir" type="text" placeholder="Select batch output folder..."/>
                         <button id="batch-browse" type="button" title="Browse output folder">
                             <svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
@@ -343,6 +343,58 @@
                         <input type="checkbox" id="cbEnableEditorLog" checked/>
                         <span>Enable Editor Log</span>
                     </label>
+
+                    <div class="editor-font-settings">
+                        <label class="fluent-field">
+                            <span>Editor Font</span>
+                            <select id="cbEditorFont" class="fluent-select">
+                                <option value="default">Default (System Monospace)</option>
+
+                                <!-- Monospace -->
+                                <option value="Consolas">Consolas</option>
+                                <option value="JetBrains Mono">JetBrains Mono</option>
+                                <option value="Fira Code">Fira Code</option>
+                                <option value="Noto Sans Mono">Noto Sans Mono</option>
+
+                                <!-- Sans (UI / CJK friendly) -->
+                                <option value="Noto Sans SC">Noto Sans SC</option>
+                                <option value="Noto Sans TC">Noto Sans TC</option>
+                                <option value="Source Han Sans SC">Source Han Sans SC</option>
+                                <option value="Microsoft YaHei">Microsoft YaHei</option>
+                                <option value="Microsoft JHengHei">Microsoft JHengHei</option>
+                                <option value="PingFang SC">PingFang SC</option>
+                                <option value="HeiTi">HeiTi</option>
+                                <option value="Kaiti">Kaiti</option>
+                                <option value="FangSong">FangSong</option>
+                                <option value="WenQuanYi Micro Hei">WenQuanYi Micro Hei</option>
+
+                                <!-- Serif (reading) -->
+                                <option value="Noto Serif SC">Noto Serif SC</option>
+                                <option value="Source Han Serif SC">Source Han Serif SC</option>
+                                <option value="Songti SC">Songti SC</option>
+                                <option value="SimSun">SimSun</option>
+                                <option value="SimHei">SimHei</option>
+
+                                <!-- Generic -->
+                                <option value="monospace">monospace</option>
+                                <option value="sans-serif">sans-serif</option>
+                                <option value="serif">serif</option>
+                            </select>
+                        </label>
+
+                        <label class="fluent-field fluent-field-small">
+                            <span>Font Size</span>
+                            <input
+                                    type="number"
+                                    id="spnEditorFontSize"
+                                    class="fluent-input"
+                                    min="10"
+                                    max="40"
+                                    step="1"
+                                    value="14"
+                            />
+                        </label>
+                    </div>
 
                     <div class="settings-field">
                         <label for="tbHeadingRegex" class="settings-label">Custom Heading Regex (PDF Advanced)</label>

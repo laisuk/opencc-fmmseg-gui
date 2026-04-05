@@ -42,6 +42,12 @@
     --gap: 12px;
 
     --editor-font-size: 1.05rem; /* try 1.1rem – 1.3rem */
+
+    /* Editor Font */
+    /*--text-secondary: #666;*/
+    --border-color: #d0d0d0;
+    --control-bg: #fff;
+    /*--accent-color: #0f6cbd;*/
 }
 
 @media (prefers-color-scheme: light) {
@@ -66,6 +72,28 @@
 @media (prefers-color-scheme: dark) {
     :root {
         --diff-added-bg: rgba(34, 197, 94, .25);
+
+        /* ===== Fluent control (shared) ===== */
+        --ctl-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04)) 0 0 / auto no-repeat,
+        rgba(20, 28, 44, 0.92);
+
+        --ctl-bg-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.05)) 0 0 / auto no-repeat,
+        rgba(24, 34, 54, 0.96);
+
+        --ctl-bg-focus: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.05)) 0 0 / auto no-repeat,
+        rgba(24, 34, 54, 0.98);
+
+        --ctl-border: rgba(255, 255, 255, 0.14);
+        --ctl-border-hover: rgba(255, 255, 255, 0.24);
+        --ctl-border-focus: rgba(72, 144, 255, 0.95);
+
+        --ctl-text: rgba(255, 255, 255, 0.94);
+
+        --ctl-shadow-focus: 0 0 0 3px rgba(72, 144, 255, 0.18);
+
+        /* dropdown arrow */
+        --ctl-arrow-down-1: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.8) 50%);
+        --ctl-arrow-down-2: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 50%, transparent 50%);
     }
 }
 
@@ -269,6 +297,42 @@ input[type="radio"] + label:active {
     box-shadow: 0 0 0 4px var(--accentRing);
 }
 
+/* =========================
+   Dark Mode (Manual Config Select)
+   ========================= */
+@media (prefers-color-scheme: dark) {
+    .fluent-select,
+    #select_config {
+        appearance: none;
+        -webkit-appearance: none;
+        padding-right: 38px;
+
+        border: 1px solid var(--ctl-border);
+        color: var(--ctl-text);
+
+        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+        var(--ctl-bg);
+    }
+
+    .fluent-select:hover,
+    #select_config:hover {
+        border-color: var(--ctl-border-hover);
+        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+        var(--ctl-bg-hover);
+    }
+
+    .fluent-select:focus,
+    #select_config:focus {
+        border-color: var(--ctl-border-focus);
+        box-shadow: var(--ctl-shadow-focus);
+        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+        var(--ctl-bg-focus);
+    }
+}
+
 .tabs {
     margin-top: 10px;
     display: inline-flex;
@@ -453,8 +517,10 @@ textarea {
 /* Both editors */
 #editor-left .cm-content,
 #editor-right .cm-content {
-    font-size: var(--editor-font-size); /* try 1.1rem – 1.3rem */
+    font-family: var(--editor-font, ui-monospace, SFMono-Regular, Consolas, monospace), monospace;
+    font-size: var(--editor-font-size, 1.05rem);
     line-height: 1.6;
+    padding: 5px
 }
 
 /* Line numbers (if enabled) */
@@ -887,6 +953,132 @@ button:active {
     margin-bottom: 6px;
     opacity: .9;
 }
+
+/* Editor font */
+
+.editor-font-settings {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) 100px;
+    gap: 14px;
+    align-items: end;
+    margin-top: 12px;
+    max-width: 460px;
+}
+
+.fluent-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.fluent-field-small {
+    min-width: 0;
+}
+
+.fluent-field > span {
+    font-size: 13px;
+    color: var(--text, #666);
+}
+
+.fluent-select,
+.fluent-input {
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+}
+
+.fluent-select:focus,
+.fluent-input:focus {
+    outline: none;
+}
+
+#cbEditorFont {
+    font-family: var(--ui-font, "Noto Sans", sans-serif), serif;
+    font-size: 14px;
+}
+
+/* Light mode / default */
+.fluent-select,
+.fluent-input {
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid var(--border-color, #d0d0d0);
+    border-radius: 8px;
+    background: var(--control-bg, #fff);
+    color: var(--text, #222);
+}
+
+.fluent-select:focus,
+.fluent-input:focus {
+    border-color: var(--accent, #0f6cbd);
+    box-shadow: 0 0 0 2px rgba(15, 108, 189, 0.15);
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+
+    .fluent-select,
+    .fluent-input {
+        height: 38px;
+        padding: 0 12px;
+        border-radius: 10px;
+        border: 1px solid var(--ctl-border);
+        background: var(--ctl-bg);
+        color: var(--ctl-text);
+        transition: border-color 120ms ease,
+        box-shadow 120ms ease,
+        background 120ms ease;
+    }
+
+    .fluent-select,
+    .fluent-input[type="number"] {
+        appearance: none;
+        -webkit-appearance: none;
+    }
+
+    .fluent-select {
+        padding-right: 38px;
+        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+        var(--ctl-bg);
+    }
+
+    .fluent-select:hover {
+        border-color: var(--ctl-border-hover);
+        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+        var(--ctl-bg-hover);
+    }
+
+    .fluent-select:focus {
+        border-color: var(--ctl-border-focus);
+        box-shadow: var(--ctl-shadow-focus);
+        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+        var(--ctl-bg-focus);
+    }
+
+    .fluent-input:hover {
+        border-color: var(--ctl-border-hover);
+        background: var(--ctl-bg-hover);
+    }
+
+    .fluent-input:focus {
+        border-color: var(--ctl-border-focus);
+        box-shadow: var(--ctl-shadow-focus);
+        background: var(--ctl-bg-focus);
+    }
+}
+
+@media (max-width: 640px) {
+    .editor-font-settings {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+    }
+}
+
+/* Font Select End */
 
 .regex-row {
     display: flex;

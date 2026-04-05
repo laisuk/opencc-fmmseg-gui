@@ -182,6 +182,46 @@ function createApp() {
         });
     }
 
+    // Editor Font
+    const cbEditorFont = document.getElementById("cbEditorFont") as HTMLSelectElement;
+    const spnEditorFontSize = document.getElementById("spnEditorFontSize") as HTMLInputElement;
+
+    function applyEditorFontSettings(): void {
+        const fontFamily = cbEditorFont.value || "";
+        const fontSizePx = parseInt(spnEditorFontSize.value, 10) || 14;
+
+        const root = document.documentElement;
+
+        // Only override if user selects a font
+        if (fontFamily && fontFamily !== "default") {
+            root.style.setProperty(
+                "--editor-font",
+                `${fontFamily}, ui-monospace, SFMono-Regular, Consolas, monospace`
+            );
+        } else {
+            root.style.removeProperty("--editor-font");
+        }
+
+        // Convert px → rem (keep your design consistent)
+        const rem = fontSizePx / 16;
+        root.style.setProperty("--editor-font-size", `${rem}rem`);
+    }
+
+    cbEditorFont.addEventListener("change", () => {
+        localStorage.setItem("editorFontFamily", cbEditorFont.value);
+        applyEditorFontSettings();
+    });
+
+    spnEditorFontSize.addEventListener("input", () => {
+        localStorage.setItem("editorFontSize", spnEditorFontSize.value);
+        applyEditorFontSettings();
+    });
+
+    cbEditorFont.value = localStorage.getItem("editorFontFamily") || "default";
+    spnEditorFontSize.value = localStorage.getItem("editorFontSize") || "17"; // ~1.05rem
+
+    applyEditorFontSettings();
+
     // =========================================================
     // SMALL HELPERS
     // =========================================================
