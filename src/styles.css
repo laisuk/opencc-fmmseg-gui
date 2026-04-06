@@ -301,7 +301,6 @@ input[type="radio"] + label:active {
    Dark Mode (Manual Config Select)
    ========================= */
 @media (prefers-color-scheme: dark) {
-    .fluent-select,
     #select_config {
         appearance: none;
         -webkit-appearance: none;
@@ -315,7 +314,6 @@ input[type="radio"] + label:active {
         var(--ctl-bg);
     }
 
-    .fluent-select:hover,
     #select_config:hover {
         border-color: var(--ctl-border-hover);
         background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
@@ -323,7 +321,6 @@ input[type="radio"] + label:active {
         var(--ctl-bg-hover);
     }
 
-    .fluent-select:focus,
     #select_config:focus {
         border-color: var(--ctl-border-focus);
         box-shadow: var(--ctl-shadow-focus);
@@ -1031,7 +1028,6 @@ button:active {
         background 120ms ease;
     }
 
-    .fluent-select,
     .fluent-input[type="number"] {
         appearance: none;
         -webkit-appearance: none;
@@ -1039,24 +1035,18 @@ button:active {
 
     .fluent-select {
         padding-right: 38px;
-        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-        var(--ctl-bg);
+        background: var(--ctl-bg);
     }
 
     .fluent-select:hover {
         border-color: var(--ctl-border-hover);
-        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-        var(--ctl-bg-hover);
+        background: var(--ctl-bg-hover);
     }
 
     .fluent-select:focus {
         border-color: var(--ctl-border-focus);
         box-shadow: var(--ctl-shadow-focus);
-        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-        var(--ctl-bg-focus);
+        background: var(--ctl-bg-focus);
     }
 
     .fluent-input:hover {
