@@ -16,9 +16,8 @@ function getEditorFontStack(fontFamily: string): string | null {
         return null;
     }
 
-    // Modern CJK Fallback Stacks
     const monoStack = 'ui-monospace, SFMono-Regular, Consolas, monospace';
-    const sansStack = '"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif';
+    const sansStack = '"PingFang SC", "Sarasa Gothic SC", "Microsoft YaHei", "Noto Sans SC", sans-serif';
     const serifStack = '"Source Han Serif SC", "Noto Serif SC", "Songti SC", "SimSun", serif';
 
     switch (font) {
@@ -40,6 +39,7 @@ function getEditorFontStack(fontFamily: string): string | null {
             return `${quoteFont(font)}, ${monoStack}`;
 
         // --- Sans-Serif / UI Group ---
+        case "Sarasa Gothic SC":
         case "Noto Sans SC":
         case "Noto Sans TC":
         case "Source Han Sans SC":
@@ -47,6 +47,7 @@ function getEditorFontStack(fontFamily: string): string | null {
         case "Microsoft JHengHei":
         case "PingFang SC":
         case "HeiTi":
+        case "SimHei":
         case "WenQuanYi Micro Hei":
             return `${quoteFont(font)}, ${sansStack}`;
 
@@ -56,7 +57,6 @@ function getEditorFontStack(fontFamily: string): string | null {
         case "Songti SC":
         case "SimSun":
         case "NSimSun":
-        case "SimHei": // SimHei is technically sans, but often paired with legacy stacks
         case "MingLiU":
         case "PMingLiU":
         case "KaiTi":
@@ -64,7 +64,6 @@ function getEditorFontStack(fontFamily: string): string | null {
             return `${quoteFont(font)}, ${serifStack}`;
 
         default:
-            // For any custom fonts not in the list, default to a monospace fallback
             return `${quoteFont(font)}, ${monoStack}`;
     }
 }
