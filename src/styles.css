@@ -943,6 +943,9 @@ button:active {
 
 .settings-field {
     margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px; /* tweak: 4–10px */
 }
 
 .settings-label {
