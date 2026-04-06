@@ -5,6 +5,7 @@ const DEFAULT_FONT_FAMILY = "default";
 const DEFAULT_FONT_SIZE = 17;
 
 function quoteFont(font: string): string {
+    // Returns quoted string if spaces exist, otherwise returns original
     return /\s/.test(font) ? `"${font}"` : font;
 }
 
@@ -15,22 +16,30 @@ function getEditorFontStack(fontFamily: string): string | null {
         return null;
     }
 
+    // Modern CJK Fallback Stacks
+    const monoStack = 'ui-monospace, SFMono-Regular, Consolas, monospace';
+    const sansStack = '"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif';
+    const serifStack = '"Source Han Serif SC", "Noto Serif SC", "Songti SC", "SimSun", serif';
+
     switch (font) {
         case "monospace":
-            return "ui-monospace, SFMono-Regular, Consolas, monospace";
+            return monoStack;
 
         case "sans-serif":
-            return `"Noto Sans SC", "Noto Sans TC", "Source Han Sans SC", "Microsoft YaHei", "Microsoft JHengHei", "PingFang SC", sans-serif`;
+            return sansStack;
 
         case "serif":
-            return `"Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif`;
+            return serifStack;
 
+        // --- Monospace Group ---
         case "Consolas":
         case "JetBrains Mono":
         case "Fira Code":
         case "Noto Sans Mono":
-            return `${quoteFont(font)}, ui-monospace, SFMono-Regular, Consolas, monospace`;
+        case "Sarasa Mono SC":
+            return `${quoteFont(font)}, ${monoStack}`;
 
+        // --- Sans-Serif / UI Group ---
         case "Noto Sans SC":
         case "Noto Sans TC":
         case "Source Han Sans SC":
@@ -38,20 +47,25 @@ function getEditorFontStack(fontFamily: string): string | null {
         case "Microsoft JHengHei":
         case "PingFang SC":
         case "HeiTi":
-        case "KaiTi":
-        case "FangSong":
         case "WenQuanYi Micro Hei":
-            return `${quoteFont(font)}, "Noto Sans SC", "Noto Sans TC", "Source Han Sans SC", "Microsoft YaHei", "Microsoft JHengHei", "PingFang SC", sans-serif`;
+            return `${quoteFont(font)}, ${sansStack}`;
 
+        // --- Serif / Reading Group ---
         case "Noto Serif SC":
         case "Source Han Serif SC":
         case "Songti SC":
         case "SimSun":
-        case "SimHei":
-            return `${quoteFont(font)}, "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif`;
+        case "NSimSun":
+        case "SimHei": // SimHei is technically sans, but often paired with legacy stacks
+        case "MingLiU":
+        case "PMingLiU":
+        case "KaiTi":
+        case "FangSong":
+            return `${quoteFont(font)}, ${serifStack}`;
 
         default:
-            return `${quoteFont(font)}, ui-monospace, SFMono-Regular, Consolas, monospace`;
+            // For any custom fonts not in the list, default to a monospace fallback
+            return `${quoteFont(font)}, ${monoStack}`;
     }
 }
 

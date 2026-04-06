@@ -350,35 +350,37 @@
                             <select id="cbEditorFont" class="fluent-select">
                                 <option value="default">Default (System Monospace)</option>
 
-                                <!-- Monospace -->
-                                <option value="Consolas">Consolas</option>
-                                <option value="JetBrains Mono">JetBrains Mono</option>
-                                <option value="Fira Code">Fira Code</option>
-                                <option value="Noto Sans Mono">Noto Sans Mono</option>
+                                <optgroup label="Monospace (Recommended for Code)">
+                                    <option value="Consolas">Consolas</option>
+                                    <option value="JetBrains Mono">JetBrains Mono</option>
+                                    <option value="Fira Code">Fira Code</option>
+                                    <option value="Noto Sans Mono">Noto Sans Mono</option>
+                                    <option value="Sarasa Mono SC">Sarasa Mono (CJK Best Fit)</option>
+                                    <option value="monospace">Generic Monospace</option>
+                                </optgroup>
 
-                                <!-- Sans (UI / CJK friendly) -->
-                                <option value="Noto Sans SC">Noto Sans SC</option>
-                                <option value="Noto Sans TC">Noto Sans TC</option>
-                                <option value="Source Han Sans SC">Source Han Sans SC</option>
-                                <option value="Microsoft YaHei">Microsoft YaHei</option>
-                                <option value="Microsoft JHengHei">Microsoft JHengHei</option>
-                                <option value="PingFang SC">PingFang SC</option>
-                                <option value="HeiTi">HeiTi</option>
-                                <option value="Kaiti">KaiTi</option>
-                                <option value="FangSong">FangSong</option>
-                                <option value="WenQuanYi Micro Hei">WenQuanYi Micro Hei</option>
+                                <optgroup label="Sans-Serif (Modern / UI)">
+                                    <option value="PingFang SC">PingFang SC (macOS)</option>
+                                    <option value="Microsoft YaHei">Microsoft YaHei (Windows)</option>
+                                    <option value="Microsoft JHengHei">Microsoft JHengHei (Traditional)</option>
+                                    <option value="Noto Sans SC">Noto Sans SC</option>
+                                    <option value="Noto Sans TC">Noto Sans TC</option>
+                                    <option value="Source Han Sans SC">Source Han Sans SC</option>
+                                    <option value="HeiTi">HeiTi</option>
+                                    <option value="WenQuanYi Micro Hei">WenQuanYi Micro Hei (Linux)</option>
+                                    <option value="sans-serif">Generic Sans-Serif</option>
+                                </optgroup>
 
-                                <!-- Serif (reading) -->
-                                <option value="Noto Serif SC">Noto Serif SC</option>
-                                <option value="Source Han Serif SC">Source Han Serif SC</option>
-                                <option value="Songti SC">Songti SC</option>
-                                <option value="SimSun">SimSun</option>
-                                <option value="SimHei">SimHei</option>
-
-                                <!-- Generic -->
-                                <option value="monospace">monospace</option>
-                                <option value="sans-serif">sans-serif</option>
-                                <option value="serif">serif</option>
+                                <optgroup label="Serif & Classical (Reading)">
+                                    <option value="Source Han Serif SC">Source Han Serif SC</option>
+                                    <option value="Noto Serif SC">Noto Serif SC</option>
+                                    <option value="Songti SC">Songti SC</option>
+                                    <option value="SimSun">SimSun / NSimSun</option>
+                                    <option value="MingLiU">MingLiU / PMingLiU</option>
+                                    <option value="KaiTi">KaiTi</option>
+                                    <option value="FangSong">FangSong</option>
+                                    <option value="serif">Generic Serif</option>
+                                </optgroup>
                             </select>
                         </label>
 
@@ -470,7 +472,7 @@ English headings: ^(Chapter|Section)&#92;s+&#92;d+</code></pre>
                     <a class="about-link"
                        id="about-github"
                        data-url="https://github.com/laisuk/opencc-fmmseg-gui">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" width="24" height="24">
                             <path d="M12 2C6.48 2 2 6.58 2 12.26c0 4.54 2.87 8.39 6.84 9.75.5.09.68-.22.68-.49v-1.72c-2.78.62-3.37-1.37-3.37-1.37-.46-1.2-1.12-1.52-1.12-1.52-.91-.64.07-.63.07-.63 1.01.07 1.54 1.07 1.54 1.07.9 1.57 2.36 1.12 2.94.86.09-.67.35-1.12.64-1.38-2.22-.26-4.56-1.14-4.56-5.09 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.32.1-2.75 0 0 .84-.27 2.75 1.05A9.3 9.3 0 0112 6.84c.85 0 1.71.12 2.51.36 1.9-1.32 2.74-1.05 2.74-1.05.55 1.43.2 2.49.1 2.75.64.72 1.03 1.63 1.03 2.75 0 3.96-2.34 4.82-4.57 5.08.36.32.67.94.67 1.9v2.82c0 .27.18.59.69.49A10.28 10.28 0 0022 12.26C22 6.58 17.52 2 12 2z"/>
                         </svg>
                         GitHub Repository: laisuk/opencc-fmmseg-gui
