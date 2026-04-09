@@ -942,7 +942,7 @@ button:active {
 }
 
 .settings-field {
-    margin-top: 14px;
+    margin-top: 12px;
     display: flex;
     flex-direction: column;
     gap: 6px; /* tweak: 4–10px */
