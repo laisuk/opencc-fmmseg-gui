@@ -32,29 +32,39 @@ https://github.com/laisuk/opencc-fmmseg-gui/releases/latest
 
 Example release assets:
 
-| Platform | Package                                                        |
-|----------|----------------------------------------------------------------|
-| Windows  | `opencc-fmmseg-gui-vX.Y.Z-windows-x64-portable.exe` (portable) |
-| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64-setup.exe` (installer)            |
-| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64_en-US.msi` (MSI installer)        |
-| Linux    | `opencc-fmmseg-gui_X.Y.Z_amd64.AppImage` (portable)            |
-| Linux    | `opencc-fmmseg-gui_X.Y.Z_amd64.deb`                            |
-| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.x86_64.rpm`                         |
-| macOS    | `opencc-fmmseg-gui_X.Y.Z_x64.dmg`                              |
-| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos.app.zip` (portable)            |
+| Platform | Package |
+|----------|--------|
+| Windows  | `opencc-fmmseg-gui-vX.Y.Z-windows-x64-portable.zip` (portable) |
+| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64-setup.exe` (installer) |
+| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64_en-US.msi` (MSI installer) |
+| Linux    | `opencc-fmmseg-gui_X.Y.Z_amd64.deb` |
+| Linux    | `opencc-fmmseg-gui_X.Y.Z_arm64.deb` |
+| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.x86_64.rpm` |
+| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.aarch64.rpm` |
+| macOS    | `opencc-fmmseg-gui_X.Y.Z_x64.dmg` |
+| macOS    | `opencc-fmmseg-gui_X.Y.Z_aarch64.dmg` |
+| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-x64.app.zip` (portable) |
+| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-arm64.app.zip` (portable) |
 
 ### Notes
 
-* **Portable** builds run without installation.
+* **Portable builds** run without installation.
 * **Installers** integrate the application with the operating system.
-* Linux users can run the portable version directly:
+* Linux packages are provided in native formats (`.deb`, `.rpm`) for better compatibility and integration.
 
-    ```
-    chmod +x opencc-fmmseg-gui_*.AppImage
-    ./opencc-fmmseg-gui_*.AppImage
-    ```
+* AppImage is not included in release assets:
+  * It remains available when building locally via Tauri
+  * Not included due to system dependency variability (e.g. WebKitGTK)
 
-The application is distributed as a **stand‑alone desktop app** and requires no additional runtime.
+* macOS builds are provided for both:
+  * **Intel (x64)**
+  * **Apple Silicon (ARM64)**
+
+* Linux builds are provided for both:
+  * **x86_64 (amd64)**
+  * **ARM64 (aarch64)**
+
+The application is distributed as a **stand-alone desktop app** and requires no additional runtime.
 
 ---
 
