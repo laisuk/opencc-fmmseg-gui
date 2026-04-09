@@ -854,7 +854,7 @@ version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab8ecd87370524b461f8557c119c405552c396ed91fc0a8eec68679eab26f94a"
 dependencies = [
- "libloading 0.8.9",
+ "libloading 0.7.4",
 ]
 
 [[package]]
@@ -2739,7 +2739,7 @@ dependencies = [
 [[package]]
 name = "pdfium-helper"
 version = "0.1.1"
-source = "git+https://github.com/laisuk/pdfium-helper#1d3f9ce9934adb4f2450b6cbfadef6b045de64d3"
+source = "git+https://github.com/laisuk/pdfium-helper#7f380ddc07ab1e4da73a3353a9390789f5a19b9c"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",
