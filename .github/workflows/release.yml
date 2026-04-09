@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    name: Build ${{ matrix.platform }}-${{ matrix.arch }}
     strategy:
       fail-fast: false
       matrix:
