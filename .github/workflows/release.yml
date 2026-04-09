@@ -94,7 +94,8 @@ jobs:
             libxdo-dev \
             libssl-dev \
             libayatana-appindicator3-dev \
-            librsvg2-dev
+            librsvg2-dev \
+            xdg-utils
 
       - name: Build Tauri app
         run: npx tauri build
