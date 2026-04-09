@@ -92,7 +92,8 @@ jobs:
             libxdo-dev \
             libssl-dev \
             libayatana-appindicator3-dev \
-            librsvg2-dev
+            librsvg2-dev \
+            xdg-utils
 
       - name: Build Tauri app
         run: npx tauri build
@@ -108,6 +109,8 @@ jobs:
           if [[ "${{ matrix.platform }}" == "linux" ]]; then
             cp src-tauri/target/release/bundle/deb/*.deb release/ || true
             cp src-tauri/target/release/bundle/rpm/*.rpm release/ || true
+            # AppImage intentionally not collected for now
+            # cp src-tauri/target/release/bundle/appimage/*.AppImage release/ || true
           fi
 
           # -------------------------
