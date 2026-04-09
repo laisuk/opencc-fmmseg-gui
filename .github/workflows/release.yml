@@ -116,16 +116,16 @@ jobs:
           # -------------------------
           # Windows
           # -------------------------
-          if [[ "${{ matrix.platform }}" == "windows" ]]; then
+            if [[ "${{ matrix.platform }}" == "windows" ]]; then
             cp src-tauri/target/release/bundle/nsis/*.exe release/ || true
             cp src-tauri/target/release/bundle/msi/*.msi release/ || true
-
+          
             cp src-tauri/target/release/opencc-fmmseg-gui.exe release/ || true
-            cd release
-            zip "opencc-fmmseg-gui-${{ github.ref_name }}-windows-${{ matrix.arch }}-portable.zip" opencc-fmmseg-gui.exe
-            rm -f opencc-fmmseg-gui.exe
-            cd ..
-          fi
+          
+            powershell -Command "Compress-Archive -Path release/opencc-fmmseg-gui.exe -DestinationPath release/opencc-fmmseg-gui-${{ github.ref_name }}-windows-${{ matrix.arch }}-portable.zip"
+          
+            rm -f release/opencc-fmmseg-gui.exe
+            fi
 
           # -------------------------
           # macOS
