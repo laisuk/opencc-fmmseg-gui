@@ -371,6 +371,7 @@ input[type="radio"] + label:active {
 
 /* all panels are layered on top of each other (NOT stacked) */
 .tab-panel {
+    color-scheme: light dark;
     position: absolute; /* key */
     inset: 0; /* fill tab-panels */
     display: none; /* hidden by default */
