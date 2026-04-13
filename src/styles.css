@@ -412,6 +412,15 @@ input[type="radio"] + label:active {
     flex-direction: column;
     gap: 10px;
     min-height: 0; /* IMPORTANT for grid/flex children */
+
+    border: 1px solid var(--stroke);
+    border-radius: var(--r-xl);
+    transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.editor-panel:has(.cm-editor.cm-focused) {
+    border-color: rgba(59, 130, 246, .65);
+    box-shadow: 0 0 0 4px var(--accentRing);
 }
 
 /* The container that holds: (header/buttons) + (editor) */
@@ -802,6 +811,7 @@ button:active {
     color: var(--text);
     outline: none;
     overflow-x: auto;
+    overflow-y: auto;
     white-space: nowrap;
 }
 
