@@ -48,8 +48,26 @@
     --border-color: #d0d0d0;
     --control-bg: #fff;
     /*--accent-color: #0f6cbd;*/
+
+    --ctl-bg: var(--control-bg);
+    --ctl-bg-hover: #f7f7f7;
+    --ctl-bg-focus: var(--control-bg);
+    --ctl-border: var(--border-color);
+    --ctl-border-hover: #b9b9b9;
+    --ctl-border-focus: var(--accent);
+    --ctl-text: var(--text);
+    --ctl-shadow-focus: 0 0 0 2px rgba(15, 108, 189, 0.15);
+    --ctl-arrow-down-1: linear-gradient(45deg, transparent 50%, rgba(0, 0, 0, 0.65) 50%);
+    --ctl-arrow-down-2: linear-gradient(135deg, rgba(0, 0, 0, 0.65) 50%, transparent 50%);
 }
 
+/* ==========================================================
+   Theme Overrides
+   Keep all color-scheme media queries together so the cascade
+   stays easy to follow and dark control overrides remain intact.
+   ========================================================== */
+
+/* Light theme variables */
 @media (prefers-color-scheme: light) {
     :root {
         --bg: #f3f4f6;
@@ -68,7 +86,7 @@
     }
 }
 
-/* Dark mode */
+/* Dark theme variables */
 @media (prefers-color-scheme: dark) {
     :root {
         --diff-added-bg: rgba(34, 197, 94, .25);
@@ -279,55 +297,31 @@ input[type="radio"] + label:active {
     margin-left: auto;
     height: var(--ctl-h);
     min-width: 170px;
-    padding: 0 12px;
+    padding: 0 38px 0 12px;
     border-radius: var(--r-md);
-    border: 1px solid var(--stroke);
-    background: rgba(0, 0, 0, .18);
-    color: var(--text);
+    border: 1px solid var(--ctl-border);
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+    var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+    var(--ctl-bg);
+    color: var(--ctl-text);
     outline: none;
 }
 
 #select_config:hover {
-    border-color: var(--stroke2);
-    background: rgba(0, 0, 0, .22);
+    border-color: var(--ctl-border-hover);
+    background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+    var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+    var(--ctl-bg-hover);
 }
 
 #select_config:focus {
-    border-color: rgba(59, 130, 246, .65);
-    box-shadow: 0 0 0 4px var(--accentRing);
-}
-
-/* =========================
-   Dark Mode (Manual Config Select)
-   ========================= */
-@media (prefers-color-scheme: dark) {
-    #select_config {
-        appearance: none;
-        -webkit-appearance: none;
-        padding-right: 38px;
-
-        border: 1px solid var(--ctl-border);
-        color: var(--ctl-text);
-
-        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-        var(--ctl-bg);
-    }
-
-    #select_config:hover {
-        border-color: var(--ctl-border-hover);
-        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-        var(--ctl-bg-hover);
-    }
-
-    #select_config:focus {
-        border-color: var(--ctl-border-focus);
-        box-shadow: var(--ctl-shadow-focus);
-        background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-        var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-        var(--ctl-bg-focus);
-    }
+    border-color: var(--ctl-border-focus);
+    box-shadow: var(--ctl-shadow-focus);
+    background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
+    var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
+    var(--ctl-bg-focus);
 }
 
 .tabs {
@@ -998,70 +992,40 @@ button:active {
     font-size: 14px;
 }
 
-/* Light mode / default */
+/* Theme-aware form controls */
 .fluent-select,
 .fluent-input {
-    height: 36px;
-    padding: 0 10px;
-    border: 1px solid var(--border-color, #d0d0d0);
-    border-radius: 8px;
-    background: var(--control-bg, #fff);
-    color: var(--text, #222);
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid var(--ctl-border);
+    border-radius: 10px;
+    background: var(--ctl-bg);
+    color: var(--ctl-text);
+    transition: border-color 120ms ease,
+    box-shadow 120ms ease,
+    background 120ms ease;
+}
+
+.fluent-select:hover,
+.fluent-input:hover {
+    border-color: var(--ctl-border-hover);
+    background: var(--ctl-bg-hover);
 }
 
 .fluent-select:focus,
 .fluent-input:focus {
-    border-color: var(--accent, #0f6cbd);
-    box-shadow: 0 0 0 2px rgba(15, 108, 189, 0.15);
+    border-color: var(--ctl-border-focus);
+    box-shadow: var(--ctl-shadow-focus);
+    background: var(--ctl-bg-focus);
 }
 
-/* Dark mode */
-@media (prefers-color-scheme: dark) {
+.fluent-select {
+    padding-right: 12px;
+}
 
-    .fluent-select,
-    .fluent-input {
-        height: 38px;
-        padding: 0 12px;
-        border-radius: 10px;
-        border: 1px solid var(--ctl-border);
-        background: var(--ctl-bg);
-        color: var(--ctl-text);
-        transition: border-color 120ms ease,
-        box-shadow 120ms ease,
-        background 120ms ease;
-    }
-
-    .fluent-input[type="number"] {
-        appearance: none;
-        -webkit-appearance: none;
-    }
-
-    .fluent-select {
-        padding-right: 38px;
-        background: var(--ctl-bg);
-    }
-
-    .fluent-select:hover {
-        border-color: var(--ctl-border-hover);
-        background: var(--ctl-bg-hover);
-    }
-
-    .fluent-select:focus {
-        border-color: var(--ctl-border-focus);
-        box-shadow: var(--ctl-shadow-focus);
-        background: var(--ctl-bg-focus);
-    }
-
-    .fluent-input:hover {
-        border-color: var(--ctl-border-hover);
-        background: var(--ctl-bg-hover);
-    }
-
-    .fluent-input:focus {
-        border-color: var(--ctl-border-focus);
-        box-shadow: var(--ctl-shadow-focus);
-        background: var(--ctl-bg-focus);
-    }
+.fluent-input[type="number"] {
+    appearance: none;
+    -webkit-appearance: none;
 }
 
 @media (max-width: 640px) {
@@ -1301,3 +1265,4 @@ button:active {
         width: 100%;
     }
 }
+
