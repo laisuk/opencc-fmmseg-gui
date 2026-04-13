@@ -456,6 +456,7 @@ textarea {
 
 /* Make CodeMirror fill available height */
 .cm-editor {
+    color-scheme: light dark;
     height: 100%;
     color: var(--text); /* 🔥 FIX */
 }
@@ -480,6 +481,7 @@ textarea {
 .cm-editor,
 .cm-scroller {
     background: transparent;
+    scrollbar-width: auto;
 }
 
 /* the CodeMirror mount div */
@@ -802,6 +804,7 @@ button:active {
 
 /* Left list box */
 .batch-list {
+    color-scheme: light dark;
     width: 100%;
     min-height: 420px;
     padding: 10px;
@@ -1030,6 +1033,7 @@ button:active {
 }
 
 .fluent-select {
+    color-scheme: light dark;
     padding-right: 12px;
 }
 
