@@ -296,7 +296,7 @@ input[type="radio"] + label:active {
 #select_config {
     margin-left: auto;
     height: var(--ctl-h);
-    min-width: 170px;
+    min-width: 100px;
     padding: 0 38px 0 12px;
     border-radius: var(--r-md);
     border: 1px solid var(--ctl-border);
@@ -307,6 +307,7 @@ input[type="radio"] + label:active {
     var(--ctl-bg);
     color: var(--ctl-text);
     outline: none;
+    font-family: var(--font-mono), monospace;
 }
 
 #select_config:hover {
