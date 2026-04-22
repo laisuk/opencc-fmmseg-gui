@@ -346,6 +346,16 @@ input[type="radio"] + label:active {
     font-weight: 650;
     cursor: pointer;
     box-shadow: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px; /* spacing between icon and text */
+}
+
+.tab svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    transform: translateY(0.05rem) scale(1.03); /* tiny optical alignment fix */
 }
 
 .tab:hover {

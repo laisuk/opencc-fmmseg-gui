@@ -1,15 +1,21 @@
 // src/i18n/applyLocale.ts
 
-import { mustGetEl } from "../dom/refs";
-import { getLocale } from "./index";
+import {mustGetEl} from "../dom/refs";
+import {getLocale} from "./index";
 
 export function applyLocale(): void {
     const s = getLocale();
 
     // ---------- Tabs ----------
-    mustGetEl<HTMLElement>("tab-convert").textContent = s.tabs.convert;
-    mustGetEl<HTMLElement>("tab-batch").textContent = s.tabs.batchConvert;
-    mustGetEl<HTMLElement>("tab-settings").textContent = s.tabs.settings;
+    mustGetEl<HTMLElement>("tab-convert")
+        .querySelector(".tab-label")!
+        .textContent = s.tabs.convert;
+    mustGetEl<HTMLElement>("tab-batch")
+        .querySelector(".tab-label")!
+        .textContent = s.tabs.batchConvert;
+    mustGetEl<HTMLElement>("tab-settings")
+        .querySelector(".tab-label")!
+        .textContent = s.tabs.settings;
 
     // ---------- Main action buttons ----------
     const btnOpenFile = mustGetEl<HTMLButtonElement>("open-file");
