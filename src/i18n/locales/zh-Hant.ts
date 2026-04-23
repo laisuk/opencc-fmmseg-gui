@@ -5,6 +5,7 @@ export const zhHant = {
         convert: "Convert",
         batchConvert: "Batch Convert",
         settings: "Settings",
+        about: "About",
     },
 
     config: {

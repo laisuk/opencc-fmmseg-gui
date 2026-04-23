@@ -16,6 +16,9 @@ export function applyLocale(): void {
     mustGetEl<HTMLElement>("tab-settings")
         .querySelector(".tab-label")!
         .textContent = s.tabs.settings;
+    mustGetEl<HTMLElement>("tab-about")
+        .querySelector(".tab-label")!
+        .textContent = s.tabs.about;
 
     // ---------- Main action buttons ----------
     const btnOpenFile = mustGetEl<HTMLButtonElement>("open-file");
