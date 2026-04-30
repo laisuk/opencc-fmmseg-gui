@@ -429,7 +429,7 @@ input[type="radio"] + label:active {
     border: 1px solid transparent;
     background: transparent;
     color: var(--muted);
-    font-weight: 650;
+    font-weight: 600;
     cursor: pointer;
     box-shadow: none;
     display: inline-flex;
