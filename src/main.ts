@@ -38,6 +38,7 @@ import {setupUnifiedDrop} from "./tauri/dragdrop";
 import {initUiLanguage} from "./i18n/initUiLanguage";
 import {getRuntimeLabel, formatCharCount} from "./i18n/runtimeLabels";
 import {openUrl} from "@tauri-apps/plugin-opener";
+import {initThemeMode} from "./i18n";
 
 window.addEventListener("error", (e) => {
     console.error("JS error:", e.error || e.message);
@@ -49,6 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     app.init();
     initUiLanguage();
     await initAboutVersion();
+    initThemeMode();
 });
 
 document.querySelectorAll<HTMLElement>("[data-url]").forEach((el) => {

@@ -2839,7 +2839,7 @@ dependencies = [
 [[package]]
 name = "pdfium-helper"
 version = "0.1.2"
-source = "git+https://github.com/laisuk/pdfium-helper#8e87f2e720ea7a32a3582138ae9db6bb41fee9f6"
+source = "git+https://github.com/laisuk/pdfium-helper#4aad52f8afadc8275f6417e487cbd965b58d46cc"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",

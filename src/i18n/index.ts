@@ -1,7 +1,7 @@
 // src/i18n/index.ts
 
-import { zhHans } from "./locales/zh-Hans";
-import { zhHant } from "./locales/zh-Hant";
+import {zhHans} from "./locales/zh-Hans";
+import {zhHant} from "./locales/zh-Hant";
 
 export type UiLanguage = "zh-Hans" | "zh-Hant";
 
@@ -29,4 +29,35 @@ export function setUiLanguage(lang: UiLanguage): void {
 
 export function getLocale() {
     return locales[currentLanguage];
+}
+
+export type ThemeMode = "system" | "light" | "dark";
+
+const STORAGE_THEME_MODE = "themeMode";
+
+function applyThemeMode(mode: ThemeMode): void {
+    document.documentElement.dataset.theme = mode;
+    document.documentElement.style.colorScheme =
+        mode === "system" ? "light dark" : mode;
+
+    localStorage.setItem(STORAGE_THEME_MODE, mode);
+}
+
+export function initThemeMode(): void {
+    const saved = localStorage.getItem(STORAGE_THEME_MODE);
+
+    const mode: ThemeMode =
+        saved === "light" || saved === "dark" || saved === "system"
+            ? saved
+            : "system";
+
+    applyThemeMode(mode);
+
+    const select = document.getElementById("select-theme-mode") as HTMLSelectElement | null;
+    if (select) {
+        select.value = mode;
+        select.addEventListener("change", () => {
+            applyThemeMode(select.value as ThemeMode);
+        });
+    }
 }

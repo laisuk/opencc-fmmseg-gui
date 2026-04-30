@@ -442,10 +442,23 @@ English headings: ^(Chapter|Section)&#92;s+&#92;d+</code></pre>
                         </div>
 
                         <div class="settings-field">
-                            <label id="ui-language-label" for="select-ui-language">UI Language（界面语言）</label>
+                            <label for="select-ui-language" id="ui-language-label" class="fluent-field">
+                                <span id="ui-language-label-text">UI Language（界面语言）</span>
+                            </label>
                             <select id="select-ui-language" class="fluent-select">
                                 <option id="ui-lang-opt-hans" value="zh-Hans">简体中文</option>
                                 <option id="ui-lang-opt-hant" value="zh-Hant">繁體中文</option>
+                            </select>
+                        </div>
+
+                        <div class="settings-field">
+                            <label for="select-theme-mode" id="theme-mode-label" class="fluent-field">
+                                <span id="theme-mode-label-text">Theme Mode（主題設定）</span>
+                            </label>
+                            <select id="select-theme-mode" class="fluent-select">
+                                <option id="theme-opt-system" value="system">Follow system</option>
+                                <option id="theme-opt-light" value="light">Light</option>
+                                <option id="theme-opt-dark" value="dark">Dark</option>
                             </select>
                         </div>
 

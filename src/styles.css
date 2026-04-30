@@ -1,118 +1,212 @@
 /* ==========================================================
-   Fluent 2 (Win11-like) – PANEL-ONLY (legacy removed)
-   For the refactored HTML:
-     .editor-area
-       .editor-panels
-         .editor-panel (left/right)
-           .panel-body > textarea
-           .panel-info
-           .panel-actions
-       .global-actions
+   Fluent 2 (Win11-like) – PANEL-ONLY
+   Refactored: shared theme tokens, de-duplicated scrollbars,
+   grouped controls, panels, and editor rules.
    ========================================================== */
 
 :root {
+    /* Typography */
     --font-ui: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, Roboto, Arial, "Noto Sans", sans-serif;
     --font-mono: ui-monospace, "Cascadia Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --editor-font-size: 1.05rem;
 
-    --bg: #0b0f19;
-
-    --surface: rgba(255, 255, 255, .04);
-    --layer1: rgba(255, 255, 255, .05);
-    --micaA: rgba(255, 255, 255, .06);
-    --micaB: rgba(255, 255, 255, .09);
-
-    --stroke: rgba(255, 255, 255, .12);
-    --stroke1: rgba(255, 255, 255, .15);
-    --stroke2: rgba(255, 255, 255, .18);
-
-    --text: rgba(255, 255, 255, .92);
-    --muted: rgba(255, 255, 255, .70);
-    --faint: rgba(255, 255, 255, .52);
-
-    --accent: #3b82f6;
-    --accentRing: rgba(59, 130, 246, .22);
-
+    /* Layout / sizing */
     --r-xl: 22px;
     --r-md: 12px;
-
-    --shadow: 0 26px 80px rgba(0, 0, 0, .55);
-    --shadow2: 0 10px 24px rgba(0, 0, 0, .25);
-
     --ctl-h: 34px;
     --gap: 12px;
 
-    --editor-font-size: 1.05rem; /* try 1.1rem – 1.3rem */
+    /* Dark defaults */
+    --bg: #0b0f19;
+    --surface: rgba(255, 255, 255, 0.04);
+    --layer1: rgba(255, 255, 255, 0.05);
+    --micaA: rgba(255, 255, 255, 0.06);
+    --micaB: rgba(255, 255, 255, 0.09);
+    --stroke: rgba(255, 255, 255, 0.12);
+    --stroke1: rgba(255, 255, 255, 0.15);
+    --stroke2: rgba(255, 255, 255, 0.18);
+    --text: rgba(255, 255, 255, 0.92);
+    --muted: rgba(255, 255, 255, 0.70);
+    --faint: rgba(255, 255, 255, 0.52);
+    --accent: #3b82f6;
+    --accentRing: rgba(59, 130, 246, 0.22);
+    --shadow: 0 26px 80px rgba(0, 0, 0, 0.55);
+    --shadow2: 0 10px 24px rgba(0, 0, 0, 0.25);
+    --diff-added-bg: rgba(34, 197, 94, 0.25);
 
-    /* Editor Font */
-    /*--text-secondary: #666;*/
+    /* Neutral / editor / control tokens */
+    --neutral-layer-1: rgba(32, 32, 32, 1);
+    --neutral-stroke-2: rgba(66, 66, 66, 1);
+    --text-secondary: rgba(255, 255, 255, 0.70);
+    --border-color: rgba(255, 255, 255, 0.14);
+    --control-bg: rgba(20, 28, 44, 0.92);
+    --border-subtle: rgba(255, 255, 255, 0.12);
+
+    /* Fluent control tokens */
+    --ctl-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04)) 0 0 / auto no-repeat,
+    rgba(20, 28, 44, 0.92);
+    --ctl-bg-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.05)) 0 0 / auto no-repeat,
+    rgba(24, 34, 54, 0.96);
+    --ctl-bg-focus: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.05)) 0 0 / auto no-repeat,
+    rgba(24, 34, 54, 0.98);
+    --ctl-border: rgba(255, 255, 255, 0.14);
+    --ctl-border-hover: rgba(255, 255, 255, 0.24);
+    --ctl-border-focus: rgba(72, 144, 255, 0.95);
+    --ctl-text: rgba(255, 255, 255, 0.94);
+    --ctl-shadow-focus: 0 0 0 3px rgba(72, 144, 255, 0.18);
+
+    /* Input / select aliases */
+    --select-bg: var(--ctl-bg);
+    --select-bg-hover: var(--ctl-bg-hover);
+    --select-bg-focus: var(--ctl-bg-focus);
+    --select-border: var(--ctl-border);
+    --select-border-hover: var(--ctl-border-hover);
+    --select-border-focus: var(--ctl-border-focus);
+    --select-text: var(--ctl-text);
+    --select-shadow-focus: var(--ctl-shadow-focus);
+
+    --settings-ctl-h: 38px;
+    --settings-ctl-padding-x: 12px;
+    --settings-ctl-radius: 10px;
+    --settings-ctl-bg: var(--ctl-bg);
+    --settings-ctl-bg-hover: var(--ctl-bg-hover);
+    --settings-ctl-bg-focus: var(--ctl-bg-focus);
+    --settings-ctl-border: var(--ctl-border);
+    --settings-ctl-border-hover: var(--ctl-border-hover);
+    --settings-ctl-border-focus: var(--ctl-border-focus);
+    --settings-ctl-text: var(--ctl-text);
+    --settings-ctl-shadow-focus: var(--ctl-shadow-focus);
+    --settings-ctl-transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+
+    /* Scrollbar tokens */
+    --scrollbar-thumb: rgba(255, 255, 255, 0.18);
+    --scrollbar-thumb-hover: rgba(255, 255, 255, 0.28);
+
+    /* Dropdown arrow */
+    --ctl-arrow-down-1: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.8) 50%);
+    --ctl-arrow-down-2: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 50%, transparent 50%);
+}
+
+/* Manual light + system light share the same token values. */
+:root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f3f4f6;
+    --micaA: rgba(255, 255, 255, 0.72);
+    --micaB: rgba(255, 255, 255, 0.82);
+    --stroke: rgba(0, 0, 0, 0.10);
+    --stroke1: rgba(0, 0, 0, 0.12);
+    --stroke2: rgba(0, 0, 0, 0.14);
+    --text: rgba(0, 0, 0, 0.86);
+    --muted: rgba(0, 0, 0, 0.62);
+    --faint: rgba(0, 0, 0, 0.45);
+    --accent: #2563eb;
+    --accentRing: rgba(37, 99, 235, 0.18);
+    --shadow: 0 18px 55px rgba(0, 0, 0, 0.14);
+    --shadow2: 0 8px 18px rgba(0, 0, 0, 0.10);
+    --diff-added-bg: rgba(16, 185, 129, 0.20);
+    --neutral-layer-1: rgba(255, 255, 255, 1);
+    --neutral-stroke-2: rgba(209, 209, 209, 1);
+    --text-secondary: #666;
     --border-color: #d0d0d0;
     --control-bg: #fff;
-    /*--accent-color: #0f6cbd;*/
-
+    --border-subtle: rgba(0, 0, 0, 0.08);
     --ctl-bg: var(--control-bg);
-    --ctl-bg-hover: #f7f7f7;
-    --ctl-bg-focus: var(--control-bg);
+    --ctl-bg-hover: #fff;
+    --ctl-bg-focus: #fff;
     --ctl-border: var(--border-color);
-    --ctl-border-hover: #b9b9b9;
+    --ctl-border-hover: rgba(0, 0, 0, 0.18);
     --ctl-border-focus: var(--accent);
     --ctl-text: var(--text);
     --ctl-shadow-focus: 0 0 0 2px rgba(15, 108, 189, 0.15);
-    --ctl-arrow-down-1: linear-gradient(45deg, transparent 50%, rgba(0, 0, 0, 0.65) 50%);
-    --ctl-arrow-down-2: linear-gradient(135deg, rgba(0, 0, 0, 0.65) 50%, transparent 50%);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.28);
+    --scrollbar-thumb-hover: rgba(0, 0, 0, 0.38);
 }
 
-/* ==========================================================
-   Theme Overrides
-   Keep all color-scheme media queries together so the cascade
-   stays easy to follow and dark control overrides remain intact.
-   ========================================================== */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+}
 
-/* Light theme variables */
+:root[data-theme="system"] {
+    color-scheme: light dark;
+}
+
 @media (prefers-color-scheme: light) {
-    :root {
+    :root[data-theme="system"] {
         --bg: #f3f4f6;
-        --micaA: rgba(255, 255, 255, .72);
-        --micaB: rgba(255, 255, 255, .82);
-        --stroke: rgba(0, 0, 0, .10);
-        --stroke2: rgba(0, 0, 0, .14);
-        --text: rgba(0, 0, 0, .86);
-        --muted: rgba(0, 0, 0, .62);
-        --faint: rgba(0, 0, 0, .45);
-        --shadow: 0 18px 55px rgba(0, 0, 0, .14);
-        --shadow2: 0 8px 18px rgba(0, 0, 0, .10);
+        --micaA: rgba(255, 255, 255, 0.72);
+        --micaB: rgba(255, 255, 255, 0.82);
+        --stroke: rgba(0, 0, 0, 0.10);
+        --stroke1: rgba(0, 0, 0, 0.12);
+        --stroke2: rgba(0, 0, 0, 0.14);
+        --text: rgba(0, 0, 0, 0.86);
+        --muted: rgba(0, 0, 0, 0.62);
+        --faint: rgba(0, 0, 0, 0.45);
         --accent: #2563eb;
-        --accentRing: rgba(37, 99, 235, .18);
-        --diff-added-bg: rgba(16, 185, 129, .20);
+        --accentRing: rgba(37, 99, 235, 0.18);
+        --shadow: 0 18px 55px rgba(0, 0, 0, 0.14);
+        --shadow2: 0 8px 18px rgba(0, 0, 0, 0.10);
+        --diff-added-bg: rgba(16, 185, 129, 0.20);
+        --neutral-layer-1: rgba(255, 255, 255, 1);
+        --neutral-stroke-2: rgba(209, 209, 209, 1);
+        --text-secondary: #666;
+        --border-color: #d0d0d0;
+        --control-bg: #fff;
+        --border-subtle: rgba(0, 0, 0, 0.08);
+        --ctl-bg: var(--control-bg);
+        --ctl-bg-hover: #fff;
+        --ctl-bg-focus: #fff;
+        --ctl-border: var(--border-color);
+        --ctl-border-hover: rgba(0, 0, 0, 0.18);
+        --ctl-border-focus: var(--accent);
+        --ctl-text: var(--text);
+        --ctl-shadow-focus: 0 0 0 2px rgba(15, 108, 189, 0.15);
+        --scrollbar-thumb: rgba(0, 0, 0, 0.28);
+        --scrollbar-thumb-hover: rgba(0, 0, 0, 0.38);
     }
 }
 
-/* Dark theme variables */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --diff-added-bg: rgba(34, 197, 94, .25);
+/* One scrollbar implementation; theme only changes tokens above. */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
 
-        /* ===== Fluent control (shared) ===== */
-        --ctl-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04)) 0 0 / auto no-repeat,
-        rgba(20, 28, 44, 0.92);
+::-webkit-scrollbar-track {
+    background: transparent;
+}
 
-        --ctl-bg-hover: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.05)) 0 0 / auto no-repeat,
-        rgba(24, 34, 54, 0.96);
+::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 8px;
+}
 
-        --ctl-bg-focus: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.05)) 0 0 / auto no-repeat,
-        rgba(24, 34, 54, 0.98);
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+}
 
-        --ctl-border: rgba(255, 255, 255, 0.14);
-        --ctl-border-hover: rgba(255, 255, 255, 0.24);
-        --ctl-border-focus: rgba(72, 144, 255, 0.95);
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
 
-        --ctl-text: rgba(255, 255, 255, 0.94);
+:root[data-theme="light"] .fluent-checkbox,
+:root[data-theme="light"] .fluent-select,
+:root[data-theme="light"] .fluent-input,
+:root[data-theme="light"] input[type="number"] {
+    color-scheme: light;
+}
 
-        --ctl-shadow-focus: 0 0 0 3px rgba(72, 144, 255, 0.18);
+:root[data-theme="dark"] .fluent-checkbox,
+:root[data-theme="dark"] .fluent-select,
+:root[data-theme="dark"] .fluent-input,
+:root[data-theme="dark"] input[type="number"] {
+    color-scheme: dark;
+}
 
-        /* dropdown arrow */
-        --ctl-arrow-down-1: linear-gradient(45deg, transparent 50%, rgba(255, 255, 255, 0.8) 50%);
-        --ctl-arrow-down-2: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 50%, transparent 50%);
-    }
+:root[data-theme="system"] .fluent-checkbox,
+:root[data-theme="system"] .fluent-select,
+:root[data-theme="system"] .fluent-input,
+:root[data-theme="system"] input[type="number"] {
+    color-scheme: light dark;
 }
 
 * {
@@ -181,7 +275,6 @@ body {
 label {
     user-select: none;
     font-weight: 600;
-    /*letter-spacing: .1px;*/
     letter-spacing: 0.01em;
     color: var(--text);
 }
@@ -290,40 +383,33 @@ input[type="radio"] + label:active {
 .config-select-group {
     display: inline-flex;
     align-items: center;
-    gap: 6px; /* small controlled spacing */
+    gap: 3px; /* small controlled spacing */
 }
 
 #select_config {
     margin-left: auto;
     height: var(--ctl-h);
-    min-width: 100px;
+    min-width: 80px;
     padding: 0 38px 0 12px;
     border-radius: var(--r-md);
-    border: 1px solid var(--ctl-border);
-    appearance: none;
-    -webkit-appearance: none;
-    background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-    var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-    var(--ctl-bg);
-    color: var(--ctl-text);
+    border: 1px solid var(--select-border, var(--stroke));
+    background: var(--select-bg, rgba(0, 0, 0, .18));
+    color: var(--select-text, var(--text));
     outline: none;
     font-family: var(--font-mono), monospace;
 }
 
 #select_config:hover {
-    border-color: var(--ctl-border-hover);
-    background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-    var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-    var(--ctl-bg-hover);
+    border-color: var(--select-border-hover, var(--stroke2));
+    background: var(--select-bg-hover, rgba(0, 0, 0, .22));
 }
 
 #select_config:focus {
-    border-color: var(--ctl-border-focus);
-    box-shadow: var(--ctl-shadow-focus);
-    background: var(--ctl-arrow-down-1) calc(100% - 18px) 50% / 6px 6px no-repeat,
-    var(--ctl-arrow-down-2) calc(100% - 12px) 50% / 6px 6px no-repeat,
-    var(--ctl-bg-focus);
+    border-color: var(--select-border-focus, rgba(59, 130, 246, .65));
+    box-shadow: var(--select-shadow-focus, 0 0 0 4px var(--accentRing));
+    background: var(--select-bg-focus, var(--select-bg, rgba(0, 0, 0, .18)));
 }
+
 
 .tabs {
     margin-top: 10px;
@@ -483,7 +569,7 @@ textarea {
     color: var(--faint);
 }
 
-/* Make it visually match your Fluent UI panel */
+/* Make it visually match the Fluent UI panel */
 .cm-scroller {
     font-family: var(--font-mono), monospace;
     line-height: 1.45;
@@ -493,6 +579,7 @@ textarea {
 .cm-editor,
 .cm-scroller {
     background: transparent;
+    /*background: rgba(255, 255, 255, 0.03);*/
     scrollbar-width: auto;
 }
 
@@ -534,7 +621,6 @@ textarea {
     font-family: var(--editor-font, ui-monospace, SFMono-Regular, Consolas, monospace), monospace;
     font-size: var(--editor-font-size, 1.05rem);
     line-height: 1.6;
-    /*padding: 5px*/
 }
 
 /* Line numbers (if enabled) */
@@ -687,8 +773,7 @@ button {
     background: rgba(255, 255, 255, .06);
     color: var(--text);
     font-weight: 650;
-    /*letter-spacing: .15px;*/
-    letter-spacing: 0.015em;
+    letter-spacing: 0.02em;
     cursor: pointer;
     transition: background .14s ease, border-color .14s ease, transform .06s ease, box-shadow .14s ease;
     /*box-shadow: 0 8px 18px rgba(0, 0, 0, .18);*/
@@ -830,13 +915,13 @@ button:active {
     white-space: nowrap;
 }
 
+.batch-list option {
+    font-family: Consolas, monospace;
+}
+
 .batch-list:focus {
     border-color: rgba(59, 130, 246, .65);
     box-shadow: 0 0 0 4px var(--accentRing);
-}
-
-.batch-list option {
-    font-family: Consolas, monospace;
 }
 
 /* Batch log textarea */
@@ -961,10 +1046,10 @@ button:active {
 }
 
 .settings-field {
-    margin-top: 12px;
+    margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 6px; /* tweak: 4–10px */
+    gap: 10px; /* tweak: 4–10px */
 }
 
 .settings-label {
@@ -996,7 +1081,7 @@ button:active {
 }
 
 .fluent-field > span {
-    font-size: 13px;
+    font-size: 16px;
     color: var(--text, #666);
 }
 
@@ -1017,41 +1102,42 @@ button:active {
     font-size: 14px;
 }
 
-/* Theme-aware form controls */
+/* Light mode / default */
+.settings-jieba-select,
 .fluent-select,
 .fluent-input {
-    height: 38px;
-    padding: 0 12px;
-    border: 1px solid var(--ctl-border);
-    border-radius: 10px;
-    background: var(--ctl-bg);
-    color: var(--ctl-text);
-    transition: border-color 120ms ease,
-    box-shadow 120ms ease,
-    background 120ms ease;
-}
-
-.fluent-select:hover,
-.fluent-input:hover {
-    border-color: var(--ctl-border-hover);
-    background: var(--ctl-bg-hover);
-}
-
-.fluent-select:focus,
-.fluent-input:focus {
-    border-color: var(--ctl-border-focus);
-    box-shadow: var(--ctl-shadow-focus);
-    background: var(--ctl-bg-focus);
-}
-
-.fluent-select {
-    color-scheme: light dark;
-    padding-right: 12px;
+    height: var(--settings-ctl-h, 36px);
+    padding: 0 var(--settings-ctl-padding-x, 10px);
+    border: 1px solid var(--settings-ctl-border, var(--border-color, #d0d0d0));
+    border-radius: var(--settings-ctl-radius, 8px);
+    background: var(--settings-ctl-bg, var(--control-bg, #fff));
+    color: var(--settings-ctl-text, var(--text, #222));
+    transition: var(--settings-ctl-transition, border-color 120ms ease, box-shadow 120ms ease, background 120ms ease);
 }
 
 .fluent-input[type="number"] {
     appearance: none;
     -webkit-appearance: none;
+}
+
+.fluent-select {
+    /*color-scheme: light dark;*/
+    padding-right: 38px;
+}
+
+.settings-jieba-select:hover,
+.fluent-select:hover,
+.fluent-input:hover {
+    border-color: var(--settings-ctl-border-hover, var(--settings-ctl-border, var(--border-color, #d0d0d0)));
+    background: var(--settings-ctl-bg-hover, var(--settings-ctl-bg, var(--control-bg, #fff)));
+}
+
+.settings-jieba-select:focus,
+.fluent-select:focus,
+.fluent-input:focus {
+    border-color: var(--settings-ctl-border-focus, var(--accent, #0f6cbd));
+    box-shadow: var(--settings-ctl-shadow-focus, 0 0 0 2px rgba(15, 108, 189, 0.15));
+    background: var(--settings-ctl-bg-focus, var(--settings-ctl-bg, var(--control-bg, #fff)));
 }
 
 @media (max-width: 640px) {
@@ -1062,6 +1148,65 @@ button:active {
 }
 
 /* Font Select End */
+
+.settings-jieba {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.settings-jieba-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-jieba-row .settings-label {
+    width: 120px;
+    flex: 0 0 120px;
+}
+
+.fluent-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.settings-jieba-input {
+    width: 140px;
+}
+
+.settings-jieba-select {
+    width: 140px;
+    height: 28px;
+}
+
+#tbKeywordPos {
+    width: 300px;
+}
+
+.settings-subgroup {
+    margin-top: 16px;
+    margin-bottom: 6px;
+
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    opacity: 0.85;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.settings-subgroup::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-subtle);
+    opacity: 0.5;
+}
 
 .regex-row {
     display: flex;
@@ -1206,7 +1351,6 @@ button:active {
     padding: 14px 28px;
     font-size: 15px;
     font-weight: 600;
-    /*letter-spacing: 0.5px;*/
     letter-spacing: 0.05em;
 
     border-radius: 14px;

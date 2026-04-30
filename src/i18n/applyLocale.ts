@@ -70,12 +70,25 @@ export function applyLocale(): void {
     mustGetEl<HTMLElement>("cb-punctuation-text").textContent = s.config.punctuation;
 
     // ---------- Settings language selector ----------
-    const uiLangLabel = document.getElementById("ui-language-label");
-    if (uiLangLabel) uiLangLabel.textContent = s.settings.uiLanguage;
+    const uiLangLabelText = document.getElementById("ui-language-label-text");
+    if (uiLangLabelText) uiLangLabelText.textContent = s.settings.uiLanguage;
 
     const optHans = document.getElementById("ui-lang-opt-hans");
     if (optHans) optHans.textContent = s.settings.uiLanguageHans;
 
     const optHant = document.getElementById("ui-lang-opt-hant");
     if (optHant) optHant.textContent = s.settings.uiLanguageHant;
+
+    // ---------- Theme mode ----------
+    const themeLabel = document.getElementById("theme-mode-label-text");
+    if (themeLabel) themeLabel.textContent = s.settings.themeMode;
+
+    const optSystem = document.getElementById("theme-opt-system");
+    if (optSystem) optSystem.textContent = s.settings.themeSystem;
+
+    const optLight = document.getElementById("theme-opt-light");
+    if (optLight) optLight.textContent = s.settings.themeLight;
+
+    const optDark = document.getElementById("theme-opt-dark");
+    if (optDark) optDark.textContent = s.settings.themeDark;
 }

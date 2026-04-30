@@ -48,5 +48,10 @@ export const zhHant = {
         uiLanguage: "UI Language（介面語言）",
         uiLanguageHans: "簡體中文",
         uiLanguageHant: "正體中文",
+
+        themeMode: "Theme Mode（主題模式）",
+        themeSystem: "System（跟隨系統）",
+        themeLight: "Light（淺色）",
+        themeDark: "Dark（深色）",
     },
 } as const;
