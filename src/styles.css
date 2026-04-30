@@ -1103,7 +1103,6 @@ button:active {
 }
 
 /* Light mode / default */
-.settings-jieba-select,
 .fluent-select,
 .fluent-input {
     height: var(--settings-ctl-h, 36px);
@@ -1125,14 +1124,12 @@ button:active {
     padding-right: 38px;
 }
 
-.settings-jieba-select:hover,
 .fluent-select:hover,
 .fluent-input:hover {
     border-color: var(--settings-ctl-border-hover, var(--settings-ctl-border, var(--border-color, #d0d0d0)));
     background: var(--settings-ctl-bg-hover, var(--settings-ctl-bg, var(--control-bg, #fff)));
 }
 
-.settings-jieba-select:focus,
 .fluent-select:focus,
 .fluent-input:focus {
     border-color: var(--settings-ctl-border-focus, var(--accent, #0f6cbd));
@@ -1175,11 +1172,6 @@ button:active {
 
 .settings-jieba-input {
     width: 140px;
-}
-
-.settings-jieba-select {
-    width: 140px;
-    height: 28px;
 }
 
 #tbKeywordPos {
