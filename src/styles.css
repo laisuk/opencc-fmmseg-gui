@@ -441,7 +441,7 @@ input[type="radio"] + label:active {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
-    transform: translateY(0.05rem) scale(1.03); /* tiny optical alignment fix */
+    /*transform: translateY(0.05rem) scale(1.03); !* tiny optical alignment fix *!*/
 }
 
 .tab:hover {
@@ -454,6 +454,11 @@ input[type="radio"] + label:active {
     background: rgba(59, 130, 246, .14);
     border-color: rgba(59, 130, 246, .45);
     font-weight: 800;
+}
+
+.tab.active svg {
+    color: var(--accent);
+    transform: translateY(0.1rem) scale(1.1);
 }
 
 .tab-panels {

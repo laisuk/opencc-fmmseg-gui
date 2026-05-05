@@ -82,7 +82,7 @@ export function createCompareFeature(opts: {
 }): CompareFeature {
     const tooltipText =
         opts.tooltipText ??
-        ((orig, conv) => `Change: ${orig} → ${conv}`);
+        ((orig, conv) => `Changed: ${orig} → ${conv}`);
 
     /**
      * Effect used to replace the entire compare decoration set.
