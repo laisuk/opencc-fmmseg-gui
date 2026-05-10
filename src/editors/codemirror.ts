@@ -4,9 +4,21 @@ export function getEditorText(view: EditorView): string {
     return view.state.doc.toString();
 }
 
-export function setEditorText(view: EditorView, value: string): void {
-    const len = view.state.doc.length;
-    view.dispatch({changes: {from: 0, to: len, insert: value}});
+export function setEditorText(view: EditorView, value: string, cursorAtEnd = true): void {
+    view.dispatch({
+        changes: {
+            from: 0,
+            to: view.state.doc.length,
+            insert: value,
+        },
+    });
+
+    const pos = cursorAtEnd ? view.state.doc.length : 0;
+
+    view.dispatch({
+        selection: { anchor: pos },
+        scrollIntoView: true,
+    });
 }
 
 export function getSelectedText(view: EditorView): string {

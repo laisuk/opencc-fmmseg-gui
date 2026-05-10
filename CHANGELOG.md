@@ -7,6 +7,14 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
+## [0.9.2] - 2026-05-10
+
+### Fixed
+
+- Fixed: Reset previous selection after update new context to Editor Left.
+
+---
+
 ## [0.9.1] – 2026-03-21
 
 ### Changed

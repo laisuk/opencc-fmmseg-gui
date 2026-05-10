@@ -314,16 +314,16 @@ function createApp() {
 
     async function handlePaste() {
         const pasted = await invoke<string | null>("paste_text2");
-        setEditorText(editorLeft, pasted ?? "");
 
-        const text = getEditorText(editorLeft);
-        if (!text) {
+        if (!pasted) {
             setStatus("Clipboard empty");
-            updateCharCount(editorLeft, lblCharCount);
             return;
         }
 
-        await detectInputText(text);
+        setEditorText(editorLeft, pasted, true); // paste: cursor at end
+
+        await detectInputText(pasted);
+        updateCharCount(editorLeft, lblCharCount);
         setStatus("Clipboard contents pasted");
     }
 
