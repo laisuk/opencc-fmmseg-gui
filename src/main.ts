@@ -406,7 +406,7 @@ function createApp() {
             });
 
             compare.clear();
-            setEditorText(editorRight, result, false);
+            setEditorText(editorRight, result);
             if (cbCompare.checked) {
                 compare.apply();
             }
