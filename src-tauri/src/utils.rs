@@ -1,3 +1,5 @@
+use quick_xml::events::BytesStart;
+use quick_xml::{Reader, XmlVersion};
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -115,3 +117,22 @@ pub fn local_name_bytes(full: &[u8]) -> &[u8] {
     }
 }
 
+pub fn attr_any_string<R: std::io::BufRead>(
+    reader: &Reader<R>,
+    e: &BytesStart<'_>,
+    local: &[u8],
+) -> Option<String> {
+    for a in e.attributes().with_checks(false) {
+        let a = a.ok()?;
+        let k_local = local_name_bytes(a.key.as_ref());
+
+        if k_local == local {
+            return a
+                .decoded_and_normalized_value(XmlVersion::Implicit1_0, reader.decoder())
+                .ok()
+                .map(|v| v.into_owned());
+        }
+    }
+
+    None
+}

@@ -12,7 +12,7 @@
 //   * text:s text:c="N" => repeated spaces
 //
 // Dependencies:
-//   quick-xml = "0.36"
+//   quick-xml = "0.40"
 //   zip       = "2"
 //   thiserror = "2"
 
@@ -20,8 +20,9 @@ use std::fs::File;
 use std::io::{Cursor, Read};
 use std::path::Path;
 
+use crate::utils;
 use quick_xml::events::Event;
-use quick_xml::Reader;
+use quick_xml::{Reader, XmlVersion};
 use thiserror::Error;
 use zip::ZipArchive;
 #[derive(Debug, Error)]
@@ -120,7 +121,7 @@ fn extract_odf_content_xml_bytes(xml: &[u8]) -> Result<String, OdtError> {
                 if eq_name(name_full, b"text", b"s") {
                     let mut count = 1usize;
 
-                    if let Some(c) = attr_any_string_bytes(&e, b"c") {
+                    if let Some(c) = utils::attr_any_string(&r, &e, b"c") {
                         if let Ok(v) = c.trim().parse::<usize>() {
                             count = v.max(1);
                         }
@@ -137,13 +138,12 @@ fn extract_odf_content_xml_bytes(xml: &[u8]) -> Result<String, OdtError> {
             }
 
             Ok(Event::Text(t)) => {
-                let raw = t.decode().map_err(|e| OdtError::Xml(e.to_string()))?;
-                let unescaped = quick_xml::escape::unescape(&raw)
+                let text = t
+                    .xml_content(XmlVersion::Implicit1_0)
                     .map_err(|e| OdtError::Xml(e.to_string()))?;
 
-                if !unescaped.is_empty() {
-                    current_target(in_cell, current_cell.as_mut(), &mut out)
-                        .push_str(&unescaped);
+                if !text.is_empty() {
+                    current_target(in_cell, current_cell.as_mut(), &mut out).push_str(&text);
                 }
             }
 
@@ -250,20 +250,3 @@ fn eq_name(full: &[u8], prefix: &[u8], local: &[u8]) -> bool {
     let (p, l) = split_prefix_local(full);
     p == prefix && l == local
 }
-
-fn attr_any_string_bytes(
-    e: &quick_xml::events::BytesStart,
-    key_local: &[u8],
-) -> Option<String> {
-    for a in e.attributes().with_checks(false) {
-        let a = a.ok()?;
-        let k = a.key.as_ref();
-        let (_, k_local) = split_prefix_local(k);
-
-        if k_local == key_local {
-            return a.unescape_value().ok().map(|v| v.into_owned());
-        }
-    }
-    None
-}
-

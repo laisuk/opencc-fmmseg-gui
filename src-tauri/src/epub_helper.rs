@@ -11,13 +11,13 @@ use std::fs::File;
 use std::io::{Read, Seek};
 use std::path::Path;
 
+use crate::utils;
 use kuchiki::traits::*;
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use std::io::Cursor;
 use thiserror::Error;
 use zip::ZipArchive;
-use crate::utils;
 
 #[derive(Debug, Error)]
 pub enum EpubError {
@@ -141,7 +141,6 @@ fn find_opf_path<R: Read + Seek>(zip: &mut ZipArchive<R>) -> Result<Option<Strin
         Err(_) => return Ok(None),
     };
 
-    // container.xml is small; read bytes
     let mut bytes = Vec::with_capacity(8 * 1024);
     entry.read_to_end(&mut bytes)?;
 
@@ -154,19 +153,21 @@ fn find_opf_path<R: Read + Seek>(zip: &mut ZipArchive<R>) -> Result<Option<Strin
     loop {
         match r.read_event_into(&mut buf) {
             Ok(Event::Eof) => break,
+
             Ok(Event::Start(e)) => {
                 let e_name = e.name();
                 let name = utils::local_name_bytes(e_name.as_ref());
+
                 if name == b"rootfile" {
                     // EPUB container.xml: <rootfile full-path="..."/>
-                    let mut full = attr_any_string(&e, b"full-path")
+                    let mut full = utils::attr_any_string(&r, &e, b"full-path")
                         .unwrap_or_default()
                         .trim()
                         .to_string();
 
                     if full.is_empty() {
                         // fallback seen in some broken files
-                        full = attr_any_string(&e, b"fullpath")
+                        full = utils::attr_any_string(&r, &e, b"fullpath")
                             .unwrap_or_default()
                             .trim()
                             .to_string();
@@ -177,6 +178,7 @@ fn find_opf_path<R: Read + Seek>(zip: &mut ZipArchive<R>) -> Result<Option<Strin
                     }
                 }
             }
+
             Err(e) => return Err(EpubError::Xml(e.to_string())),
             _ => {}
         }
@@ -216,14 +218,16 @@ fn load_opf<R: Read + Seek>(zip: &mut ZipArchive<R>, opf_path: &str) -> Result<O
 
                 // manifest: <item id="x" href="y" media-type="..." properties="nav"/>
                 if name == b"item" {
-                    let id = attr_any_string(&e, b"id").unwrap_or_default();
-                    let href = attr_any_string(&e, b"href").unwrap_or_default();
+                    let id = utils::attr_any_string(&r, &e, b"id").unwrap_or_default();
+                    let href = utils::attr_any_string(&r, &e, b"href").unwrap_or_default();
                     let id = id.trim();
                     let href = href.trim();
 
                     if !id.is_empty() && !href.is_empty() {
-                        let media_type = attr_any_string(&e, b"media-type").unwrap_or_default();
-                        let props = attr_any_string(&e, b"properties").unwrap_or_default();
+                        let media_type =
+                            utils::attr_any_string(&r, &e, b"media-type").unwrap_or_default();
+                        let props =
+                            utils::attr_any_string(&r, &e, b"properties").unwrap_or_default();
                         let is_nav = contains_token_ignore_case(&props, "nav");
 
                         manifest.insert(
@@ -238,7 +242,7 @@ fn load_opf<R: Read + Seek>(zip: &mut ZipArchive<R>, opf_path: &str) -> Result<O
                 }
                 // spine: <itemref idref="..."/>
                 else if name == b"itemref" {
-                    let idref = attr_any_string(&e, b"idref").unwrap_or_default();
+                    let idref = utils::attr_any_string(&r, &e, b"idref").unwrap_or_default();
                     let idref = idref.trim();
                     if !idref.is_empty() {
                         spine.push(idref.to_string());
@@ -479,19 +483,4 @@ fn read_to_string_lossy_utf8<R: Read>(mut r: R) -> Result<String, EpubError> {
     r.read_to_end(&mut bytes)?;
     // Java forces UTF-8; keep same, but tolerate invalid sequences
     Ok(String::from_utf8_lossy(&bytes).into_owned())
-}
-
-fn attr_any_string(e: &quick_xml::events::BytesStart, local: &[u8]) -> Option<String> {
-    for a in e.attributes().with_checks(false) {
-        let a = a.ok()?;
-        let k = a.key.as_ref();
-        let k_local = match k.iter().rposition(|&b| b == b':') {
-            Some(pos) => &k[pos + 1..],
-            None => k,
-        };
-        if k_local == local {
-            return a.unescape_value().ok().map(|v| v.into_owned());
-        }
-    }
-    None
 }
