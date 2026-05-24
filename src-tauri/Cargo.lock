@@ -2803,9 +2803,9 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg"
-version = "0.9.2"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "349666f5c2afd22d760463b20fc276306eaa5fbf25ce4b697602b8afead01545"
+checksum = "4817428b431575d9bed36e72cdbe753003f24a6c71a046a0631b105803f78023"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2818,7 +2818,7 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg-gui"
-version = "0.9.2"
+version = "0.10.0"
 dependencies = [
  "kuchiki",
  "opencc-fmmseg",
@@ -3657,9 +3657,9 @@ dependencies = [
 
 [[package]]
 name = "rustc-hash"
-version = "2.1.2"
+version = "2.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "94300abf3f1ae2e2b8ffb7b58043de3d399c73fa6f4b73826402a5c457614dbe"
+checksum = "357703d41365b4b27c590e3ed91eabb1b663f07c4c084095e60cbed4362dff0d"
 
 [[package]]
 name = "rustc_version"
