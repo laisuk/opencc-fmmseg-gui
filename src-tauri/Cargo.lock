@@ -2803,9 +2803,7 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg"
-version = "0.10.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e6ece980ed5bfa99d69349ecf77c684e02ee669d509e32e6d1d7849cce83b423"
+version = "0.11.0"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2818,7 +2816,7 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg-gui"
-version = "0.10.2"
+version = "0.11.0"
 dependencies = [
  "kuchiki",
  "opencc-fmmseg",
