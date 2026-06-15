@@ -241,7 +241,9 @@ body {
 
 /* Shell */
 .container {
-    width: min(1180px, calc(100vw - 28px));
+    /*width: min(1180px, calc(100vw - 28px));*/
+    width: 100%;
+    max-width: none;
     border-radius: 26px;
     border: 1px solid var(--stroke);
     background: linear-gradient(180deg, var(--micaB), var(--micaA));
