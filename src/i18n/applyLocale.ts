@@ -66,7 +66,7 @@ export function applyLocale(): void {
     mustGetEl<HTMLElement>("rb-zhtw-text").textContent = s.config.zhTw;
     mustGetEl<HTMLElement>("rb-zhhk-text").textContent = s.config.zhHk;
 
-    mustGetEl<HTMLElement>("cb-zhtwp-text").textContent = s.config.zhTwIdioms;
+    mustGetEl<HTMLElement>("cb-regional-text").textContent = s.config.regionalTerms;
     mustGetEl<HTMLElement>("cb-punctuation-text").textContent = s.config.punctuation;
 
     // ---------- Settings language selector ----------

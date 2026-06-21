@@ -95,7 +95,7 @@ function createApp() {
     const rbManual = mustGetEl<HTMLInputElement>("rb_manual");
 
     const cbPunctuation = mustGetEl<HTMLInputElement>("cb_punctuation");
-    const cbZhTwP = mustGetEl<HTMLInputElement>("cb_zhtwp");
+    const cbRegionalTerms = mustGetEl<HTMLInputElement>("cb_regional_terms");
 
     const rbZhTw = mustGetEl<HTMLInputElement>("rb_zhtw");
     const rbStd = mustGetEl<HTMLInputElement>("rb_std");
@@ -227,7 +227,7 @@ function createApp() {
             rbStd,
             rbZhHk,
             rbZhTw,
-            cbZhTwP,
+            cbRegionalTerms,
         });
     }
 
@@ -697,27 +697,27 @@ function createApp() {
     }
 
     function setupConfigBehavior() {
-        cbZhTwP.addEventListener("click", () => {
-            if (cbZhTwP.checked) {
-                rbZhTw.checked = true;
-            }
-        });
+        function updateRegionalTermsState() {
+            const enabled = !rbStd.checked;
 
-        rbStd.addEventListener("click", () => {
-            if (cbZhTwP.checked) {
-                cbZhTwP.checked = false;
-            }
-        });
+            cbRegionalTerms.disabled = !enabled;
 
-        rbZhHk.addEventListener("click", () => {
-            if (cbZhTwP.checked) {
-                cbZhTwP.checked = false;
+            if (!enabled) {
+                cbRegionalTerms.checked = false;
             }
-        });
+        }
+
+        cbRegionalTerms.addEventListener("change", updateRegionalTermsState);
+
+        rbStd.addEventListener("change", updateRegionalTermsState);
+        rbZhTw.addEventListener("change", updateRegionalTermsState);
+        rbZhHk.addEventListener("change", updateRegionalTermsState);
 
         selectConfig.addEventListener("click", () => {
             rbManual.checked = true;
         });
+
+        updateRegionalTermsState();
     }
 
     function setupMainButtons() {

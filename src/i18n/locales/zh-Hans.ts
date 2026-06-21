@@ -15,7 +15,7 @@ export const zhHans = {
         standard: "General（通用简繁）",
         zhTw: "ZH-TW（中台简繁）",
         zhHk: "ZH-HK（中港简繁）",
-        zhTwIdioms: "ZH-TW Idioms（中台惯用语）",
+        regionalTerms: "Regional Terms（地区用语）",
         punctuation: "Punctuation（标点）",
     },
 
