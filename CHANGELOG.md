@@ -9,6 +9,10 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ## [0.11.0] - Unreleased
 
+### Added
+
+- Added config selection for `s2hkp()` + `hk2sp()` via UI controls.
+
 ### Changed
 
 - Update `opencc-fmmseg` to v0.11.0
