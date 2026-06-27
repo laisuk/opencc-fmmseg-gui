@@ -7,7 +7,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.11.0] - Unreleased
+## [0.11.1] - 2026-06-28
 
 ### Added
 
@@ -15,7 +15,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ### Changed
 
-- Update `opencc-fmmseg` to v0.11.0
+- Update `opencc-fmmseg` to v0.11.1
 
 ---
 
