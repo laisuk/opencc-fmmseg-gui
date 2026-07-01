@@ -70,6 +70,7 @@ pub fn run() {
             open_file,
             save_file,
             zho_check,
+            normalize_compat,
             read_text_file,
             reflow_text,
             open_path_to_editor,
@@ -111,6 +112,11 @@ fn convert_text(
 #[tauri::command]
 fn zho_check(state: State<'_, AppState>, text: String) -> i32 {
     state.opencc.zho_check(&text)
+}
+
+#[tauri::command]
+fn normalize_compat(state: State<'_, AppState>, text: String) -> String {
+    state.opencc.normalize_compat(&text)
 }
 
 // ----- Open File to Editor ------

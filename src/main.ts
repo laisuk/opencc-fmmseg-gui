@@ -116,6 +116,7 @@ function createApp() {
     const btnSaveFile = mustGetEl<HTMLButtonElement>("save-file");
     const btnConvert = mustGetEl<HTMLButtonElement>("convert");
     const btnReflow = mustGetEl<HTMLButtonElement>("reflow");
+    const btnNormCompat = mustGetEl<HTMLButtonElement>("norm-compat");
     const btnClearSource = mustGetEl<HTMLButtonElement>("clear-source");
     const btnClearDestination = mustGetEl<HTMLButtonElement>("clear-destination");
 
@@ -465,6 +466,34 @@ function createApp() {
         }
     }
 
+    async function handleNormCompat() {
+        try {
+            setStatus("Normalizing compatibility ideographs...");
+
+            const text = getInputText();
+
+            const result = await invoke<string>("normalize_compat", {
+                text,
+            });
+
+            compare.clear();
+            setEditorText(editorLeft, result);
+
+            setStatus(
+                hasSelection(editorLeft)
+                    ? "Selection normalization complete"
+                    : "Normalization complete",
+            );
+        } catch (error) {
+            const msg =
+                typeof error === "string"
+                    ? error
+                    : (error as any)?.message ?? String(error);
+
+            setStatus(`Normalization failed: ${msg}`);
+        }
+    }
+
     function handleClearSource() {
         if (!clearEditor(editorLeft)) return;
 
@@ -727,6 +756,7 @@ function createApp() {
         btnSaveFile.addEventListener("click", handleSaveFile);
         btnConvert.addEventListener("click", handleConvert);
         btnReflow.addEventListener("click", handleReflow);   // ⭐ NEW
+        btnNormCompat.addEventListener("click", handleNormCompat);   // ⭐ NEW
         btnClearSource.addEventListener("click", handleClearSource);
         btnClearDestination.addEventListener("click", handleClearDestination);
         cbCompare.addEventListener("change", () => {

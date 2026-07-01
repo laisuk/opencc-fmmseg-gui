@@ -38,6 +38,11 @@ export function applyLocale(): void {
     btnReflow.textContent = s.buttons.reflowText;
     btnReflow.title = s.buttons.reflowTitle;
 
+    // ---------- Norm Compat ----------
+    const btnNormCompat = mustGetEl<HTMLButtonElement>("norm-compat");
+    btnNormCompat.textContent = s.buttons.normCompatText;
+    btnNormCompat.title = s.buttons.normCompatTitle;
+
     // ---------- Paste / Copy ----------
     const btnPaste = mustGetEl<HTMLButtonElement>("paste");
     const btnCopy = mustGetEl<HTMLButtonElement>("copy");

@@ -718,9 +718,16 @@ textarea {
     min-height: 40px;
 }
 
-.panel-actions > *:first-child {
+.panel-actions-left {
+    display: flex;
+    gap: 10px;
+    align-items: center;
     margin-right: auto;
 }
+
+/*.panel-actions > *:first-child {*/
+/*    margin-right: auto;*/
+/*}*/
 
 .panel-actions button {
     /*margin-top: 3px;*/

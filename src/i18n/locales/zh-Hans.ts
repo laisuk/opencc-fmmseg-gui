@@ -32,6 +32,10 @@ export const zhHans = {
         reflowText: "↳↰",
         reflowTitle: "Reflow extracted CJK text",
 
+        // Norm Compat button: text + tooltip separated for future flexibility
+        normCompatText: "≡",
+        normCompatTitle: "Normalize CJK compatibility ideographs",
+
         pasteTitle: "Paste clipboard to editor",
         copyTitle: "Copy output",
         compareTitle: "Highlight converted phrases in the output editor",

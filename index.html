@@ -141,9 +141,13 @@
                         </div>
 
                         <div class="panel-actions">
-                            <button id="reflow" class="btn-icon-only" type="button"
-                                    title="Reflow extracted CJK text">↳↰
-                            </button>
+                            <div class="panel-actions-left">
+                                <button id="reflow" class="btn-icon-only" type="button"
+                                        title="Reflow extracted CJK text">↳↰</button>
+
+                                <button id="norm-compat" class="btn-icon-only" type="button"
+                                        title="Normalize CJK compatibility ideographs">≡</button>
+                            </div>
 
                             <button id="clear-source">AC</button>
 
@@ -177,11 +181,13 @@
                         </div>
 
                         <div class="panel-actions">
-                            <label id="compare-label" class="fluent-checkbox compare-toggle"
-                                   title="Highlight converted phrases in the output editor">
-                                <input type="checkbox" id="compare-toggle">
-                                <span id="compare-text">Compare</span>
-                            </label>
+                            <div class="panel-actions-left">
+                                <label id="compare-label" class="fluent-checkbox compare-toggle"
+                                       title="Highlight converted phrases in the output editor">
+                                    <input type="checkbox" id="compare-toggle">
+                                    <span id="compare-text">Compare</span>
+                                </label>
+                            </div>
 
                             <button id="clear-destination">AC</button>
 
