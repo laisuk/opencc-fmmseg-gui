@@ -2,10 +2,10 @@
 
 export const zhHans = {
     tabs: {
-        convert: "Convert（轉換）",
-        batchConvert: "Batch Convert（批次轉換）",
-        settings: "Settings（設定）",
-        about: "About（關於）",
+        convert: "Convert（转换）",
+        batchConvert: "Batch Convert（批量转换）",
+        settings: "Settings（设置）",
+        about: "About（关于）",
     },
 
     config: {

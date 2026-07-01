@@ -2,10 +2,10 @@
 
 export const zhHant = {
     tabs: {
-        convert: "Convert",
-        batchConvert: "Batch Convert",
-        settings: "Settings",
-        about: "About",
+        convert: "Convert（轉換）",
+        batchConvert: "Batch Convert（批次轉換）",
+        settings: "Settings（設定）",
+        about: "About（關於）",
     },
 
     config: {

@@ -436,6 +436,7 @@ input[type="radio"] + label:active {
     border: 1px solid transparent;
     background: transparent;
     color: var(--muted);
+    font-size: 16px;   /* ⭐ add */
     font-weight: 600;
     cursor: pointer;
     box-shadow: none;
