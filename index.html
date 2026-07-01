@@ -182,7 +182,14 @@
 
                         <div class="panel-actions">
                             <div class="panel-actions-left">
-                                <label id="compare-label" class="fluent-checkbox compare-toggle"
+                                <button id="detofu"
+                                        class="btn-icon-only"
+                                        type="button"
+                                        title="Replace tofu-risk characters and highlight the replacements">
+                                    豆
+                                </button>
+                                <label id="compare-label"
+                                       class="fluent-checkbox compare-toggle"
                                        title="Highlight converted phrases in the output editor">
                                     <input type="checkbox" id="compare-toggle">
                                     <span id="compare-text">Compare</span>
@@ -426,6 +433,34 @@
                                     value="14"
                             />
                         </label>
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="select-detofu-level" id="detofu-level-label" class="fluent-field">
+                            <span id="detofu-level-label-text">DeTofu Level（去豆腐等級）</span>
+                        </label>
+
+                        <select id="select-detofu-level" class="fluent-select">
+                            <option id="detofu-level-b" value="ExtB">Ext B (Most compatible)</option>
+                            <option id="detofu-level-c" value="ExtC">Ext C</option>
+                            <option id="detofu-level-d" value="ExtD">Ext D</option>
+                            <option id="detofu-level-e" value="ExtE">Ext E</option>
+                            <option id="detofu-level-f" value="ExtF">Ext F</option>
+                            <option id="detofu-level-g" value="ExtG">Ext G</option>
+                            <option id="detofu-level-h" value="ExtH">Ext H</option>
+                            <option id="detofu-level-i" value="ExtI">Ext I (Least compatible)</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-field">
+                        <label for="select-save-target" id="save-target-label" class="fluent-field">
+                            <span id="save-target-label-text">Save Target（儲存目標）</span>
+                        </label>
+
+                        <select id="select-save-target" class="fluent-select">
+                            <option id="save-target-source" value="source">Editor Source</option>
+                            <option id="save-target-destination" value="destination">Editor Destination</option>
+                        </select>
                     </div>
 
                     <div class="settings-field">

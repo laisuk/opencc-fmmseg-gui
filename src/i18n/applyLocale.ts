@@ -43,6 +43,11 @@ export function applyLocale(): void {
     btnNormCompat.textContent = s.buttons.normCompatText;
     btnNormCompat.title = s.buttons.normCompatTitle;
 
+    // ---------- DeTofu ----------
+    const btnDeTofu = mustGetEl<HTMLButtonElement>("detofu");
+    btnDeTofu.textContent = s.buttons.detofuText;
+    btnDeTofu.title = s.buttons.detofuTitle;
+
     // ---------- Paste / Copy ----------
     const btnPaste = mustGetEl<HTMLButtonElement>("paste");
     const btnCopy = mustGetEl<HTMLButtonElement>("copy");
@@ -96,4 +101,12 @@ export function applyLocale(): void {
 
     const optDark = document.getElementById("theme-opt-dark");
     if (optDark) optDark.textContent = s.settings.themeDark;
+
+    // ---------- DeTofu Level ----------
+    const deTofuLabel = document.getElementById("detofu-level-label-text");
+    if (deTofuLabel) deTofuLabel.textContent = s.settings.deTofuLevel;
+
+    // ---------- Save Target ----------
+    const saveTargetLabel = document.getElementById("save-target-label-text");
+    if (saveTargetLabel) saveTargetLabel.textContent = s.settings.saveTarget;
 }

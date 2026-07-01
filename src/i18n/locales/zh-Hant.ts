@@ -33,7 +33,11 @@ export const zhHant = {
 
         // Norm Compat button: text + tooltip separated for future flexibility
         normCompatText: "≡",
-        normCompatTitle: "Normalize CJK compatibility ideographs",
+        normCompatTitle: "正規化 CJK 相容漢字 (Compatibility Ideographs)",
+
+        // DeTofu
+        detofuText: "豆",
+        detofuTitle: "取代豆腐風險字元，並標示所有替換位置 (Tofu block replacement)",
 
         pasteTitle: "Paste clipboard to editor",
         copyTitle: "Copy output",
@@ -57,5 +61,8 @@ export const zhHant = {
         themeSystem: "System（跟隨系統）",
         themeLight: "Light（淺色）",
         themeDark: "Dark（深色）",
+
+        deTofuLevel: "DeTofu Level（去豆腐等級）",
+        saveTarget: "Save Target（儲存目標）",
     },
 } as const;

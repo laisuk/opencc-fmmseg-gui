@@ -117,6 +117,7 @@ function createApp() {
     const btnConvert = mustGetEl<HTMLButtonElement>("convert");
     const btnReflow = mustGetEl<HTMLButtonElement>("reflow");
     const btnNormCompat = mustGetEl<HTMLButtonElement>("norm-compat");
+    const btnDeTofu = mustGetEl<HTMLButtonElement>("detofu");
     const btnClearSource = mustGetEl<HTMLButtonElement>("clear-source");
     const btnClearDestination = mustGetEl<HTMLButtonElement>("clear-destination");
 
@@ -382,7 +383,16 @@ function createApp() {
 
     async function handleSaveFile() {
         try {
-            const content = getEditorText(editorRight);
+            const appSettings = getAppSettings();
+            const content = getEditorText(
+                appSettings.saveTarget === "source" ? editorLeft : editorRight,
+            );
+
+            const target =
+                appSettings.saveTarget.charAt(0).toUpperCase() +
+                appSettings.saveTarget.slice(1);
+            setStatus(`Select path to save ${target} ...`);
+
             const result = await invoke<string>("save_file", {content});
             setStatus("Saved: " + result);
         } catch (error) {
@@ -491,6 +501,42 @@ function createApp() {
                     : (error as any)?.message ?? String(error);
 
             setStatus(`Normalization failed: ${msg}`);
+        }
+    }
+
+    async function handleDeTofu() {
+        try {
+            setStatus("Running DeTofu...");
+
+            const before = getEditorText(editorRight);
+            const appSettings = getAppSettings();
+
+            const after = await invoke<string>("detofu", {
+                text: before,
+                level: appSettings.deTofuLevel,
+            });
+
+            compare.clear();
+
+            if (after === before) {
+                setStatus("No tofu-risk characters found");
+                return;
+            }
+
+            setEditorText(editorRight, after);
+
+            compare.applyTexts(before, after, (original, replacement) =>
+                `DeTofu: ${original} → ${replacement}`,
+            );
+
+            setStatus("DeTofu complete");
+        } catch (error) {
+            const msg =
+                typeof error === "string"
+                    ? error
+                    : (error as any)?.message ?? String(error);
+
+            setStatus(`DeTofu failed: ${msg}`);
         }
     }
 
@@ -757,13 +803,18 @@ function createApp() {
         btnConvert.addEventListener("click", handleConvert);
         btnReflow.addEventListener("click", handleReflow);   // ⭐ NEW
         btnNormCompat.addEventListener("click", handleNormCompat);   // ⭐ NEW
+        btnDeTofu.addEventListener("click", handleDeTofu);   // ⭐ NEW
         btnClearSource.addEventListener("click", handleClearSource);
         btnClearDestination.addEventListener("click", handleClearDestination);
         cbCompare.addEventListener("change", () => {
             compare.clear();
 
             if (cbCompare.checked) {
+                setStatus("Comparing source and converted text...");
                 compare.apply();
+                setStatus("Comparison complete");
+            } else {
+                setStatus("Compare disabled");
             }
         });
     }

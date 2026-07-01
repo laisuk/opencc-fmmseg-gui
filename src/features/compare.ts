@@ -29,6 +29,11 @@ import {
 export type CompareFeature = {
     compareField: StateField<DecorationSet>;
     apply: () => void;
+    applyTexts: (
+        src: string,
+        dst: string,
+        tooltipText?: (original: string, converted: string) => string
+    ) => void;
     clear: () => void;
 };
 
@@ -151,7 +156,7 @@ export function createCompareFeature(opts: {
      * - ideal for OpenCC-style conversion where source/destination are usually
      *   still strongly position-aligned
      */
-    function buildCompareDecorations(src: string, dst: string): DecorationSet {
+    function buildCompareDecorations(src: string, dst: string, makeTooltipText = tooltipText): DecorationSet {
         const builder = new RangeSetBuilder<Decoration>();
 
         const srcInfo = toCodePointsWithOffsets(src);
@@ -194,7 +199,7 @@ export function createCompareFeature(opts: {
             const mark = Decoration.mark({
                 class: "cm-diff-converted",
                 attributes: {
-                    title: tooltipText(original, converted),
+                    title: makeTooltipText(original, converted),
                     // "data-tooltip": tooltipText(original, converted),
                 },
             });
@@ -256,9 +261,46 @@ export function createCompareFeature(opts: {
         });
     }
 
+    /**
+     * Build and apply decorations from two arbitrary texts.
+     *
+     * Unlike {@link apply}, this method does not read editor contents.
+     * The caller supplies both source and destination strings directly,
+     * making it suitable for temporary comparisons such as DeTofu.
+     *
+     * If either text is empty or both texts are identical, existing
+     * decorations are cleared instead.
+     *
+     * @param src Source/original text.
+     * @param dst Destination/processed text.
+     * @param customTooltipText Optional tooltip formatter for each highlighted
+     * difference. If omitted, the default compare tooltip is used.
+     */
+    function applyTexts(
+        src: string,
+        dst: string,
+        customTooltipText?: (original: string, converted: string) => string,
+    ) {
+        if (!src || !dst || src === dst) {
+            clear();
+            return;
+        }
+
+        const decorations = buildCompareDecorations(
+            src,
+            dst,
+            customTooltipText ?? tooltipText,
+        );
+
+        opts.dispatchToDest({
+            effects: setCompareDecorations.of(decorations),
+        });
+    }
+
     return {
         compareField,
         apply,
+        applyTexts,
         clear,
     };
 }

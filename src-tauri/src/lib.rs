@@ -8,7 +8,7 @@ mod utils;
 
 use crate::epub_helper::ExtractOptions;
 use crate::office_converter::OfficeConverter;
-use opencc_fmmseg::OpenCC;
+use opencc_fmmseg::{DetofuLevel, OpenCC};
 use pdfium_helper::{
     extract_pdf_pages_with_callback_pdfium, reflow_cjk_paragraphs_with_heading_regex, PdfiumLibrary,
 };
@@ -71,6 +71,7 @@ pub fn run() {
             save_file,
             zho_check,
             normalize_compat,
+            detofu,
             read_text_file,
             reflow_text,
             open_path_to_editor,
@@ -117,6 +118,23 @@ fn zho_check(state: State<'_, AppState>, text: String) -> i32 {
 #[tauri::command]
 fn normalize_compat(state: State<'_, AppState>, text: String) -> String {
     state.opencc.normalize_compat(&text)
+}
+
+#[tauri::command]
+fn detofu(state: State<'_, AppState>, text: String, level: String) -> Result<String, String> {
+    let level = match level.as_str() {
+        "ExtB" => DetofuLevel::ExtB,
+        "ExtC" => DetofuLevel::ExtC,
+        "ExtD" => DetofuLevel::ExtD,
+        "ExtE" => DetofuLevel::ExtE,
+        "ExtF" => DetofuLevel::ExtF,
+        "ExtG" => DetofuLevel::ExtG,
+        "ExtH" => DetofuLevel::ExtH,
+        "ExtI" => DetofuLevel::ExtI,
+        _ => return Err(format!("Invalid DeToFu level: {level}")),
+    };
+
+    Ok(state.opencc.detofu(&text, level))
 }
 
 // ----- Open File to Editor ------
@@ -171,7 +189,7 @@ async fn open_file(
         punctuation,
         custom_heading_regex,
     )
-        .await
+    .await
 }
 
 #[tauri::command]
@@ -277,8 +295,8 @@ async fn open_path_to_editor(
                 custom_heading_regex.as_deref(),
             )
         })
-            .await
-            .map_err(|e| e.to_string())??;
+        .await
+        .map_err(|e| e.to_string())??;
 
         return Ok((path_str, text));
     }
@@ -304,8 +322,8 @@ async fn open_path_to_editor(
             epub_helper::extract_epub_all_text(&path2, opts)
                 .map_err(|e| format!("extract epub {}: {}", path2.display(), e))
         })
-            .await
-            .map_err(|e| e.to_string())??;
+        .await
+        .map_err(|e| e.to_string())??;
 
         emit_done(&app2, &path_str);
 
@@ -328,8 +346,8 @@ async fn open_path_to_editor(
             open_xml_helper::extract_docx_all_text(&path2, false, true)
                 .map_err(|e| format!("extract docx {}: {}", path2.display(), e))
         })
-            .await
-            .map_err(|e| e.to_string())??;
+        .await
+        .map_err(|e| e.to_string())??;
 
         emit_done(&app2, &path_str);
         return Ok((path_str, text));
@@ -351,8 +369,8 @@ async fn open_path_to_editor(
             open_doc_helper::extract_odt_all_text(&path2)
                 .map_err(|e| format!("extract odt {}: {}", path2.display(), e))
         })
-            .await
-            .map_err(|e| e.to_string())??;
+        .await
+        .map_err(|e| e.to_string())??;
 
         emit_done(&app2, &path_str);
         return Ok((path_str, text));
@@ -435,7 +453,7 @@ fn open_pdf_extract_text_with_progress(
             }
         },
     )
-        .map_err(|e| format!("[1/1] pdf extract failed: {e}"))?;
+    .map_err(|e| format!("[1/1] pdf extract failed: {e}"))?;
 
     let mut extracted = pages.concat();
 
@@ -687,7 +705,7 @@ async fn run_batch_convert(
                 progress: format!("[0/{total}] starting..."),
             },
         )
-            .map_err(|e| format!("emit(start) failed: {e}"))?;
+        .map_err(|e| format!("emit(start) failed: {e}"))?;
 
         let heading_regex = match custom_heading_regex
             .as_deref()
@@ -710,7 +728,7 @@ async fn run_batch_convert(
                             progress: format!("[0/{total}] warning"),
                         },
                     )
-                        .map_err(|e| format!("emit(regex warning) failed: {e}"))?;
+                    .map_err(|e| format!("emit(regex warning) failed: {e}"))?;
 
                     None
                 }
@@ -761,7 +779,7 @@ async fn run_batch_convert(
                             progress: format!("[{idx}/{total}] ⏭ skipped (exists)"),
                         },
                     )
-                        .map_err(|e| format!("emit(skip {idx}/{total}) failed: {e}"))?;
+                    .map_err(|e| format!("emit(skip {idx}/{total}) failed: {e}"))?;
 
                     continue;
                 }
@@ -788,7 +806,7 @@ async fn run_batch_convert(
                         progress: format!("[{idx}/{total}] ♻ overwriting..."),
                     },
                 )
-                    .map_err(|e| format!("emit(overwrite {idx}/{total}) failed: {e}"))?;
+                .map_err(|e| format!("emit(overwrite {idx}/{total}) failed: {e}"))?;
             }
 
             // per-file "start" emit (nice for UI)
@@ -805,7 +823,7 @@ async fn run_batch_convert(
                     progress: format!("[{idx}/{total}] processing..."),
                 },
             )
-                .map_err(|e| format!("emit(file start {idx}/{total}) failed: {e}"))?;
+            .map_err(|e| format!("emit(file start {idx}/{total}) failed: {e}"))?;
 
             let result: Result<(), String> = if is_pdf {
                 convert_pdf_to_txt_with_progress(
@@ -834,7 +852,7 @@ async fn run_batch_convert(
                         punctuation,
                         true, // keep_font
                     )
-                        .map_err(|e| format!("[{idx}/{total}] office convert failed: {e}"))?
+                    .map_err(|e| format!("[{idx}/{total}] office convert failed: {e}"))?
                 };
 
                 if r.success {
@@ -880,11 +898,11 @@ async fn run_batch_convert(
                             } else {
                                 "converted"
                             }
-                                .into(),
+                            .into(),
                             progress: format!("[{idx}/{total}] ✅ done"),
                         },
                     )
-                        .map_err(|e| format!("emit(ok {idx}/{total}) failed: {e}"))?;
+                    .map_err(|e| format!("emit(ok {idx}/{total}) failed: {e}"))?;
                 }
                 Err(msg) => {
                     app.emit_to(
@@ -900,7 +918,7 @@ async fn run_batch_convert(
                             progress: format!("[{idx}/{total}] ❌ failed"),
                         },
                     )
-                        .map_err(|e| format!("emit(err {idx}/{total}) failed: {e}"))?;
+                    .map_err(|e| format!("emit(err {idx}/{total}) failed: {e}"))?;
                 }
             }
         }
@@ -918,12 +936,12 @@ async fn run_batch_convert(
                 progress: format!("[{total}/{total}] all done"),
             },
         )
-            .map_err(|e| format!("emit(done) failed: {e}"))?;
+        .map_err(|e| format!("emit(done) failed: {e}"))?;
 
         Ok(())
     })
-        .await
-        .map_err(|e| e.to_string())?
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 #[tauri::command]
@@ -1114,7 +1132,7 @@ fn convert_pdf_to_txt_with_progress(
             }
         },
     )
-        .map_err(|e| format!("[{idx}/{total}] pdf extract failed: {e}"))?;
+    .map_err(|e| format!("[{idx}/{total}] pdf extract failed: {e}"))?;
 
     // drop(guard)?  <-- keep it or drop it, both fine; key is pdfium stays in AppState
 

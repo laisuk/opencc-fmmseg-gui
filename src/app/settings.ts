@@ -1,5 +1,7 @@
 import {mustGetEl} from "../dom/refs";
 
+export type SaveTarget = "source" | "destination";
+
 export type AppSettingsSnapshot = {
     convertFilename: boolean;
     addPageHeader: boolean;
@@ -10,6 +12,8 @@ export type AppSettingsSnapshot = {
     punctuation: boolean;
     customHeadingRegexText: string;
     customHeadingRegex: string | null;
+    deTofuLevel: string;
+    saveTarget: SaveTarget;
 };
 
 type SettingsElements = {
@@ -23,6 +27,8 @@ type SettingsElements = {
     tbHeadingRegex: HTMLInputElement | null;
     headingRegexStatus: HTMLSpanElement | null;
     headingRegexHint: HTMLSpanElement | null;
+    selectDeTofuLevel: HTMLSelectElement;
+    selectSaveTarget: HTMLSelectElement;
 };
 
 const STORAGE_KEYS = {
@@ -34,6 +40,8 @@ const STORAGE_KEYS = {
     enableEditorLog: "cbEnableEditorLog",
     punctuation: "cbPunctuation",
     customHeadingRegex: "custom_heading_regex",
+    deTofuLevel: "deToFuLevel",
+    saveTarget: "saveTarget",
 } as const;
 
 const DEFAULT_HINT =
@@ -49,6 +57,8 @@ const state = {
     punctuation: true,
     customHeadingRegexText: "",
     customHeadingRegexRe: null as RegExp | null,
+    deTofuLevel: "ExtB",
+    saveTarget: "destination" as SaveTarget,
 };
 
 let elements: SettingsElements | null = null;
@@ -57,6 +67,11 @@ function readBoolean(key: string, defaultValue: boolean): boolean {
     const raw = localStorage.getItem(key);
     if (raw === null) return defaultValue;
     return raw === "true";
+}
+
+function readSaveTarget(key: string, defaultValue: SaveTarget): SaveTarget {
+    const raw = localStorage.getItem(key);
+    return raw === "source" || raw === "destination" ? raw : defaultValue;
 }
 
 function debounce<T extends (...args: any[]) => void>(fn: T, ms = 120) {
@@ -176,6 +191,8 @@ export function initAppSettings(): void {
         tbHeadingRegex: document.getElementById("tbHeadingRegex") as HTMLInputElement | null,
         headingRegexStatus: document.getElementById("headingRegexStatus") as HTMLSpanElement | null,
         headingRegexHint: document.getElementById("headingRegexHint") as HTMLSpanElement | null,
+        selectDeTofuLevel: mustGetEl<HTMLSelectElement>("select-detofu-level"),
+        selectSaveTarget: mustGetEl<HTMLSelectElement>("select-save-target"),
     };
 
     state.convertFilename = readBoolean(STORAGE_KEYS.convertFilename, false);
@@ -201,6 +218,25 @@ export function initAppSettings(): void {
             syncStateFromCheckboxes();
             persistCheckboxState();
         });
+    });
+
+    state.deTofuLevel =
+        localStorage.getItem(STORAGE_KEYS.deTofuLevel) ?? "ExtB";
+
+    elements.selectDeTofuLevel.value = state.deTofuLevel;
+
+    elements.selectDeTofuLevel.addEventListener("change", () => {
+        state.deTofuLevel = elements!.selectDeTofuLevel.value;
+        localStorage.setItem(STORAGE_KEYS.deTofuLevel, state.deTofuLevel);
+    });
+
+    state.saveTarget = readSaveTarget(STORAGE_KEYS.saveTarget, "destination");
+    elements.selectSaveTarget.value = state.saveTarget;
+
+    elements.selectSaveTarget.addEventListener("change", () => {
+        state.saveTarget =
+            elements!.selectSaveTarget.value === "source" ? "source" : "destination";
+        localStorage.setItem(STORAGE_KEYS.saveTarget, state.saveTarget);
     });
 
     const savedHeadingRegex = localStorage.getItem(STORAGE_KEYS.customHeadingRegex) ?? "";
@@ -239,5 +275,7 @@ export function getAppSettings(): AppSettingsSnapshot {
         punctuation: state.punctuation,
         customHeadingRegexText: state.customHeadingRegexText,
         customHeadingRegex: getCustomHeadingRegex(),
+        deTofuLevel: state.deTofuLevel,
+        saveTarget: state.saveTarget,
     };
 }
