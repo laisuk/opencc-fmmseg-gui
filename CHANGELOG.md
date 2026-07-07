@@ -7,6 +7,18 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
+## [0.11.3] - 2026-06-28
+
+### Added
+
+- Added Normalize Compatibility Ideographs and DeTofu features via UI controls.
+
+### Changed
+
+- Update `opencc-fmmseg` to v0.11.3
+
+---
+
 ## [0.11.1] - 2026-06-28
 
 ### Added
