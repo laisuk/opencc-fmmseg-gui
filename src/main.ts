@@ -117,6 +117,7 @@ function createApp() {
     const btnConvert = mustGetEl<HTMLButtonElement>("convert");
     const btnReflow = mustGetEl<HTMLButtonElement>("reflow");
     const btnNormCompat = mustGetEl<HTMLButtonElement>("norm-compat");
+    const btnNormDialogQuotes = mustGetEl<HTMLButtonElement>("norm-dialog-quotes");
     const btnDeTofu = mustGetEl<HTMLButtonElement>("detofu");
     const btnClearSource = mustGetEl<HTMLButtonElement>("clear-source");
     const btnClearDestination = mustGetEl<HTMLButtonElement>("clear-destination");
@@ -504,6 +505,34 @@ function createApp() {
         }
     }
 
+    async function handleDialogQuotes() {
+        try {
+            setStatus("Normalizing CJK dialog quotes...");
+
+            const text = getInputText();
+
+            const result = await invoke<string>("normalize_dialog_quotes", {
+                text,
+            });
+
+            compare.clear();
+            setEditorText(editorRight, result);
+
+            setStatus(
+                hasSelection(editorLeft)
+                    ? "Selection normalization complete"
+                    : "Normalization complete",
+            );
+        } catch (error) {
+            const msg =
+                typeof error === "string"
+                    ? error
+                    : (error as any)?.message ?? String(error);
+
+            setStatus(`Normalization failed: ${msg}`);
+        }
+    }
+
     async function handleDeTofu() {
         try {
             setStatus("Running DeTofu...");
@@ -803,6 +832,7 @@ function createApp() {
         btnConvert.addEventListener("click", handleConvert);
         btnReflow.addEventListener("click", handleReflow);   // ⭐ NEW
         btnNormCompat.addEventListener("click", handleNormCompat);   // ⭐ NEW
+        btnNormDialogQuotes.addEventListener("click", handleDialogQuotes);   // ⭐ NEW
         btnDeTofu.addEventListener("click", handleDeTofu);   // ⭐ NEW
         btnClearSource.addEventListener("click", handleClearSource);
         btnClearDestination.addEventListener("click", handleClearDestination);
