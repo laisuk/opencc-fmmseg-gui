@@ -5,9 +5,11 @@ mod office_converter;
 mod open_doc_helper;
 mod open_xml_helper;
 mod utils;
+mod cjk_text_normalize;
 
 use crate::epub_helper::ExtractOptions;
 use crate::office_converter::OfficeConverter;
+use crate::cjk_text_normalize::{DialogQuoteValidationResult};
 use opencc_fmmseg::{DetofuLevel, OpenCC};
 use pdfium_helper::{
     extract_pdf_pages_with_callback_pdfium, reflow_cjk_paragraphs_with_heading_regex, PdfiumLibrary,
@@ -71,6 +73,8 @@ pub fn run() {
             save_file,
             zho_check,
             normalize_compat,
+            normalize_dialog_quotes,
+            validate_dialog_quotes,
             detofu,
             read_text_file,
             reflow_text,
@@ -118,6 +122,17 @@ fn zho_check(state: State<'_, AppState>, text: String) -> i32 {
 #[tauri::command]
 fn normalize_compat(state: State<'_, AppState>, text: String) -> String {
     state.opencc.normalize_compat(&text)
+}
+
+#[tauri::command]
+fn normalize_dialog_quotes(text: String) -> String {
+    cjk_text_normalize::normalize_cjk_text_dialog_quotes(&text, true)
+}
+
+#[tauri::command]
+fn validate_dialog_quotes(text: String) -> DialogQuoteValidationResult {
+    let result = cjk_text_normalize::validate_cjk_text_dialog_quotes(&text);
+    DialogQuoteValidationResult::from(result)
 }
 
 #[tauri::command]
