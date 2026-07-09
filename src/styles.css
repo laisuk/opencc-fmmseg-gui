@@ -436,7 +436,7 @@ input[type="radio"] + label:active {
     border: 1px solid transparent;
     background: transparent;
     color: var(--muted);
-    font-size: 16px;   /* ⭐ add */
+    font-size: 16px; /* ⭐ add */
     font-weight: 600;
     cursor: pointer;
     box-shadow: none;
@@ -670,6 +670,44 @@ textarea {
 /* Optional: when hovering editor, soften gutter */
 .cm-editor:hover .cm-gutters {
     border-right-color: rgba(255, 255, 255, .14);
+}
+
+.cm-editor .cm-panels {
+    background: var(--micaA);
+    color: var(--text);
+    border-color: var(--stroke);
+    padding: 6px 8px;
+    position: relative;
+}
+
+.cm-editor .cm-panel {
+    background: transparent;
+    color: var(--text);
+    gap: 8px;
+    padding-right: 48px;
+}
+
+.cm-editor .cm-panel label {
+    color: var(--text);
+}
+
+.cm-editor .cm-panel input {
+    color: var(--text);
+    background: var(--ctl-bg);
+    border: 1px solid var(--ctl-border);
+    border-radius: 6px;
+}
+
+.cm-editor .cm-panel input:focus {
+    border-color: var(--ctl-border-focus);
+    box-shadow: var(--ctl-shadow-focus);
+    outline: none;
+}
+
+.cm-editor .cm-panel button {
+    color: var(--ctl-text);
+    background: var(--ctl-bg);
+    border: 1px solid var(--ctl-border);
 }
 
 /* CM End */

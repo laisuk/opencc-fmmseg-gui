@@ -2,43 +2,15 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 pub struct DialogQuoteValidationResult {
+    pub is_valid: bool,
+    pub summary: String,
     pub suspicious_lines: Vec<DialogQuoteIssue>,
 }
 
 impl DialogQuoteValidationResult {
     #[allow(dead_code)]
     pub fn is_valid(&self) -> bool {
-        self.suspicious_lines.is_empty()
-    }
-
-    #[allow(dead_code)]
-    pub fn build_summary(&self) -> String {
-        if self.is_valid() {
-            return "No suspicious dialog quote issues found.".to_string();
-        }
-
-        let mut s = String::new();
-        s.push_str(&format!(
-            "Found {} suspicious dialog quote line(s).\n\n",
-            self.suspicious_lines.len()
-        ));
-        s.push_str("Hint:\n");
-        s.push_str("The actual typo is often a missing or extra dialog quote\n");
-        s.push_str("a few lines above the first reported line.\n");
-        s.push_str("Fix the source text and validate again.\n\n");
-
-        for item in self.suspicious_lines.iter().take(5) {
-            s.push_str(&format!("{}: {}\n", item.line_number, item.text));
-        }
-
-        if self.suspicious_lines.len() > 5 {
-            s.push_str(&format!(
-                "...and {} more.\n",
-                self.suspicious_lines.len() - 5
-            ));
-        }
-
-        s
+        self.is_valid
     }
 }
 
@@ -101,10 +73,7 @@ impl DialogQuoteState {
 
 const MASKED_LATIN_SINGLE_QUOTE: char = '\u{E000}';
 
-pub fn normalize_cjk_text_dialog_quotes(
-    text: &str,
-    preserve_latin_single_quotes: bool,
-) -> String {
+pub fn normalize_cjk_text_dialog_quotes(text: &str, preserve_latin_single_quotes: bool) -> String {
     if text.is_empty() {
         return String::new();
     }
@@ -176,5 +145,34 @@ pub fn validate_cjk_text_dialog_quotes(text: &str) -> DialogQuoteValidationResul
         }
     }
 
-    DialogQuoteValidationResult { suspicious_lines }
+    let is_valid = suspicious_lines.is_empty();
+    let summary = build_dialog_quote_summary(is_valid, &suspicious_lines);
+
+    DialogQuoteValidationResult {
+        is_valid,
+        summary,
+        suspicious_lines,
+    }
+}
+
+fn build_dialog_quote_summary(
+    is_valid: bool,
+    suspicious_lines: &[DialogQuoteIssue],
+) -> String {
+    if is_valid {
+        return "No suspicious dialog quote issues found.".to_string();
+    }
+
+    let mut s = String::new();
+
+    s.push_str(&format!(
+        "Found {} suspicious dialog quote line(s).\n\n",
+        suspicious_lines.len()
+    ));
+    s.push_str("Hint:\n");
+    s.push_str("The actual typo is often a missing or extra dialog quote\n");
+    s.push_str("a few lines above the first reported line.\n");
+    s.push_str("Fix the source text and validate again.");
+
+    s
 }

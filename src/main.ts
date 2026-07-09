@@ -40,6 +40,10 @@ import {getRuntimeLabel, formatCharCount} from "./i18n/runtimeLabels";
 import {openUrl} from "@tauri-apps/plugin-opener";
 import {initThemeMode} from "./i18n";
 
+import {DialogQuoteValidationResult, initDialogs, showQuoteValidationDialog} from "./dialog.ts";
+
+initDialogs();
+
 window.addEventListener("error", (e) => {
     console.error("JS error:", e.error || e.message);
 });
@@ -118,6 +122,8 @@ function createApp() {
     const btnReflow = mustGetEl<HTMLButtonElement>("reflow");
     const btnNormCompat = mustGetEl<HTMLButtonElement>("norm-compat");
     const btnNormDialogQuotes = mustGetEl<HTMLButtonElement>("norm-dialog-quotes");
+    const btnValidateSourceDialogQuotes = mustGetEl<HTMLButtonElement>("validate-source-dialog-quotes");
+    const btnValidateDestinationDialogQuotes = mustGetEl<HTMLButtonElement>("validate-destination-dialog-quotes");
     const btnDeTofu = mustGetEl<HTMLButtonElement>("detofu");
     const btnClearSource = mustGetEl<HTMLButtonElement>("clear-source");
     const btnClearDestination = mustGetEl<HTMLButtonElement>("clear-destination");
@@ -236,6 +242,10 @@ function createApp() {
 
     function getInputText(): string {
         return hasSelection(editorLeft) ? getSelectedText(editorLeft) : getEditorText(editorLeft);
+    }
+
+    function getOutputText(): string {
+        return hasSelection(editorRight) ? getSelectedText(editorRight) : getEditorText(editorRight);
     }
 
     function updateInputInfo(textCode: TextCode) {
@@ -505,7 +515,7 @@ function createApp() {
         }
     }
 
-    async function handleDialogQuotes() {
+    async function handleNormDialogQuotes() {
         try {
             setStatus("Normalizing CJK dialog quotes...");
 
@@ -531,6 +541,56 @@ function createApp() {
 
             setStatus(`Normalization failed: ${msg}`);
         }
+    }
+
+    async function handleValidateDialogQuotes(
+        getText: () => string,
+        editor: EditorView
+    ): Promise<void> {
+        try {
+            setStatus("Validating CJK dialog quotes...");
+
+            const text = getText();
+
+            const result = await invoke<DialogQuoteValidationResult>(
+                "validate_dialog_quotes",
+                {text}
+            );
+
+            showQuoteValidationDialog(result, (lineNumber) =>
+                goToLine(editor, lineNumber)
+            );
+
+            setStatus("Validation complete");
+        } catch (error: unknown) {
+            const msg =
+                error instanceof Error
+                    ? error.message
+                    : typeof error === "string"
+                        ? error
+                        : String(error);
+
+            setStatus(`Validation failed: ${msg}`);
+        }
+    }
+
+    function goToLine(editor: EditorView, lineNumber: number): void {
+        const doc = editor.state.doc;
+
+        const line = doc.line(
+            Math.max(1, Math.min(lineNumber, doc.lines))
+        );
+
+        editor.dispatch({
+            selection: {
+                anchor: line.from,
+            },
+            effects: EditorView.scrollIntoView(line.from, {
+                y: "center",
+            }),
+        });
+
+        editor.focus();
     }
 
     async function handleDeTofu() {
@@ -832,7 +892,14 @@ function createApp() {
         btnConvert.addEventListener("click", handleConvert);
         btnReflow.addEventListener("click", handleReflow);   // ⭐ NEW
         btnNormCompat.addEventListener("click", handleNormCompat);   // ⭐ NEW
-        btnNormDialogQuotes.addEventListener("click", handleDialogQuotes);   // ⭐ NEW
+        btnNormDialogQuotes.addEventListener("click", handleNormDialogQuotes);   // ⭐ NEW
+        btnValidateSourceDialogQuotes.addEventListener("click", () =>
+            handleValidateDialogQuotes(getInputText, editorLeft)
+        );
+
+        btnValidateDestinationDialogQuotes.addEventListener("click", () =>
+            handleValidateDialogQuotes(getOutputText, editorRight)
+        );
         btnDeTofu.addEventListener("click", handleDeTofu);   // ⭐ NEW
         btnClearSource.addEventListener("click", handleClearSource);
         btnClearDestination.addEventListener("click", handleClearDestination);
