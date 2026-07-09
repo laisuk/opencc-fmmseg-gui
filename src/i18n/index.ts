@@ -1,22 +1,24 @@
 // src/i18n/index.ts
 
+import {en} from "./locales/en";
 import {zhHans} from "./locales/zh-Hans";
 import {zhHant} from "./locales/zh-Hant";
 
-export type UiLanguage = "zh-Hans" | "zh-Hant";
+export type UiLanguage = "en" | "zh-Hans" | "zh-Hant";
 
 const STORAGE_KEY = "uiLanguage";
 
 const locales = {
+    en,
     "zh-Hans": zhHans,
     "zh-Hant": zhHant,
 } as const;
 
-let currentLanguage: UiLanguage = "zh-Hans";
+let currentLanguage: UiLanguage = "en";
 
 export function getUiLanguage(): UiLanguage {
     const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === "zh-Hans" || saved === "zh-Hant") {
+    if (saved === "en" || saved === "zh-Hans" || saved === "zh-Hant") {
         currentLanguage = saved;
     }
     return currentLanguage;

@@ -1076,7 +1076,7 @@ button:active {
     border-radius: 14px;
     background: var(--surface);
     border: 1px solid var(--stroke2);
-    max-width: 520px;
+    max-width: 620px;
 }
 
 .settings-group {
@@ -1120,11 +1120,11 @@ button:active {
 
 .editor-font-settings {
     display: grid;
-    grid-template-columns: minmax(220px, 1fr) 100px;
+    grid-template-columns: minmax(220px, 1fr) 150px;
     gap: 14px;
     align-items: end;
     margin-top: 12px;
-    max-width: 460px;
+    max-width: 560px;
 }
 
 .fluent-field {
