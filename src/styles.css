@@ -791,6 +791,10 @@ textarea {
     font-weight: 600;
 }
 
+.btn-icon-only svg {
+    transform: scale(1.2);
+}
+
 .btn-icon-only:hover {
     transform: scale(1.05);
 }
