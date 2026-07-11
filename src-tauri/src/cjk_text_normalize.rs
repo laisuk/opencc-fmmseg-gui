@@ -273,7 +273,7 @@ pub fn validate_cjk_text_dialog_quotes(text: &str) -> DialogQuoteValidationResul
             continue;
         }
 
-        if has_suspicious_dialog_quote_pair(stripped) {
+        if has_suspicious_completed_dialog_pair(stripped) {
             suspicious_lines.push(DialogQuoteIssue {
                 line_number: index + 1,
                 text: line.to_string(),
@@ -293,7 +293,7 @@ pub fn validate_cjk_text_dialog_quotes(text: &str) -> DialogQuoteValidationResul
 
 /// Returns `true` when a line begins and ends with a reversed or mismatched
 /// dialog quote pair.
-fn has_suspicious_dialog_quote_pair(stripped: &str) -> bool {
+fn has_suspicious_completed_dialog_pair(stripped: &str) -> bool {
     let mut chars = stripped.chars();
 
     let Some(first) = chars.next() else {
