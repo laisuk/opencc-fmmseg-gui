@@ -7,11 +7,14 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.11.3] - 2026-06-28
+## [0.11.3] - Unreleased
 
 ### Added
 
 - Added Normalize Compatibility Ideographs and DeTofu features via UI controls.
+- Added button Normalize CJK Dialog Quotes and Validate Dialog Quotes.
+- Added i18n for UI controls.
+- Added zh-Hant support for dialog quotes normalization and validation.
 
 ### Changed
 
