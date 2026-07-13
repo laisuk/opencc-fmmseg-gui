@@ -2725,8 +2725,8 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg"
-version = "0.11.3"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#6fda8a4ca1fe176363a131f8004a7d5c31513b85"
+version = "0.11.4"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#9f3e76c5652d9a8f6451a95d7ad29c10f8299044"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2739,7 +2739,7 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg-gui"
-version = "0.11.3"
+version = "0.11.4"
 dependencies = [
  "kuchiki",
  "opencc-fmmseg",
