@@ -2858,7 +2858,7 @@ checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 [[package]]
 name = "pdfium-helper"
 version = "0.1.6"
-source = "git+https://github.com/laisuk/pdfium-helper#f54b4d3b565c81d1123da36026296b7aa7190a9f"
+source = "git+https://github.com/laisuk/pdfium-helper#ce6b053b2f3082c00f550fa4a04aa25f5c8bf522"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",
