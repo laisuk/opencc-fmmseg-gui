@@ -8,6 +8,7 @@ export type ZhoConfig =
     | "t2tw"
     | "t2twp"
     | "t2hk"
+    | "t2hkp"
     | "tw2s"
     | "tw2sp"
     | "tw2t"
@@ -15,6 +16,7 @@ export type ZhoConfig =
     | "hk2s"
     | "hk2sp"
     | "hk2t"
+    | "hk2tp"
     | "jp2t"
     | "t2jp";
 
@@ -22,9 +24,9 @@ export type TextCode = 0 | 1 | 2; // 1: zh-Hant, 2: zh-Hans, else: others
 
 const MANUAL_CONFIGS: readonly ZhoConfig[] = [
     "s2t", "s2tw", "s2twp", "s2hk", "s2hkp",
-    "t2s", "t2tw", "t2twp", "t2hk",
+    "t2s", "t2tw", "t2twp", "t2hk", "t2hkp",
     "tw2s", "tw2sp", "tw2t", "tw2tp",
-    "hk2s", "hk2sp", "hk2t",
+    "hk2s", "hk2sp", "hk2t", "hk2tp",
     "jp2t", "t2jp",
 ] as const;
 

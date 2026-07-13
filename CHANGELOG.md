@@ -15,6 +15,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Added button Normalize CJK Dialog Quotes and Validate Dialog Quotes.
 - Added i18n for UI controls.
 - Added zh-Hant support for dialog quotes normalization and validation.
+- Added manual conversion config selections for `t2hkp` and `hk2tp`.
 
 ### Changed
 
