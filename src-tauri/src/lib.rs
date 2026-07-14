@@ -706,6 +706,9 @@ async fn run_batch_convert(
 
         let total = paths.len();
         let office_extensions = office_extensions();
+        let mut converted_count = 0usize;
+        let mut error_skip_count = 0usize;
+        let mut existing_skip_count = 0usize;
 
         app.emit_to(
             "main",
@@ -796,6 +799,7 @@ async fn run_batch_convert(
                     )
                     .map_err(|e| format!("emit(skip {idx}/{total}) failed: {e}"))?;
 
+                    existing_skip_count += 1;
                     continue;
                 }
 
@@ -853,12 +857,8 @@ async fn run_batch_convert(
                     heading_regex.as_ref(),
                 )
             } else if is_office {
-                let office_format = ext_lower
-                    .clone()
-                    .ok_or_else(|| format!("[{idx}/{total}] Cannot infer extension: {path}"))?;
-
-                let r = {
-                    OfficeConverter::convert(
+                match ext_lower.clone() {
+                    Some(office_format) => OfficeConverter::convert(
                         &path,
                         &output_path.to_string_lossy(),
                         &office_format,
@@ -867,36 +867,42 @@ async fn run_batch_convert(
                         punctuation,
                         true, // keep_font
                     )
-                    .map_err(|e| format!("[{idx}/{total}] office convert failed: {e}"))?
-                };
-
-                if r.success {
-                    Ok(())
-                } else {
-                    Err(format!(
-                        "[{idx}/{total}] office convert failed: {}",
-                        r.message
-                    ))
+                    .map_err(|e| format!("[{idx}/{total}] office convert failed: {e}"))
+                    .and_then(|r| {
+                        if r.success {
+                            Ok(())
+                        } else {
+                            Err(format!(
+                                "[{idx}/{total}] office convert failed: {}",
+                                r.message
+                            ))
+                        }
+                    }),
+                    None => Err(format!("[{idx}/{total}] Cannot infer extension: {path}")),
                 }
             } else {
-                // Text path
-                let data =
-                    fs::read(&path).map_err(|e| format!("[{idx}/{total}] read {path}: {e}"))?;
+                (|| -> Result<(), String> {
+                    // Text path
+                    let data =
+                        fs::read(&path).map_err(|e| format!("[{idx}/{total}] read {path}: {e}"))?;
 
-                let contents = String::from_utf8(data)
-                    .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).to_string());
+                    let contents = String::from_utf8(data)
+                        .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).to_string());
 
-                let converted = { opencc_arc.convert(&contents, &config, punctuation) };
+                    let converted = { opencc_arc.convert(&contents, &config, punctuation) };
 
-                // keep your current behavior; or switch to write_text_unix_newlines if you want consistent \n
-                fs::write(&output_path, converted)
-                    .map_err(|e| format!("[{idx}/{total}] write {}: {e}", output_path.display()))?;
+                    // keep your current behavior; or switch to write_text_unix_newlines if you want consistent \n
+                    fs::write(&output_path, converted).map_err(|e| {
+                        format!("[{idx}/{total}] write {}: {e}", output_path.display())
+                    })?;
 
-                Ok(())
+                    Ok(())
+                })()
             };
 
             match result {
                 Ok(()) => {
+                    converted_count += 1;
                     app.emit_to(
                         "main",
                         "batch-progress",
@@ -920,6 +926,10 @@ async fn run_batch_convert(
                     .map_err(|e| format!("emit(ok {idx}/{total}) failed: {e}"))?;
                 }
                 Err(msg) => {
+                    error_skip_count += 1;
+                    let item_prefix = format!("[{idx}/{total}] ");
+                    let reason = msg.strip_prefix(&item_prefix).unwrap_or(&msg);
+
                     app.emit_to(
                         "main",
                         "batch-progress",
@@ -929,8 +939,8 @@ async fn run_batch_convert(
                             input: path,
                             output: output_path.display().to_string(),
                             ok: false,
-                            message: msg.clone(),
-                            progress: format!("[{idx}/{total}] ❌ failed"),
+                            message: format!("skipped: {reason}"),
+                            progress: format!("[{idx}/{total}] ⚠ skipped — {reason}"),
                         },
                     )
                     .map_err(|e| format!("emit(err {idx}/{total}) failed: {e}"))?;
@@ -947,8 +957,12 @@ async fn run_batch_convert(
                 input: String::new(),
                 output: output_dir,
                 ok: true,
-                message: format!("Batch done ({})", config),
-                progress: format!("[{total}/{total}] all done"),
+                message: format!(
+                    "Batch done ({config}): {converted_count} converted, {error_skip_count} skipped with errors, {existing_skip_count} skipped (output exists)"
+                ),
+                progress: format!(
+                    "[{total}/{total}] done — {converted_count} converted, {error_skip_count} errors"
+                ),
             },
         )
         .map_err(|e| format!("emit(done) failed: {e}"))?;
