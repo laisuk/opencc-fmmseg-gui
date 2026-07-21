@@ -792,7 +792,12 @@ textarea {
 }
 
 .btn-icon-only svg {
-    transform: scale(1.2);
+    display: block;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    pointer-events: none;
+    transform: scale(1.05);
 }
 
 .btn-icon-only:hover {
