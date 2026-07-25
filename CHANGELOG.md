@@ -7,6 +7,20 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
+## [0.11.5] - Unreleased
+
+### Changed
+
+- Updated `opencc-fmmseg` to v0.11.5.
+- Optimized file skipping log display in Batch Conversion.
+
+### Fixed
+
+- Fixed Dialog Quotes Validator to handle go-to-line out of bound.
+- Fixed mis-placed SVG icon button in Linux.
+
+---
+
 ## [0.11.4] - 2026-07-13
 
 ### Added
