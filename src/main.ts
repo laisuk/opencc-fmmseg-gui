@@ -557,7 +557,21 @@ function createApp() {
                 {text}
             );
 
-            showQuoteValidationDialog(result, (lineNumber) =>
+            const firstValidatedLine = hasSelection(editor)
+                ? editor.state.doc.lineAt(editor.state.selection.main.from).number
+                : 1;
+
+            const displayedResult = firstValidatedLine === 1
+                ? result
+                : {
+                    ...result,
+                    suspicious_lines: result.suspicious_lines.map((issue) => ({
+                        ...issue,
+                        line_number: issue.line_number + firstValidatedLine - 1,
+                    })),
+                };
+
+            showQuoteValidationDialog(displayedResult, (lineNumber) =>
                 goToLine(editor, lineNumber)
             );
 
