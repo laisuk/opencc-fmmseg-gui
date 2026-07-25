@@ -4,11 +4,11 @@
 [![Downloads](https://img.shields.io/github/downloads/laisuk/opencc-fmmseg-gui/total)](https://github.com/laisuk/opencc-fmmseg-gui/releases)
 [![License](https://img.shields.io/github/license/laisuk/opencc-fmmseg-gui)](https://github.com/laisuk/opencc-fmmseg-gui/blob/master/LICENSE)
 
-A **modern cross‑platform Chinese text converter** built with **Tauri + Vite** and powered by the Rust
-**opencc-fmmseg** engine.
+A **modern cross‑platform Chinese text converter** built with **Tauri + Vite** and powered by the Rust **opencc-fmmseg**
+engine.
 
-The application provides fast **Simplified ↔ Traditional Chinese conversion**, PDF text extraction,
-and batch processing in a lightweight desktop GUI.
+The application provides fast **Simplified ↔ Traditional Chinese conversion**, PDF text extraction, and batch processing
+in a lightweight desktop GUI.
 
 ---
 
@@ -32,19 +32,19 @@ https://github.com/laisuk/opencc-fmmseg-gui/releases/latest
 
 Example release assets:
 
-| Platform | Package |
-|----------|--------|
+| Platform | Package                                                        |
+|----------|----------------------------------------------------------------|
 | Windows  | `opencc-fmmseg-gui-vX.Y.Z-windows-x64-portable.zip` (portable) |
-| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64-setup.exe` (installer) |
-| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64_en-US.msi` (MSI installer) |
-| Linux    | `opencc-fmmseg-gui_X.Y.Z_amd64.deb` |
-| Linux    | `opencc-fmmseg-gui_X.Y.Z_arm64.deb` |
-| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.x86_64.rpm` |
-| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.aarch64.rpm` |
-| macOS    | `opencc-fmmseg-gui_X.Y.Z_x64.dmg` |
-| macOS    | `opencc-fmmseg-gui_X.Y.Z_aarch64.dmg` |
-| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-x64.app.zip` (portable) |
-| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-arm64.app.zip` (portable) |
+| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64-setup.exe` (installer)            |
+| Windows  | `opencc-fmmseg-gui_X.Y.Z_x64_en-US.msi` (MSI installer)        |
+| Linux    | `opencc-fmmseg-gui_X.Y.Z_amd64.deb`                            |
+| Linux    | `opencc-fmmseg-gui_X.Y.Z_arm64.deb`                            |
+| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.x86_64.rpm`                         |
+| Linux    | `opencc-fmmseg-gui-X.Y.Z-1.aarch64.rpm`                        |
+| macOS    | `opencc-fmmseg-gui_X.Y.Z_x64.dmg`                              |
+| macOS    | `opencc-fmmseg-gui_X.Y.Z_aarch64.dmg`                          |
+| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-x64.app.zip` (portable)        |
+| macOS    | `opencc-fmmseg-gui-vX.Y.Z-macos-arm64.app.zip` (portable)      |
 
 ### Notes
 
@@ -53,16 +53,16 @@ Example release assets:
 * Linux packages are provided in native formats (`.deb`, `.rpm`) for better compatibility and integration.
 
 * AppImage is not included in release assets:
-  * It remains available when building locally via Tauri
-  * Not included due to system dependency variability (e.g. WebKitGTK)
+    * It remains available when building locally via Tauri
+    * Not included due to system dependency variability (e.g. WebKitGTK)
 
 * macOS builds are provided for both:
-  * **Intel (x64)**
-  * **Apple Silicon (ARM64)**
+    * **Intel (x64)**
+    * **Apple Silicon (ARM64)**
 
 * Linux builds are provided for both:
-  * **x86_64 (amd64)**
-  * **ARM64 (aarch64)**
+    * **x86_64 (amd64)**
+    * **ARM64 (aarch64)**
 
 The application is distributed as a **stand-alone desktop app** and requires no additional runtime.
 
@@ -128,8 +128,8 @@ The reflow system attempts to:
 Example:
 
 ```
-不抱任何期待点了国产红酒，却出乎意料地回味悠长。这难道是料理的魔
-力？
+不抱任何期待点了国产红酒，却出乎意料地
+回味悠长。这难道是料理的魔力？
 ```
 
 becomes
@@ -156,11 +156,32 @@ Workflow:
 
 ## Compare Mode
 
-After conversion, the **Compare** option can be enabled to highlight
-differences between the source text and converted output.
+After conversion, the **Compare** option can be enabled to highlight differences between the source text and converted
+output.
 
-Changed characters are visually marked so users can quickly review
-conversion results.
+Changed characters are visually marked so users can quickly review conversion results.
+
+### Compare Mode Limitation
+
+The Compare overlay intentionally uses a fast, position-by-position Unicode comparison instead of a sequence-alignment
+algorithm such as LCS. This keeps comparison responsive for very large texts and works well when each source character
+maps to one destination character.
+
+When a phrase conversion changes the number of characters, however, the source and destination positions no longer line
+up. For example:
+
+```text
+特朗普 → 川普
+```
+
+After the first length-changing conversion, subsequent CodeMirror annotations may mark most or all of the remaining
+destination text as different, even when those later conversions are correct. This is most likely with phrase-level
+regional dictionaries such as `TWPhrases`, `TWPhrasesRev`, `HKPhrases`, and `HKPhrasesRev`, used by configurations
+including `s2twp`, `tw2sp`, `s2hkp`, `hk2sp`, `t2twp`, and `t2hkp`.
+
+> This limitation affects only the visual Compare annotations; it does not change or invalidate the converted text.
+> When reviewing a length-changing phrase conversion, interpret highlights after the first shifted phrase with care or
+> temporarily disable Compare mode.
 
 ---
 
