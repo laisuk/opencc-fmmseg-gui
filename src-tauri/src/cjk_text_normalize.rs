@@ -160,9 +160,6 @@ impl DialogQuoteState {
     }
 }
 
-/// Private Use Area marker used temporarily while Latin apostrophes are masked.
-const MASKED_LATIN_SINGLE_QUOTE: char = '\u{E000}';
-
 /// Normalizes ASCII dialog quotation marks in CJK text.
 ///
 /// Existing curly and Traditional Chinese corner quotation marks update the
@@ -188,53 +185,32 @@ const MASKED_LATIN_SINGLE_QUOTE: char = '\u{E000}';
 /// When an ASCII quote opens a new quotation and no quote family is active,
 /// curly quotation marks are used by default.
 ///
-/// When `preserve_latin_single_quotes` is `true`, ASCII apostrophes between
-/// Latin letters are preserved, including words such as `don't`, `I'm`,
-/// `rock'n'roll`, and `O'Brien`.
+/// When `preserve_latin_single_quotes` is `true`, ASCII and curly single
+/// quotation marks between Latin letters are preserved without changing the
+/// current quote state. This includes apostrophes in words such as `don't`,
+/// `I'm`, `rock'n'roll`, and `O'Brien`.
 pub fn normalize_cjk_text_dialog_quotes(text: &str, preserve_latin_single_quotes: bool) -> String {
     if text.is_empty() {
         return String::new();
     }
 
-    let source = if preserve_latin_single_quotes {
-        mask_latin_single_quotes(text)
-    } else {
-        text.to_string()
-    };
-
     let mut state = DialogQuoteState::default();
-    let mut out = String::with_capacity(source.len());
-
-    for ch in source.chars() {
-        out.push(state.normalize_char(ch));
-    }
-
-    if preserve_latin_single_quotes {
-        out.replace(MASKED_LATIN_SINGLE_QUOTE, "'")
-    } else {
-        out
-    }
-}
-
-/// Masks ASCII apostrophes that appear between Latin letters.
-///
-/// This prevents apostrophes in words such as `don't`, `I'm`, `rock'n'roll`,
-/// and `O'Brien` from being interpreted as dialog quotation marks.
-fn mask_latin_single_quotes(text: &str) -> String {
-    let chars: Vec<char> = text.chars().collect();
     let mut out = String::with_capacity(text.len());
+    let mut previous: Option<char> = None;
+    let mut chars = text.chars().peekable();
 
-    for (index, &ch) in chars.iter().enumerate() {
-        if ch == '\''
-            && index > 0
-            && index + 1 < chars.len()
-            && is_ascii_letter(chars[index - 1])
-            && is_ascii_letter(chars[index + 1])
+    while let Some(ch) = chars.next() {
+        if preserve_latin_single_quotes
+            && matches!(ch, '\'' | '‘' | '’')
+            && previous.is_some_and(is_ascii_letter)
+            && chars.peek().is_some_and(|next| is_ascii_letter(*next))
         {
-            out.push(MASKED_LATIN_SINGLE_QUOTE);
-        } else {
             out.push(ch);
+        } else {
+            out.push(state.normalize_char(ch));
         }
+
+        previous = Some(ch);
     }
 
     out
@@ -412,10 +388,16 @@ mod tests {
 
     #[test]
     fn preserves_latin_apostrophes() {
-        assert_eq!(
-            normalize_cjk_text_dialog_quotes("I'm reading O'Brien's book.", true),
-            "I'm reading O'Brien's book."
-        );
+        let input = "I'm reading O'Brien's book. don't rock'n'roll I’m rock‘n’roll";
+
+        assert_eq!(normalize_cjk_text_dialog_quotes(input, true), input);
+    }
+
+    #[test]
+    fn preserves_private_use_characters() {
+        let input = "A\u{E000}B";
+
+        assert_eq!(normalize_cjk_text_dialog_quotes(input, true), input);
     }
 
     #[test]
