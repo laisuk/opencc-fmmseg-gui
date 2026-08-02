@@ -128,7 +128,7 @@
 
 :root[data-theme="dark"] .cm-selectionBackground,
 :root[data-theme="dark"] .cm-content ::selection {
-    background: rgb(235 180 37 / 0.58) !important;
+    background: rgb(0 120 212 / 0.50) !important;
 }
 
 :root[data-theme="system"] {
