@@ -128,7 +128,27 @@
 
 :root[data-theme="dark"] .cm-selectionBackground,
 :root[data-theme="dark"] .cm-content ::selection {
-    background: rgb(0 120 212 / 0.50) !important;
+    background: rgb(0 120 212 / 0.40) !important;
+}
+
+:root[data-theme="dark"] .cm-searchMatch {
+    background: rgb(235 225 37 / 0.38) !important;
+}
+
+:root[data-theme="dark"] .cm-searchMatch.cm-searchMatch-selected {
+    background: rgb(0 120 212) !important;
+}
+
+/* Current line — editor not focused */
+:root[data-theme="dark"] .cm-activeLine,
+:root[data-theme="dark"] .cm-activeLineGutter {
+    background: rgb(255 255 255 / 0.04) !important;
+}
+
+/* Current line — editor focused */
+:root[data-theme="dark"] .cm-editor.cm-focused .cm-activeLine,
+:root[data-theme="dark"] .cm-editor.cm-focused .cm-activeLineGutter {
+    background: rgb(0 0 0 / 0.20) !important;
 }
 
 :root[data-theme="system"] {
