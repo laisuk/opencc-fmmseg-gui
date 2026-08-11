@@ -1,6 +1,6 @@
 [package]
 name = "opencc-fmmseg-gui"
-version = "0.11.5"
+version = "0.11.6"
 description = "Open Simplified/Traditional Chinese Converter"
 authors = ["laisuk"]
 edition = "2021"
@@ -26,7 +26,7 @@ tauri-plugin-opener = "2.5"
 #tauri-plugin-shell = "2.3.5"
 #opencc-fmmseg = { git = "https://github.com/laisuk/opencc-fmmseg.git", branch = "master" }
 opencc-fmmseg = {path = "../../opencc-fmmseg"}
-#opencc-fmmseg = "0.11.5"
+#opencc-fmmseg = "0.11.6"
 rfd = "0.17"
 tauri-plugin-clipboard-manager = "2.3"
 opener = "0.8"
