@@ -151,6 +151,12 @@
     background: rgb(0 0 0 / 0.20) !important;
 }
 
+/* Cursor */
+:root[data-theme="dark"] .cm-cursor,
+:root[data-theme="dark"] .cm-dropCursor {
+    border-left-color: rgb(255 255 255 / 0.90) !important;
+}
+
 :root[data-theme="system"] {
     color-scheme: light dark;
 }
