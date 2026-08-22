@@ -103,6 +103,15 @@ export function applyLocale(): void {
     const batchRunText = document.getElementById("batch-run-text");
     if (batchRunText) batchRunText.textContent = s.batch.convertBatch;
     // ---------- Config labels ----------
+
+    // ---------- Settings checkboxes ----------
+    mustGetEl<HTMLElement>("convert-filename-text").textContent = s.settings.convertFilename;
+    mustGetEl<HTMLElement>("add-page-header-text").textContent = s.settings.addPageHeader;
+    mustGetEl<HTMLElement>("compact-pdf-text").textContent = s.settings.compactPdf;
+    mustGetEl<HTMLElement>("auto-reflow-text").textContent = s.settings.autoReflow;
+    mustGetEl<HTMLElement>("overwrite-output-text").textContent = s.settings.overwriteOutput;
+    mustGetEl<HTMLElement>("enable-editor-log-text").textContent = s.settings.enableEditorLog;
+
     mustGetEl<HTMLElement>("rb-st-text").textContent = s.config.s2t;
     mustGetEl<HTMLElement>("rb-ts-text").textContent = s.config.t2s;
     mustGetEl<HTMLElement>("rb-manual-text").textContent = s.config.manual;
@@ -153,6 +162,11 @@ export function applyLocale(): void {
     // ---------- Save Target ----------
     const saveTargetLabel = document.getElementById("save-target-label-text");
     if (saveTargetLabel) saveTargetLabel.textContent = s.settings.saveTarget;
+
+    const extendUnicodeCompatLabel = document.getElementById("extend-unicode-compat-text");
+    if (extendUnicodeCompatLabel) {
+        extendUnicodeCompatLabel.textContent = s.settings.extendUnicodeCompat;
+    }
 
     applyQuoteValidationDialogLocale();
 }

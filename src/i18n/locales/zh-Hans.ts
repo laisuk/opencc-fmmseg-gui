@@ -73,6 +73,12 @@ export const zhHans = {
     },
 
     settings: {
+        convertFilename: "转换文件名",
+        addPageHeader: "添加页眉（PDF）",
+        compactPdf: "紧凑化 PDF 文本",
+        autoReflow: "自动重排（PDF）",
+        overwriteOutput: "覆盖现有输出文件（批量模式）",
+        enableEditorLog: "启用编辑器日志",
         uiLanguage: "UI Language（界面语言）",
         uiLanguageEnglish: "English",
         uiLanguageHans: "简体中文",
@@ -88,6 +94,7 @@ export const zhHans = {
 
         deTofuLevel: "DeTofu Level（去豆腐等级）",
         saveTarget: "Save Target（保存目标）",
+        extendUnicodeCompat: "扩展 CJK 规范化的 Unicode 兼容范围",
     },
     dialogQuoteValidation: {
         warningTitle: "验证警告",

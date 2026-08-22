@@ -65,6 +65,12 @@ export const en = {
     },
 
     settings: {
+        convertFilename: "Convert Filename",
+        addPageHeader: "Add Page Header (PDF)",
+        compactPdf: "Compact PDF Text",
+        autoReflow: "Auto Reflow (PDF)",
+        overwriteOutput: "Overwrite Existing Output Files (Batch Mode)",
+        enableEditorLog: "Enable Editor Log",
         uiLanguage: "UI Language",
         uiLanguageEnglish: "English",
         uiLanguageHans: "简体中文",
@@ -80,6 +86,7 @@ export const en = {
 
         deTofuLevel: "DeTofu Level",
         saveTarget: "Save Target",
+        extendUnicodeCompat: "Extend Unicode compatibility for CJK normalization",
     },
 
     dialogQuoteValidation: {

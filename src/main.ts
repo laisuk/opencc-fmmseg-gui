@@ -492,9 +492,11 @@ function createApp() {
             setStatus("Normalizing compatibility ideographs...");
 
             const text = getInputText();
+            const extended = getAppSettings().extendUnicodeCompat;
 
             const result = await invoke<string>("normalize_compat", {
                 text,
+                extended,
             });
 
             compare.clear();

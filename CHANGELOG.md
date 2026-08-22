@@ -9,6 +9,11 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ## [0.11.5] - Unreleased
 
+### Added
+
+- Added a setting to use extended Unicode compatibility mappings for CJK normalization.
+- Added localization for all Settings checkboxes.
+
 ### Changed
 
 - Updated `opencc-fmmseg` to v0.11.5.

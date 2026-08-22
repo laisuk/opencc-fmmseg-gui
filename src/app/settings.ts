@@ -4,6 +4,7 @@ export type SaveTarget = "source" | "destination";
 
 export type AppSettingsSnapshot = {
     convertFilename: boolean;
+    extendUnicodeCompat: boolean;
     addPageHeader: boolean;
     compactPdf: boolean;
     autoReflow: boolean;
@@ -18,6 +19,7 @@ export type AppSettingsSnapshot = {
 
 type SettingsElements = {
     cbConvertFilename: HTMLInputElement;
+    cbExtendUnicodeCompat: HTMLInputElement;
     cbAddPageHeader: HTMLInputElement;
     cbCompactPdf: HTMLInputElement;
     cbAutoReflow: HTMLInputElement;
@@ -33,6 +35,7 @@ type SettingsElements = {
 
 const STORAGE_KEYS = {
     convertFilename: "convertFilename",
+    extendUnicodeCompat: "extendUnicodeCompat",
     addPageHeader: "addPageHeader",
     compactPdf: "compactPdf",
     autoReflow: "autoReflow",
@@ -49,6 +52,7 @@ const DEFAULT_HINT =
 
 const state = {
     convertFilename: false,
+    extendUnicodeCompat: true,
     addPageHeader: false,
     compactPdf: false,
     autoReflow: true,
@@ -90,6 +94,7 @@ function simplifyRegexError(msg: string): string {
 function syncStateFromCheckboxes(): void {
     if (!elements) return;
     state.convertFilename = elements.cbConvertFilename.checked;
+    state.extendUnicodeCompat = elements.cbExtendUnicodeCompat.checked;
     state.addPageHeader = elements.cbAddPageHeader.checked;
     state.compactPdf = elements.cbCompactPdf.checked;
     state.autoReflow = elements.cbAutoReflow.checked;
@@ -101,6 +106,7 @@ function syncStateFromCheckboxes(): void {
 function applyStateToCheckboxes(): void {
     if (!elements) return;
     elements.cbConvertFilename.checked = state.convertFilename;
+    elements.cbExtendUnicodeCompat.checked = state.extendUnicodeCompat;
     elements.cbAddPageHeader.checked = state.addPageHeader;
     elements.cbCompactPdf.checked = state.compactPdf;
     elements.cbAutoReflow.checked = state.autoReflow;
@@ -111,6 +117,7 @@ function applyStateToCheckboxes(): void {
 
 function persistCheckboxState(): void {
     localStorage.setItem(STORAGE_KEYS.convertFilename, String(state.convertFilename));
+    localStorage.setItem(STORAGE_KEYS.extendUnicodeCompat, String(state.extendUnicodeCompat));
     localStorage.setItem(STORAGE_KEYS.addPageHeader, String(state.addPageHeader));
     localStorage.setItem(STORAGE_KEYS.compactPdf, String(state.compactPdf));
     localStorage.setItem(STORAGE_KEYS.autoReflow, String(state.autoReflow));
@@ -182,6 +189,7 @@ function setHeadingRegex(text: string, persist = true): void {
 export function initAppSettings(): void {
     elements = {
         cbConvertFilename: mustGetEl<HTMLInputElement>("cbConvertFilename"),
+        cbExtendUnicodeCompat: mustGetEl<HTMLInputElement>("cbExtendUnicodeCompat"),
         cbAddPageHeader: mustGetEl<HTMLInputElement>("cbAddPageHeader"),
         cbCompactPdf: mustGetEl<HTMLInputElement>("cbCompactPdf"),
         cbAutoReflow: mustGetEl<HTMLInputElement>("cbAutoReflow"),
@@ -196,6 +204,7 @@ export function initAppSettings(): void {
     };
 
     state.convertFilename = readBoolean(STORAGE_KEYS.convertFilename, false);
+    state.extendUnicodeCompat = readBoolean(STORAGE_KEYS.extendUnicodeCompat, true);
     state.addPageHeader = readBoolean(STORAGE_KEYS.addPageHeader, false);
     state.compactPdf = readBoolean(STORAGE_KEYS.compactPdf, false);
     state.autoReflow = readBoolean(STORAGE_KEYS.autoReflow, true);
@@ -207,6 +216,7 @@ export function initAppSettings(): void {
 
     [
         elements.cbConvertFilename,
+        elements.cbExtendUnicodeCompat,
         elements.cbAddPageHeader,
         elements.cbCompactPdf,
         elements.cbAutoReflow,
@@ -267,6 +277,7 @@ export function isEditorLogEnabled(): boolean {
 export function getAppSettings(): AppSettingsSnapshot {
     return {
         convertFilename: state.convertFilename,
+        extendUnicodeCompat: state.extendUnicodeCompat,
         addPageHeader: state.addPageHeader,
         compactPdf: state.compactPdf,
         autoReflow: state.autoReflow,

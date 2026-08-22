@@ -1,15 +1,15 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+mod cjk_text_normalize;
 mod epub_helper;
 mod office_converter;
 mod open_doc_helper;
 mod open_xml_helper;
 mod utils;
-mod cjk_text_normalize;
 
+use crate::cjk_text_normalize::DialogQuoteValidationResult;
 use crate::epub_helper::ExtractOptions;
 use crate::office_converter::OfficeConverter;
-use crate::cjk_text_normalize::{DialogQuoteValidationResult};
 use opencc_fmmseg::{DetofuLevel, OpenCC};
 use pdfium_helper::{
     extract_pdf_pages_with_callback_pdfium, reflow_cjk_paragraphs_with_heading_regex, PdfiumLibrary,
@@ -120,8 +120,12 @@ fn zho_check(state: State<'_, AppState>, text: String) -> i32 {
 }
 
 #[tauri::command]
-fn normalize_compat(state: State<'_, AppState>, text: String) -> String {
-    state.opencc.normalize_compat(&text)
+fn normalize_compat(state: State<'_, AppState>, text: String, extended: bool) -> String {
+    if extended {
+        state.opencc.normalize_compat_extended(&text)
+    } else {
+        state.opencc.normalize_compat(&text)
+    }
 }
 
 #[tauri::command]
