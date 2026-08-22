@@ -2726,7 +2726,7 @@ dependencies = [
 [[package]]
 name = "opencc-fmmseg"
 version = "0.11.6"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#bfd3e06153f1bb4e2ffd253d766b2d2626de481f"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#3b94b96b1416b60bab87e1403b5928749f6388aa"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2857,7 +2857,7 @@ checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 [[package]]
 name = "pdfium-helper"
 version = "0.1.6"
-source = "git+https://github.com/laisuk/pdfium-helper#c36f24f1fdfbe6821227d27a3f4c365f82b886b5"
+source = "git+https://github.com/laisuk/pdfium-helper#64419900056b6f1ababbe101a627e456b56df31c"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",
