@@ -41,6 +41,7 @@
     --border-color: rgba(255, 255, 255, 0.14);
     --control-bg: rgba(20, 28, 44, 0.92);
     --border-subtle: rgba(255, 255, 255, 0.12);
+    --danger-color: #dc3545;
 
     /* Fluent control tokens */
     --ctl-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.04)) 0 0 / auto no-repeat,
