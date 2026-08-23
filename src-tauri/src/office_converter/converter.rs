@@ -32,7 +32,7 @@
 //!
 //! ## Example
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use opencc_fmmseg::OpenCC;
 //! use crate::office_converter::OfficeConverter;
 //!

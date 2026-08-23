@@ -17,6 +17,7 @@ const STORAGE = {
     applyStartup: "dictionary.applyDuringStartup",
     baseDirectory: "dictionary.baseDirectory",
     outputDirectory: "dictionary.outputDirectory",
+    generateWithCustom: "dictionary.generateWithCustom",
 } as const;
 
 const icons: Record<string, string> = {
@@ -75,6 +76,7 @@ function errorText(error: unknown): string {
 function setBusy(busy: boolean): void {
     document.querySelectorAll<HTMLButtonElement>("#panel-dictionary button")
         .forEach((button) => button.disabled = busy || (button.hasAttribute("data-generate") && !sourceValid));
+    el<HTMLInputElement>("dictionary-generate-with-custom").disabled = busy;
 }
 
 function updateRuntimeStatus(): void {
@@ -107,20 +109,29 @@ function renderRows(): void {
             row.slot = options.slots[0];
             slot.value = row.slot;
         }
-        slot.addEventListener("change", () => { rows[index].slot = slot.value; saveRows(); });
+        slot.addEventListener("change", () => {
+            rows[index].slot = slot.value;
+            saveRows();
+        });
 
         const mode = document.createElement("select");
         mode.className = "fluent-select";
         options.modes.forEach((value) => mode.append(makeOption(value)));
         mode.value = options.modes.includes(row.mode) ? row.mode : options.modes[0];
-        mode.addEventListener("change", () => { rows[index].mode = mode.value; saveRows(); });
+        mode.addEventListener("change", () => {
+            rows[index].mode = mode.value;
+            saveRows();
+        });
 
         const path = document.createElement("input");
         path.className = "dictionary-file-input fluent-input";
         path.type = "text";
         path.placeholder = strings.filePlaceholder;
         path.value = row.path;
-        path.addEventListener("input", () => { rows[index].path = path.value; saveRows(); });
+        path.addEventListener("input", () => {
+            rows[index].path = path.value;
+            saveRows();
+        });
 
         const browse = document.createElement("button");
         browse.className = "dictionary-browse-file";
@@ -128,7 +139,11 @@ function renderRows(): void {
         browse.innerHTML = `<span class="dictionary-icon">${bookAddIcon}</span><span>${strings.browse}</span>`;
         browse.addEventListener("click", async () => {
             const selected = await invoke<string>("pick_custom_dictionary_file");
-            if (selected) { rows[index].path = selected; path.value = selected; saveRows(); }
+            if (selected) {
+                rows[index].path = selected;
+                path.value = selected;
+                saveRows();
+            }
         });
 
         const remove = document.createElement("button");
@@ -136,7 +151,11 @@ function renderRows(): void {
         remove.type = "button";
         remove.title = strings.remove;
         remove.innerHTML = `<span class="dictionary-icon">${removeIcon}</span><span>${strings.remove}</span>`;
-        remove.addEventListener("click", () => { rows.splice(index, 1); saveRows(); renderRows(); });
+        remove.addEventListener("click", () => {
+            rows.splice(index, 1);
+            saveRows();
+            renderRows();
+        });
 
         wrapper.append(slot, mode, path, browse, remove);
         host.append(wrapper);
@@ -193,7 +212,7 @@ async function generate(formatName: string): Promise<void> {
             baseDirectory: el<HTMLInputElement>("dictionary-base-directory").value,
             outputDirectory: el<HTMLInputElement>("dictionary-output-directory").value,
             format: formatName,
-            rows,
+            rows: el<HTMLInputElement>("dictionary-generate-with-custom").checked ? rows : [],
         });
         setStatus(format(strings.generated, {path}));
     } catch (error) {
@@ -216,6 +235,7 @@ export function applyDictionaryLocale(): void {
     el("dictionary-file-column").textContent = s.dictionaryFile;
     el("dictionary-empty-rows").textContent = s.empty;
     el("dictionary-apply-startup-text").textContent = s.applyStartup;
+    el("dictionary-generate-with-custom-text").textContent = s.generateWithCustom;
     el<HTMLButtonElement>("dictionary-browse-base").lastElementChild!.textContent = s.browse;
     el<HTMLButtonElement>("dictionary-browse-output").lastElementChild!.textContent = s.browse;
     el<HTMLButtonElement>("dictionary-add-row").lastElementChild!.textContent = s.add;
@@ -240,9 +260,11 @@ export async function initDictionary(): Promise<void> {
     const base = el<HTMLInputElement>("dictionary-base-directory");
     const output = el<HTMLInputElement>("dictionary-output-directory");
     const startup = el<HTMLInputElement>("dictionary-apply-startup");
+    const generateWithCustom = el<HTMLInputElement>("dictionary-generate-with-custom");
     base.value = localStorage.getItem(STORAGE.baseDirectory) ?? "";
     output.value = localStorage.getItem(STORAGE.outputDirectory) ?? "";
     startup.checked = localStorage.getItem(STORAGE.applyStartup) === "true";
+    generateWithCustom.checked = localStorage.getItem(STORAGE.generateWithCustom) !== "false";
 
     base.addEventListener("input", () => {
         localStorage.setItem(STORAGE.baseDirectory, base.value);
@@ -250,6 +272,8 @@ export async function initDictionary(): Promise<void> {
     });
     output.addEventListener("input", () => localStorage.setItem(STORAGE.outputDirectory, output.value));
     startup.addEventListener("change", () => localStorage.setItem(STORAGE.applyStartup, String(startup.checked)));
+    generateWithCustom.addEventListener("change", () =>
+        localStorage.setItem(STORAGE.generateWithCustom, String(generateWithCustom.checked)));
     el("dictionary-browse-base").addEventListener("click", () => void chooseDirectory(base));
     el("dictionary-browse-output").addEventListener("click", () => void chooseDirectory(output));
     el("dictionary-add-row").addEventListener("click", () => {

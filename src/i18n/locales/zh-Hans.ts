@@ -106,6 +106,7 @@ export const zhHans = {
         generateZstd: "生成 ZSTD",
         generateCbor: "生成 CBOR",
         generateJson: "生成 JSON",
+        generateWithCustom: "应用自定义词典",
         customSlots: "自定义词典槽位",
         slot: "槽位",
         mode: "模式",

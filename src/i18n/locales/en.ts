@@ -99,6 +99,7 @@ export const en = {
         generateZstd: "Generate ZSTD",
         generateCbor: "Generate CBOR",
         generateJson: "Generate JSON",
+        generateWithCustom: "Applied with custom dictionary",
         customSlots: "Custom Dictionary Slots",
         slot: "Slot",
         mode: "Mode",

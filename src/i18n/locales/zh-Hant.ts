@@ -105,6 +105,7 @@ export const zhHant = {
         generateZstd: "產生 ZSTD",
         generateCbor: "產生 CBOR",
         generateJson: "產生 JSON",
+        generateWithCustom: "套用自訂字典",
         customSlots: "自訂字典槽位",
         slot: "槽位",
         mode: "模式",
