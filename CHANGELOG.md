@@ -7,22 +7,30 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.11.5] - Unreleased
+## [0.11.6] - Unreleased
 
 ### Added
 
 - Added a setting to use extended Unicode compatibility mappings for CJK normalization.
 - Added localization for all Settings checkboxes.
+- Added a Dictionary tab for generating ZSTD, CBOR, and readable JSON dictionary artifacts from OpenCC text dictionaries.
+- Added dynamic custom dictionary slots with canonical slot selection, Append/Override modes, persisted rows, and optional startup application.
+- Added transactional hot-swapping between the permanent built-in converter and custom dictionary converters.
+- Added English, Simplified Chinese, and Traditional Chinese localization for Dictionary controls, statuses, and validation messages.
 
 ### Changed
 
-- Updated `opencc-fmmseg` to v0.11.5.
+- Updated `opencc-fmmseg` to v0.11.6.
 - Optimized file skipping log display in Batch Conversion.
+- Dictionary artifact generation now includes every non-empty custom dictionary row without changing the active runtime converter.
+- Updated Dictionary SVG icons to use theme-aware `currentColor` fills.
 
 ### Fixed
 
 - Fixed Dialog Quotes Validator to handle go-to-line out of bound.
 - Fixed mis-placed SVG icon button in Linux.
+- Fixed Dictionary button icon and text vertical alignment.
+- Fixed Dictionary path fields and dropdown backgrounds in dark, light, and system themes.
 
 ---
 

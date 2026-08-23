@@ -1,0 +1,52 @@
+<div class="dictionary-card">
+    <div class="dictionary-heading">
+        <h3 id="dictionary-title">Dictionary Generation</h3>
+        <span id="dictionary-runtime-status" class="dictionary-runtime-pill">Default dictionary</span>
+    </div>
+
+    <section class="dictionary-section" aria-labelledby="dictionary-generation-heading">
+        <h4 id="dictionary-generation-heading">Dictionary generation</h4>
+        <div class="dictionary-path-field">
+            <label for="dictionary-base-directory" id="dictionary-base-label">Base Dictionary Directory</label>
+            <div class="dictionary-path-row">
+                <input id="dictionary-base-directory" class="fluent-input" type="text" autocomplete="off" />
+                <button id="dictionary-browse-base" type="button"><span class="dictionary-icon" data-icon="folder"></span><span>Browse</span></button>
+            </div>
+        </div>
+        <div class="dictionary-path-field">
+            <label for="dictionary-output-directory" id="dictionary-output-label">Output Directory</label>
+            <div class="dictionary-path-row">
+                <input id="dictionary-output-directory" class="fluent-input" type="text" autocomplete="off" />
+                <button id="dictionary-browse-output" type="button"><span class="dictionary-icon" data-icon="folder"></span><span>Browse</span></button>
+            </div>
+        </div>
+        <div class="dictionary-actions dictionary-generation-actions">
+            <button data-generate="zstd" type="button"><span class="dictionary-icon" data-icon="book"></span><span>Generate ZSTD</span></button>
+            <button data-generate="cbor" type="button"><span class="dictionary-icon" data-icon="book"></span><span>Generate CBOR</span></button>
+            <button data-generate="json" type="button"><span class="dictionary-icon" data-icon="book"></span><span>Generate JSON</span></button>
+        </div>
+    </section>
+
+    <section class="dictionary-section" aria-labelledby="dictionary-custom-heading">
+        <h4 id="dictionary-custom-heading">Custom Dictionary Slots</h4>
+        <div class="dictionary-rows-frame">
+            <div class="dictionary-row dictionary-row-header" aria-hidden="true">
+                <span id="dictionary-slot-column">Slot</span>
+                <span id="dictionary-mode-column">Mode</span>
+                <span id="dictionary-file-column">Dictionary file</span>
+            </div>
+            <div id="dictionary-custom-rows"></div>
+            <div id="dictionary-empty-rows" class="dictionary-empty">No custom dictionaries configured.</div>
+            <div class="dictionary-actions dictionary-custom-actions">
+                <button id="dictionary-add-row" type="button"><span class="dictionary-icon" data-icon="add"></span><span>Add Custom Dictionary</span></button>
+                <button id="dictionary-apply" type="button"><span class="dictionary-icon" data-icon="bookAdd"></span><span>Apply to Current Converter</span></button>
+                <label class="fluent-checkbox dictionary-startup-check">
+                    <input id="dictionary-apply-startup" type="checkbox" />
+                    <span id="dictionary-apply-startup-text">Apply to Converter during startup</span>
+                </label>
+            </div>
+        </div>
+    </section>
+
+    <div id="dictionary-status" class="dictionary-status" role="status" aria-live="polite"></div>
+</div>

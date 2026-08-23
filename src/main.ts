@@ -41,6 +41,7 @@ import {openUrl} from "@tauri-apps/plugin-opener";
 import {initThemeMode} from "./i18n";
 
 import {DialogQuoteValidationResult, initDialogs, showQuoteValidationDialog} from "./dialog.ts";
+import {initDictionary} from "./features/dictionary/dictionary";
 
 initDialogs();
 
@@ -49,6 +50,7 @@ window.addEventListener("error", (e) => {
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
+    await initDictionary();
     initAppSettings();
     const app = createApp();
     app.init();

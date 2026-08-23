@@ -2,6 +2,7 @@
 
 import {mustGetEl} from "../dom/refs";
 import {applyQuoteValidationDialogLocale} from "../dialog";
+import {applyDictionaryLocale} from "../features/dictionary/dictionary";
 import {getLocale} from "./index";
 
 export function applyLocale(): void {
@@ -17,6 +18,9 @@ export function applyLocale(): void {
     mustGetEl<HTMLElement>("tab-settings")
         .querySelector(".tab-label")!
         .textContent = s.tabs.settings;
+    mustGetEl<HTMLElement>("tab-dictionary")
+        .querySelector(".tab-label")!
+        .textContent = s.tabs.dictionary;
     mustGetEl<HTMLElement>("tab-about")
         .querySelector(".tab-label")!
         .textContent = s.tabs.about;
@@ -169,4 +173,5 @@ export function applyLocale(): void {
     }
 
     applyQuoteValidationDialogLocale();
+    applyDictionaryLocale();
 }

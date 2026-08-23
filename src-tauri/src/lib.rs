@@ -1,6 +1,8 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
 mod cjk_text_normalize;
+mod dictionary;
+mod dictionary_json;
 mod epub_helper;
 mod office_converter;
 mod open_doc_helper;
@@ -10,6 +12,7 @@ mod utils;
 use crate::cjk_text_normalize::DialogQuoteValidationResult;
 use crate::epub_helper::ExtractOptions;
 use crate::office_converter::OfficeConverter;
+use dictionary::OpenccManager;
 use opencc_fmmseg::{DetofuLevel, OpenCC};
 use pdfium_helper::{
     extract_pdf_pages_with_callback_pdfium, reflow_cjk_paragraphs_with_heading_regex, PdfiumLibrary,
@@ -25,13 +28,13 @@ use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 
 pub struct AppState {
-    opencc: Arc<OpenCC>,
+    pub(crate) opencc: OpenccManager,
 }
 
 impl Default for AppState {
     fn default() -> Self {
         Self {
-            opencc: Arc::new(OpenCC::new()),
+            opencc: OpenccManager::default(),
         }
     }
 }
@@ -84,6 +87,13 @@ pub fn run() {
             run_batch_convert,
             open_output_dir,
             open_in_file_manager,
+            dictionary::get_dictionary_options,
+            dictionary::validate_dictionary_source,
+            dictionary::pick_dictionary_directory,
+            dictionary::pick_custom_dictionary_file,
+            dictionary::generate_dictionary,
+            dictionary::apply_custom_dictionaries,
+            dictionary::get_dictionary_runtime_status,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -111,20 +121,20 @@ fn convert_text(
     config: String,
     punctuation: bool,
 ) -> String {
-    state.opencc.convert(&text, &config, punctuation)
+    state.opencc.active().convert(&text, &config, punctuation)
 }
 
 #[tauri::command]
 fn zho_check(state: State<'_, AppState>, text: String) -> i32 {
-    state.opencc.zho_check(&text)
+    state.opencc.active().zho_check(&text)
 }
 
 #[tauri::command]
 fn normalize_compat(state: State<'_, AppState>, text: String, extended: bool) -> String {
     if extended {
-        state.opencc.normalize_compat_extended(&text)
+        state.opencc.active().normalize_compat_extended(&text)
     } else {
-        state.opencc.normalize_compat(&text)
+        state.opencc.active().normalize_compat(&text)
     }
 }
 
@@ -153,7 +163,7 @@ fn detofu(state: State<'_, AppState>, text: String, level: String) -> Result<Str
         _ => return Err(format!("Invalid DeToFu level: {level}")),
     };
 
-    Ok(state.opencc.detofu(&text, level))
+    Ok(state.opencc.active().detofu(&text, level))
 }
 
 // ----- Open File to Editor ------
@@ -295,7 +305,7 @@ async fn open_path_to_editor(
 
     // -------------------- PDF --------------------
     if ext == "pdf" {
-        let opencc_arc = state.opencc.clone();
+        let opencc_arc = state.opencc.active();
         let app2 = app.clone();
         let path2 = path_str.clone();
         let cfg2 = config.clone();
@@ -701,7 +711,7 @@ async fn run_batch_convert(
     overwrite_output: bool,
     custom_heading_regex: Option<String>, // NEW
 ) -> Result<(), String> {
-    let opencc_arc = state.opencc.clone();
+    let opencc_arc = state.opencc.active();
 
     tauri::async_runtime::spawn_blocking(move || -> Result<(), String> {
         let out_dir = Path::new(&output_dir);
