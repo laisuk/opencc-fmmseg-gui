@@ -35,6 +35,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Fixed mis-placed SVG icon button in Linux.
 - Fixed Dictionary button icon and text vertical alignment.
 - Fixed Dictionary path fields and dropdown backgrounds in dark, light, and system themes.
+- Fixed Dictionary generation validation and backend errors not being shown in the tab status box.
 
 ---
 

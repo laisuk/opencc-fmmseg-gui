@@ -32,7 +32,6 @@ let rows: CustomDictionaryRow[] = [];
 let options: DictionaryOptions = {slots: [], modes: ["Append", "Override"]};
 let initialized = false;
 let runtimeStatus: RuntimeStatus = {isCustom: false, customCount: 0};
-let sourceValid = false;
 let validationSequence = 0;
 
 function el<T extends HTMLElement>(id: string): T {
@@ -75,7 +74,7 @@ function errorText(error: unknown): string {
 
 function setBusy(busy: boolean): void {
     document.querySelectorAll<HTMLButtonElement>("#panel-dictionary button")
-        .forEach((button) => button.disabled = busy || (button.hasAttribute("data-generate") && !sourceValid));
+        .forEach((button) => button.disabled = busy);
     el<HTMLInputElement>("dictionary-generate-with-custom").disabled = busy;
 }
 
@@ -166,14 +165,16 @@ function renderRows(): void {
 async function validateSource(): Promise<void> {
     const sequence = ++validationSequence;
     const baseDirectory = el<HTMLInputElement>("dictionary-base-directory").value.trim();
-    sourceValid = false;
     setBusy(false);
     if (!baseDirectory) return;
     try {
         await invoke("validate_dictionary_source", {baseDirectory});
-        if (sequence === validationSequence) sourceValid = true;
-    } catch {
-        if (sequence === validationSequence) sourceValid = false;
+        if (sequence === validationSequence) setStatus("");
+    } catch (error) {
+        if (sequence === validationSequence) {
+            const strings = getLocale().dictionary;
+            setStatus(format(strings.error, {error: errorText(error)}), true);
+        }
     }
     if (sequence === validationSequence) setBusy(false);
 }
