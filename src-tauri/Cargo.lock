@@ -870,7 +870,7 @@ version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab8ecd87370524b461f8557c119c405552c396ed91fc0a8eec68679eab26f94a"
 dependencies = [
- "libloading 0.7.4",
+ "libloading 0.8.9",
 ]
 
 [[package]]
@@ -2726,7 +2726,7 @@ dependencies = [
 [[package]]
 name = "opencc-fmmseg"
 version = "0.11.6"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#0957aa286adffcf83f3ae9aa4855417cc52dae61"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#eedec68a29331d4a69dbdd6851ca9d2da42d6b36"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2745,7 +2745,7 @@ dependencies = [
  "opencc-fmmseg",
  "opener",
  "pdfium-helper",
- "quick-xml 0.41.0",
+ "quick-xml 0.42.0",
  "regex",
  "rfd",
  "rustc-hash",
@@ -3297,9 +3297,9 @@ dependencies = [
 
 [[package]]
 name = "quick-xml"
-version = "0.41.0"
+version = "0.42.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e660451e55124f798a69a5af3f49ccfbefbd41910eefd25caf2393e1f3473ec1"
+checksum = "41b1177fdf999d2321d3fb46ff47159d9c1fb9ad66a4879f8c50a0b504615e9b"
 dependencies = [
  "memchr",
 ]

@@ -115,7 +115,6 @@ fn extract_wordprocessingml_text(
     ctx: &mut NumberingContext,
 ) -> Result<String, OpenXmlError> {
     fn set_opt_i32_from_val(
-        r: &Reader<&[u8]>,
         in_para: bool,
         e: &quick_xml::events::BytesStart,
         slot: &mut Option<i32>,
@@ -123,8 +122,7 @@ fn extract_wordprocessingml_text(
         if !in_para {
             return;
         }
-        if let Some(v) =
-            utils::attr_any_string(r, e, b"val").and_then(|s| s.trim().parse::<i32>().ok())
+        if let Some(v) = utils::attr_any_string(e, "val").and_then(|s| s.trim().parse::<i32>().ok())
         {
             *slot = Some(v);
         }
@@ -160,46 +158,45 @@ fn extract_wordprocessingml_text(
             Ok(Event::Eof) => break,
 
             Ok(Event::Start(e)) => {
-                let e_name = e.name();
-                let name = local_name(e_name.as_ref());
+                let name = e.local_name();
 
-                if name == "footnote" {
+                if name.as_ref() == "footnote" {
                     in_footnote = true;
-                    skip_this_note = should_skip_note_element(&r, &e);
-                } else if name == "endnote" {
+                    skip_this_note = should_skip_note_element(&e);
+                } else if name.as_ref() == "endnote" {
                     in_endnote = true;
-                    skip_this_note = should_skip_note_element(&r, &e);
-                } else if name == "tbl" {
+                    skip_this_note = should_skip_note_element(&e);
+                } else if name.as_ref() == "tbl" {
                     in_table = true;
-                } else if name == "tr" {
+                } else if name.as_ref() == "tr" {
                     if in_table {
                         in_row = true;
                         current_row_cells.clear();
                     }
-                } else if name == "tc" {
+                } else if name.as_ref() == "tc" {
                     if in_row {
                         in_cell = true;
                         current_cell.clear();
                     }
-                } else if name == "p" {
+                } else if name.as_ref() == "p" {
                     in_paragraph = true;
                     para_prefix_emitted = false;
                     para_num_id = None;
                     para_ilvl = None;
                     para_style_id = None;
-                } else if name == "pStyle" {
+                } else if name.as_ref() == "pStyle" {
                     if in_paragraph {
-                        if let Some(val) = utils::attr_any_string(&r, &e, b"val") {
+                        if let Some(val) = utils::attr_any_string(&e, "val") {
                             if !val.is_empty() {
                                 para_style_id = Some(val);
                             }
                         }
                     }
-                } else if name == "numId" {
-                    set_opt_i32_from_val(&r, in_paragraph, &e, &mut para_num_id);
-                } else if name == "ilvl" {
-                    set_opt_i32_from_val(&r, in_paragraph, &e, &mut para_ilvl);
-                } else if name == "t" {
+                } else if name.as_ref() == "numId" {
+                    set_opt_i32_from_val(in_paragraph, &e, &mut para_num_id);
+                } else if name.as_ref() == "ilvl" {
+                    set_opt_i32_from_val(in_paragraph, &e, &mut para_ilvl);
+                } else if name.as_ref() == "t" {
                     if skip_this_note && (in_footnote || in_endnote) {
                         skip_element(&mut r, &mut buf)?;
                     } else {
@@ -215,10 +212,10 @@ fn extract_wordprocessingml_text(
                             &mut sb,
                         );
 
-                        let txt = read_text_until_end(&mut r, b"t", &mut buf)?;
+                        let txt = read_text_until_end(&mut r, "t", &mut buf)?;
                         current_target(in_cell, &mut current_cell, &mut sb).push_str(&txt);
                     }
-                } else if name == "tab" {
+                } else if name.as_ref() == "tab" {
                     if !(skip_this_note && (in_footnote || in_endnote)) {
                         para_prefix_emitted = write_list_prefix(
                             ctx,
@@ -233,7 +230,7 @@ fn extract_wordprocessingml_text(
                         );
                         current_target(in_cell, &mut current_cell, &mut sb).push('\t');
                     }
-                } else if name == "br" || name == "cr" {
+                } else if name.as_ref() == "br" || name.as_ref() == "cr" {
                     if !(skip_this_note && (in_footnote || in_endnote)) {
                         para_prefix_emitted = write_list_prefix(
                             ctx,
@@ -252,39 +249,38 @@ fn extract_wordprocessingml_text(
             }
 
             Ok(Event::End(e)) => {
-                let e_name = e.name();
-                let name = local_name(e_name.as_ref());
+                let name = e.local_name();
 
-                if name == "p" {
+                if name.as_ref() == "p" {
                     if !(skip_this_note && (in_footnote || in_endnote)) {
                         current_target(in_cell, &mut current_cell, &mut sb).push('\n');
                     }
                     in_paragraph = false;
                     para_prefix_emitted = false;
-                } else if name == "tc" {
+                } else if name.as_ref() == "tc" {
                     if in_cell {
                         let cell = trim_trailing_newlines(&current_cell);
                         current_row_cells.push(cell);
                         in_cell = false;
                         current_cell.clear();
                     }
-                } else if name == "tr" {
+                } else if name.as_ref() == "tr" {
                     if in_row {
                         append_row_as_tsv_line(&mut sb, &current_row_cells);
                         in_row = false;
                         current_row_cells.clear();
                     }
-                } else if name == "tbl" {
+                } else if name.as_ref() == "tbl" {
                     if in_table {
                         if !ends_with_newline_str(&sb) {
                             sb.push('\n');
                         }
                         in_table = false;
                     }
-                } else if name == "footnote" {
+                } else if name.as_ref() == "footnote" {
                     in_footnote = false;
                     skip_this_note = false;
-                } else if name == "endnote" {
+                } else if name.as_ref() == "endnote" {
                     in_endnote = false;
                     skip_this_note = false;
                 }
@@ -305,9 +301,9 @@ fn extract_wordprocessingml_text(
 
 // ---------------------------- Note skipping ----------------------------
 
-fn should_skip_note_element(r: &Reader<&[u8]>, e: &quick_xml::events::BytesStart) -> bool {
+fn should_skip_note_element(e: &quick_xml::events::BytesStart) -> bool {
     // In WordprocessingML: <w:footnote w:type="separator" w:id="0"> ...
-    if let Some(t) = utils::attr_any_string(r, e, b"type") {
+    if let Some(t) = utils::attr_any_string(e, "type") {
         let tt = t.trim();
         if tt.eq_ignore_ascii_case("separator") || tt.eq_ignore_ascii_case("continuationSeparator")
         {
@@ -315,7 +311,7 @@ fn should_skip_note_element(r: &Reader<&[u8]>, e: &quick_xml::events::BytesStart
         }
     }
 
-    if let Some(id) = utils::attr_any_string(r, e, b"id") {
+    if let Some(id) = utils::attr_any_string(e, "id") {
         if let Ok(v) = id.trim().parse::<i32>() {
             if v <= 0 {
                 return true;
@@ -513,53 +509,50 @@ impl NumberingContext {
                 Ok(Event::Eof) => break,
 
                 Ok(Event::Start(e)) => {
-                    let e_name = e.name();
-                    let name = local_name(e_name.as_ref());
+                    let name = e.local_name();
 
-                    match name {
+                    match name.as_ref() {
                         "num" => {
-                            cur_num = utils::attr_any_string(&r, &e, b"numId")
-                                .and_then(|s| s.parse().ok());
+                            cur_num =
+                                utils::attr_any_string(&e, "numId").and_then(|s| s.parse().ok());
                         }
                         "abstractNumId" => {
                             if let Some(num_id) = cur_num {
-                                if let Some(abs) = utils::attr_any_string(&r, &e, b"val")
-                                    .and_then(|s| s.parse().ok())
+                                if let Some(abs) =
+                                    utils::attr_any_string(&e, "val").and_then(|s| s.parse().ok())
                                 {
                                     self.num_to_abs.insert(num_id, abs);
                                 }
                             }
                         }
                         "abstractNum" => {
-                            cur_abs = utils::attr_any_string(&r, &e, b"abstractNumId")
+                            cur_abs = utils::attr_any_string(&e, "abstractNumId")
                                 .and_then(|s| s.parse().ok());
                         }
                         "lvl" => {
-                            cur_ilvl = utils::attr_any_string(&r, &e, b"ilvl")
-                                .and_then(|s| s.parse().ok());
+                            cur_ilvl =
+                                utils::attr_any_string(&e, "ilvl").and_then(|s| s.parse().ok());
                             if let (Some(abs), Some(ilvl)) = (cur_abs, cur_ilvl) {
                                 self.abs_lvl.entry((abs, ilvl)).or_default();
                             }
                         }
                         "numFmt" => {
                             if let (Some(abs), Some(ilvl)) = (cur_abs, cur_ilvl) {
-                                let v = utils::attr_any_string(&r, &e, b"val").unwrap_or_default();
+                                let v = utils::attr_any_string(&e, "val").unwrap_or_default();
                                 self.abs_lvl.entry((abs, ilvl)).or_default().num_fmt = v;
                             }
                         }
                         "lvlText" => {
                             if let (Some(abs), Some(ilvl)) = (cur_abs, cur_ilvl) {
-                                let v = utils::attr_any_string(&r, &e, b"val").unwrap_or_default();
+                                let v = utils::attr_any_string(&e, "val").unwrap_or_default();
                                 self.abs_lvl.entry((abs, ilvl)).or_default().lvl_text = v;
                             }
                         }
                         "rFonts" => {
                             if let (Some(abs), Some(ilvl)) = (cur_abs, cur_ilvl) {
                                 // prefer ascii then hAnsi (like your C#)
-                                let ascii =
-                                    utils::attr_any_string(&r, &e, b"ascii").unwrap_or_default();
-                                let hansi =
-                                    utils::attr_any_string(&r, &e, b"hAnsi").unwrap_or_default();
+                                let ascii = utils::attr_any_string(&e, "ascii").unwrap_or_default();
+                                let hansi = utils::attr_any_string(&e, "hAnsi").unwrap_or_default();
                                 let font = if !ascii.is_empty() { ascii } else { hansi };
                                 if !font.is_empty() {
                                     self.abs_lvl.entry((abs, ilvl)).or_default().font_hint = font;
@@ -571,9 +564,8 @@ impl NumberingContext {
                 }
 
                 Ok(Event::End(e)) => {
-                    let e_name = e.name();
-                    let name = local_name(e_name.as_ref());
-                    match name {
+                    let name = e.local_name();
+                    match name.as_ref() {
                         "num" => cur_num = None,
                         "abstractNum" => {
                             cur_abs = None;
@@ -618,24 +610,23 @@ impl NumberingContext {
                 Ok(Event::Eof) => break,
 
                 Ok(Event::Start(e)) => {
-                    let e_name = e.name();
-                    let name = local_name(e_name.as_ref());
-                    match name {
+                    let name = e.local_name();
+                    match name.as_ref() {
                         "style" => {
-                            cur_style_id = utils::attr_any_string(&r, &e, b"styleId");
+                            cur_style_id = utils::attr_any_string(&e, "styleId");
                             style_num_id = None;
                             style_ilvl = None;
                         }
                         "numId" => {
                             if cur_style_id.is_some() {
-                                style_num_id = utils::attr_any_string(&r, &e, b"val")
-                                    .and_then(|s| s.parse().ok());
+                                style_num_id =
+                                    utils::attr_any_string(&e, "val").and_then(|s| s.parse().ok());
                             }
                         }
                         "ilvl" => {
                             if cur_style_id.is_some() {
-                                style_ilvl = utils::attr_any_string(&r, &e, b"val")
-                                    .and_then(|s| s.parse().ok());
+                                style_ilvl =
+                                    utils::attr_any_string(&e, "val").and_then(|s| s.parse().ok());
                             }
                         }
                         _ => {}
@@ -643,9 +634,8 @@ impl NumberingContext {
                 }
 
                 Ok(Event::End(e)) => {
-                    let e_name = e.name();
-                    let name = local_name(e_name.as_ref());
-                    if name == "style" {
+                    let name = e.local_name();
+                    if name.as_ref() == "style" {
                         if let (Some(sid), Some(num_id), Some(ilvl)) =
                             (cur_style_id.take(), style_num_id, style_ilvl)
                         {
@@ -872,18 +862,9 @@ fn current_target<'a>(
     }
 }
 
-fn local_name(full: &[u8]) -> &str {
-    // strip prefix like "w:t" -> "t"
-    let s = std::str::from_utf8(full).unwrap_or("");
-    match s.rsplit_once(':') {
-        Some((_, local)) => local,
-        None => s,
-    }
-}
-
 fn read_text_until_end<R: BufRead>(
     r: &mut Reader<R>,
-    end_local: &[u8],
+    end_local: &str,
     buf: &mut Vec<u8>,
 ) -> Result<String, OpenXmlError> {
     let mut out = String::new();
@@ -891,23 +872,26 @@ fn read_text_until_end<R: BufRead>(
     loop {
         match r.read_event_into(buf) {
             Ok(Event::Text(t)) => {
-                let text = t
-                    .xml_content(XmlVersion::Implicit1_0)
-                    .map_err(|e| OpenXmlError::Xml(e.to_string()))?;
+                let text = t.xml_content(XmlVersion::Implicit1_0);
                 out.push_str(&text);
             }
-            Ok(Event::CData(t)) => out.push_str(&String::from_utf8_lossy(t.as_ref())),
+
+            Ok(Event::CData(t)) => {
+                let text = t.xml_content(XmlVersion::Implicit1_0);
+                out.push_str(&text);
+            }
+
             Ok(Event::End(e)) => {
-                let e_name = e.name();
-                let name = utils::local_name_bytes(e_name.as_ref());
-                if name == end_local {
+                if e.local_name().as_ref() == end_local {
                     break;
                 }
             }
+
             Ok(Event::Eof) => break,
             Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
             _ => {}
         }
+
         buf.clear();
     }
 
@@ -934,7 +918,7 @@ fn skip_element<R: BufRead>(r: &mut Reader<R>, buf: &mut Vec<u8>) -> Result<(), 
 #[allow(dead_code)]
 fn skip_element_named<R: BufRead>(
     r: &mut Reader<R>,
-    start_local: &[u8],
+    start_local: &str,
     buf: &mut Vec<u8>,
 ) -> Result<(), OpenXmlError> {
     let mut depth: usize = 1;
@@ -944,20 +928,23 @@ fn skip_element_named<R: BufRead>(
         match r.read_event_into(buf) {
             Ok(Event::Start(_)) => depth += 1,
             Ok(Event::End(e)) => {
-                let e_name = e.name();
-                let end_name = utils::local_name_bytes(e_name.as_ref());
+                let end_name = e.local_name();
                 depth -= 1;
 
-                if depth == 0 && end_name != start_local {
+                if depth == 0 && end_name.as_ref() != start_local {
                     // Optional strict mode:
-                    // return Err(OpenXmlError::Xml("skip_element_named: mismatched end tag".into()));
+                    // return Err(OpenXmlError::Xml(
+                    //     "skip_element_named: mismatched end tag".into(),
+                    // ));
                 }
             }
             Ok(Event::Eof) => break,
             Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
             _ => {}
         }
+
         buf.clear();
     }
+
     Ok(())
 }

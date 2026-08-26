@@ -39,5 +39,5 @@ zip = { version = "8.6", default-features = false, features = ["deflate"] }
 pdfium-helper = { git = "https://github.com/laisuk/pdfium-helper", features = ["pdfium-embed"] }
 kuchiki = "0.8"
 thiserror = "2.0"
-quick-xml = "0.41"
+quick-xml = "0.42"
 

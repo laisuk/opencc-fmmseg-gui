@@ -1,5 +1,5 @@
 use quick_xml::events::BytesStart;
-use quick_xml::{Reader, XmlVersion};
+use quick_xml::XmlVersion;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
@@ -110,25 +110,13 @@ pub fn ends_with_ignore_case(s: &str, suffix: &str) -> bool {
     s.to_lowercase().ends_with(&suffix.to_lowercase())
 }
 
-pub fn local_name_bytes(full: &[u8]) -> &[u8] {
-    match full.iter().rposition(|&b| b == b':') {
-        Some(pos) => &full[pos + 1..],
-        None => full,
-    }
-}
-
-pub fn attr_any_string<R: std::io::BufRead>(
-    reader: &Reader<R>,
-    e: &BytesStart<'_>,
-    local: &[u8],
-) -> Option<String> {
+pub fn attr_any_string(e: &BytesStart<'_>, local: &str) -> Option<String> {
     for a in e.attributes().with_checks(false) {
         let a = a.ok()?;
-        let k_local = local_name_bytes(a.key.as_ref());
 
-        if k_local == local {
+        if a.key.local_name().as_ref() == local {
             return a
-                .decoded_and_normalized_value(XmlVersion::Implicit1_0, reader.decoder())
+                .normalized_value(XmlVersion::Implicit1_0)
                 .ok()
                 .map(|v| v.into_owned());
         }

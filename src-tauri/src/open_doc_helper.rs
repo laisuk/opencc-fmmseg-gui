@@ -12,7 +12,7 @@
 //   * text:s text:c="N" => repeated spaces
 //
 // Dependencies:
-//   quick-xml = "0.40"
+//   quick-xml = "0.42"
 //   zip       = "2"
 //   thiserror = "2"
 
@@ -81,66 +81,67 @@ fn extract_odf_content_xml_bytes(xml: &[u8]) -> Result<String, OdtError> {
             Ok(Event::Eof) => break,
 
             Ok(Event::Start(e)) => {
-                let e_name = e.name();
-                let name_full = e_name.as_ref();
+                let name = e.name();
 
-                if eq_name(name_full, b"table", b"table-row") {
-                    in_row = true;
-                    current_row_cells = Some(Vec::with_capacity(8));
-                    buf.clear();
-                    continue;
-                }
-
-                if eq_name(name_full, b"table", b"table-cell") {
-                    if in_row {
-                        in_cell = true;
-                        current_cell = Some(String::with_capacity(256));
+                match name.as_ref() {
+                    "table:table-row" => {
+                        in_row = true;
+                        current_row_cells = Some(Vec::with_capacity(8));
+                        buf.clear();
+                        continue;
                     }
-                    buf.clear();
-                    continue;
-                }
 
-                if eq_name(name_full, b"text", b"p") || eq_name(name_full, b"text", b"h") {
-                    in_paragraph_like = true;
-                    buf.clear();
-                    continue;
-                }
-
-                if eq_name(name_full, b"text", b"tab") {
-                    current_target(in_cell, current_cell.as_mut(), &mut out).push('\t');
-                    buf.clear();
-                    continue;
-                }
-
-                if eq_name(name_full, b"text", b"line-break") {
-                    current_target(in_cell, current_cell.as_mut(), &mut out).push('\n');
-                    buf.clear();
-                    continue;
-                }
-
-                if eq_name(name_full, b"text", b"s") {
-                    let mut count = 1usize;
-
-                    if let Some(c) = utils::attr_any_string(&r, &e, b"c") {
-                        if let Ok(v) = c.trim().parse::<usize>() {
-                            count = v.max(1);
+                    "table:table-cell" => {
+                        if in_row {
+                            in_cell = true;
+                            current_cell = Some(String::with_capacity(256));
                         }
+                        buf.clear();
+                        continue;
                     }
 
-                    let tgt = current_target(in_cell, current_cell.as_mut(), &mut out);
-                    for _ in 0..count {
-                        tgt.push(' ');
+                    "text:p" | "text:h" => {
+                        in_paragraph_like = true;
+                        buf.clear();
+                        continue;
                     }
 
-                    buf.clear();
-                    continue;
+                    "text:tab" => {
+                        current_target(in_cell, current_cell.as_mut(), &mut out).push('\t');
+                        buf.clear();
+                        continue;
+                    }
+
+                    "text:line-break" => {
+                        current_target(in_cell, current_cell.as_mut(), &mut out).push('\n');
+                        buf.clear();
+                        continue;
+                    }
+
+                    "text:s" => {
+                        let mut count = 1usize;
+
+                        if let Some(c) = utils::attr_any_string(&e, "c") {
+                            if let Ok(v) = c.trim().parse::<usize>() {
+                                count = v.max(1);
+                            }
+                        }
+
+                        let target = current_target(in_cell, current_cell.as_mut(), &mut out);
+                        for _ in 0..count {
+                            target.push(' ');
+                        }
+
+                        buf.clear();
+                        continue;
+                    }
+
+                    _ => {}
                 }
             }
 
             Ok(Event::Text(t)) => {
-                let text = t
-                    .xml_content(XmlVersion::Implicit1_0)
-                    .map_err(|e| OdtError::Xml(e.to_string()))?;
+                let text = t.xml_content(XmlVersion::Implicit1_0);
 
                 if !text.is_empty() {
                     current_target(in_cell, current_cell.as_mut(), &mut out).push_str(&text);
@@ -148,47 +149,51 @@ fn extract_odf_content_xml_bytes(xml: &[u8]) -> Result<String, OdtError> {
             }
 
             Ok(Event::CData(t)) => {
-                let s = String::from_utf8_lossy(t.as_ref());
-                if !s.is_empty() {
-                    current_target(in_cell, current_cell.as_mut(), &mut out).push_str(&s);
+                let text = t.xml_content(XmlVersion::Implicit1_0);
+
+                if !text.is_empty() {
+                    current_target(in_cell, current_cell.as_mut(), &mut out).push_str(&text);
                 }
             }
 
             Ok(Event::End(e)) => {
-                let e_name = e.name();
-                let name_full = e_name.as_ref();
+                let name = e.name();
 
-                if eq_name(name_full, b"text", b"p") || eq_name(name_full, b"text", b"h") {
-                    if in_paragraph_like {
-                        current_target(in_cell, current_cell.as_mut(), &mut out).push('\n');
-                        in_paragraph_like = false;
-                    }
-                    buf.clear();
-                    continue;
-                }
-
-                if eq_name(name_full, b"table", b"table-cell") {
-                    if in_cell {
-                        if let (Some(row), Some(cell)) =
-                            (current_row_cells.as_mut(), current_cell.take())
-                        {
-                            row.push(trim_trailing_newlines(&cell));
+                match name.as_ref() {
+                    "text:p" | "text:h" => {
+                        if in_paragraph_like {
+                            current_target(in_cell, current_cell.as_mut(), &mut out).push('\n');
+                            in_paragraph_like = false;
                         }
-                        in_cell = false;
+                        buf.clear();
+                        continue;
                     }
-                    buf.clear();
-                    continue;
-                }
 
-                if eq_name(name_full, b"table", b"table-row") {
-                    if in_row {
-                        if let Some(row) = current_row_cells.take() {
-                            append_row_as_tsv_line(&mut out, &row);
+                    "table:table-cell" => {
+                        if in_cell {
+                            if let (Some(row), Some(cell)) =
+                                (current_row_cells.as_mut(), current_cell.take())
+                            {
+                                row.push(trim_trailing_newlines(&cell));
+                            }
+                            in_cell = false;
                         }
-                        in_row = false;
+                        buf.clear();
+                        continue;
                     }
-                    buf.clear();
-                    continue;
+
+                    "table:table-row" => {
+                        if in_row {
+                            if let Some(row) = current_row_cells.take() {
+                                append_row_as_tsv_line(&mut out, &row);
+                            }
+                            in_row = false;
+                        }
+                        buf.clear();
+                        continue;
+                    }
+
+                    _ => {}
                 }
             }
 
@@ -237,16 +242,4 @@ fn append_row_as_tsv_line(out: &mut String, cells: &[String]) {
         out.push_str(c);
     }
     out.push('\n');
-}
-
-fn split_prefix_local(full: &[u8]) -> (&[u8], &[u8]) {
-    match full.iter().position(|&b| b == b':') {
-        Some(pos) => (&full[..pos], &full[pos + 1..]),
-        None => (&[][..], full),
-    }
-}
-
-fn eq_name(full: &[u8], prefix: &[u8], local: &[u8]) -> bool {
-    let (p, l) = split_prefix_local(full);
-    p == prefix && l == local
 }

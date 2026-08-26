@@ -155,19 +155,18 @@ fn find_opf_path<R: Read + Seek>(zip: &mut ZipArchive<R>) -> Result<Option<Strin
             Ok(Event::Eof) => break,
 
             Ok(Event::Start(e)) => {
-                let e_name = e.name();
-                let name = utils::local_name_bytes(e_name.as_ref());
+                let name = e.local_name();
 
-                if name == b"rootfile" {
+                if name.as_ref() == "rootfile" {
                     // EPUB container.xml: <rootfile full-path="..."/>
-                    let mut full = utils::attr_any_string(&r, &e, b"full-path")
+                    let mut full = utils::attr_any_string(&e, "full-path")
                         .unwrap_or_default()
                         .trim()
                         .to_string();
 
                     if full.is_empty() {
                         // fallback seen in some broken files
-                        full = utils::attr_any_string(&r, &e, b"fullpath")
+                        full = utils::attr_any_string(&e, "fullpath")
                             .unwrap_or_default()
                             .trim()
                             .to_string();
@@ -213,21 +212,19 @@ fn load_opf<R: Read + Seek>(zip: &mut ZipArchive<R>, opf_path: &str) -> Result<O
             Ok(Event::Eof) => break,
 
             Ok(Event::Start(e)) => {
-                let e_name = e.name();
-                let name = utils::local_name_bytes(e_name.as_ref());
+                let name = e.local_name();
 
                 // manifest: <item id="x" href="y" media-type="..." properties="nav"/>
-                if name == b"item" {
-                    let id = utils::attr_any_string(&r, &e, b"id").unwrap_or_default();
-                    let href = utils::attr_any_string(&r, &e, b"href").unwrap_or_default();
+                if name.as_ref() == "item" {
+                    let id = utils::attr_any_string(&e, "id").unwrap_or_default();
+                    let href = utils::attr_any_string(&e, "href").unwrap_or_default();
                     let id = id.trim();
                     let href = href.trim();
 
                     if !id.is_empty() && !href.is_empty() {
                         let media_type =
-                            utils::attr_any_string(&r, &e, b"media-type").unwrap_or_default();
-                        let props =
-                            utils::attr_any_string(&r, &e, b"properties").unwrap_or_default();
+                            utils::attr_any_string(&e, "media-type").unwrap_or_default();
+                        let props = utils::attr_any_string(&e, "properties").unwrap_or_default();
                         let is_nav = contains_token_ignore_case(&props, "nav");
 
                         manifest.insert(
@@ -241,8 +238,8 @@ fn load_opf<R: Read + Seek>(zip: &mut ZipArchive<R>, opf_path: &str) -> Result<O
                     }
                 }
                 // spine: <itemref idref="..."/>
-                else if name == b"itemref" {
-                    let idref = utils::attr_any_string(&r, &e, b"idref").unwrap_or_default();
+                else if name.as_ref() == "itemref" {
+                    let idref = utils::attr_any_string(&e, "idref").unwrap_or_default();
                     let idref = idref.trim();
                     if !idref.is_empty() {
                         spine.push(idref.to_string());
