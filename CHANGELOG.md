@@ -7,7 +7,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.11.6] - Unreleased
+## [0.12.0] - Unreleased
 
 ### Added
 
@@ -23,7 +23,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ### Changed
 
-- Updated `opencc-fmmseg` to v0.11.6.
+- Updated `opencc-fmmseg` to v0.12.0.
 - Optimized file skipping log display in Batch Conversion.
 - Added a default-on, persisted option to include non-empty custom dictionary rows in generated artifacts or generate
   from the base directory only.
