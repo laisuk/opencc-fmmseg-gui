@@ -2725,8 +2725,8 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg"
-version = "0.11.6"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#eedec68a29331d4a69dbdd6851ca9d2da42d6b36"
+version = "0.12.0"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#b417d633c80e77ff1ce3b5be7dce2a55261b6db9"
 dependencies = [
  "rayon",
  "rayon-core",

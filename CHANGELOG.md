@@ -28,6 +28,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Added a default-on, persisted option to include non-empty custom dictionary rows in generated artifacts or generate
   from the base directory only.
 - Updated Dictionary SVG icons to use theme-aware `currentColor` fills.
+- Updated dictionary JSON import and export to use the public `DictMaxLen` API and rebuild derived length metadata.
 
 ### Fixed
 
@@ -36,6 +37,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Fixed Dictionary button icon and text vertical alignment.
 - Fixed Dictionary path fields and dropdown backgrounds in dark, light, and system themes.
 - Fixed Dictionary generation validation and backend errors not being shown in the tab status box.
+- Fixed dictionary JSON compatibility with the encapsulated `DictMaxLen` implementation in `opencc-fmmseg` v0.12.0.
 
 ---
 
