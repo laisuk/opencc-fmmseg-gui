@@ -454,6 +454,7 @@ fn open_pdf_extract_text_with_progress(
         pdfium,
         &input_norm,
         page_header,
+        false,
         |page, total_pages, text| {
             pages.push(text.to_owned());
 
@@ -1142,6 +1143,7 @@ fn convert_pdf_to_txt_with_progress(
     extract_pdf_pages_with_callback_pdfium(
         pdfium,
         &input_norm,
+        false,
         false,
         |page, total_pages, text| {
             pages.push(text.to_owned());
