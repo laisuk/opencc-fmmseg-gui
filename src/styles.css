@@ -827,6 +827,54 @@ textarea {
     transform: scale(1.05);
 }
 
+.file-menu-wrap {
+    position: relative;
+    display: inline-flex;
+}
+
+.btn-current-file {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.file-encoding-menu {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 6px);
+
+    min-width: 145px;
+    padding: 5px;
+
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg);
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+    z-index: 1000;
+}
+
+.file-encoding-menu button {
+    display: block;
+    width: 100%;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 5px;
+    background: transparent;
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.file-encoding-menu button:hover {
+    background: rgba(128, 128, 128, 0.18);
+}
+
 .btn-icon-only:hover {
     transform: scale(1.05);
 }

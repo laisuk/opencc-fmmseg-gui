@@ -26,17 +26,12 @@ import {
     stopBatchListener,
     stopOpenFileListener,
 } from "./tauri/listeners";
-import {
-    getAppSettings,
-    getCustomHeadingRegex,
-    initAppSettings,
-    isEditorLogEnabled,
-} from "./app/settings";
+import {getAppSettings, getCustomHeadingRegex, initAppSettings, isEditorLogEnabled,} from "./app/settings";
 import {getCurrentConfigFromUi, TextCode, ZhoConfig} from "./app/config";
 import {setupUnifiedDrop} from "./tauri/dragdrop";
 
 import {initUiLanguage} from "./i18n/initUiLanguage";
-import {getRuntimeLabel, formatCharCount} from "./i18n/runtimeLabels";
+import {formatCharCount, getRuntimeLabel} from "./i18n/runtimeLabels";
 import {openUrl} from "@tauri-apps/plugin-opener";
 import {initThemeMode} from "./i18n";
 
@@ -125,6 +120,8 @@ function createApp() {
     const btnNormCompat = mustGetEl<HTMLButtonElement>("norm-compat");
     const btnNormDialogQuotes = mustGetEl<HTMLButtonElement>("norm-dialog-quotes");
     const btnValidateSourceDialogQuotes = mustGetEl<HTMLButtonElement>("validate-source-dialog-quotes");
+    const btnCurrentFile = mustGetEl<HTMLButtonElement>("current-file");
+    const fileEncodingMenu = mustGetEl<HTMLElement>("file-encoding-menu");
     const btnValidateDestinationDialogQuotes = mustGetEl<HTMLButtonElement>("validate-destination-dialog-quotes");
     const btnDeTofu = mustGetEl<HTMLButtonElement>("detofu");
     const btnClearSource = mustGetEl<HTMLButtonElement>("clear-source");
@@ -155,6 +152,8 @@ function createApp() {
 
     let editorLeft!: EditorView;
     let editorRight!: EditorView;
+
+    let currentOpenFilename = "";
 
     const compare = createCompareFeature({
         getSourceText: () =>
@@ -323,6 +322,54 @@ function createApp() {
         updateBatchCount();
     }
 
+    function setCurrentOpenFile(path: string) {
+        currentOpenFilename = path;
+
+        if (!path) {
+            btnCurrentFile.textContent = "";
+            btnCurrentFile.title = "";
+            btnCurrentFile.hidden = true;
+            fileEncodingMenu.hidden = true;
+            return;
+        }
+
+        btnCurrentFile.textContent =
+            path.split(/[\\/]/).pop() ?? path;
+
+        btnCurrentFile.title = path;
+        btnCurrentFile.hidden = false;
+    }
+
+    async function reloadCurrentFile(encoding: string) {
+        if (!currentOpenFilename) return;
+
+        try {
+            setStatus(`Reloading as ${encoding}...`);
+
+            const text = await invoke<string>("reload_text_file", {
+                path: currentOpenFilename,
+                encoding,
+            });
+
+            compare.clear();
+            setEditorText(editorLeft, text);
+            await detectInputText(text);
+
+            setStatus(
+                encoding === "auto"
+                    ? "File reloaded with auto encoding detection"
+                    : `File reloaded as ${encoding}`,
+            );
+        } catch (error) {
+            const msg =
+                typeof error === "string"
+                    ? error
+                    : (error as { message?: string })?.message ?? String(error);
+
+            setStatus(`Reload failed: ${msg}`);
+        }
+    }
+
     // =========================================================
     // MAIN ACTIONS
     // =========================================================
@@ -334,6 +381,8 @@ function createApp() {
             setStatus("Clipboard empty");
             return;
         }
+
+        setCurrentOpenFile("");
 
         setEditorText(editorLeft, pasted, true); // paste: cursor at end
 
@@ -380,6 +429,8 @@ function createApp() {
                 setStatus("No file selected");
                 return;
             }
+
+            setCurrentOpenFile(filePath);
 
             const text = fileContents ?? "";
             setEditorText(editorLeft, text);
@@ -650,6 +701,8 @@ function createApp() {
     function handleClearSource() {
         if (!clearEditor(editorLeft)) return;
 
+        setCurrentOpenFile("");
+
         updateCharCount(editorLeft, lblCharCount);
         focusInput(editorLeft);
         lblInput.innerText = "";
@@ -825,6 +878,8 @@ function createApp() {
                 customHeadingRegex: appSettings.customHeadingRegex,
             });
 
+            setCurrentOpenFile(pathStr);
+
             setEditorText(editorLeft, text);
             await detectInputText(text);
 
@@ -930,6 +985,40 @@ function createApp() {
                 setStatus("Comparison complete");
             } else {
                 setStatus("Compare disabled");
+            }
+        });
+
+        btnCurrentFile.addEventListener("click", (event) => {
+            event.stopPropagation();
+
+            if (!currentOpenFilename) return;
+
+            fileEncodingMenu.hidden = !fileEncodingMenu.hidden;
+        });
+
+        fileEncodingMenu.addEventListener("click", async (event) => {
+            const button =
+                (event.target as HTMLElement).closest<HTMLButtonElement>(
+                    "button[data-encoding]",
+                );
+
+            if (!button) return;
+
+            const encoding = button.dataset.encoding;
+            if (!encoding) return;
+
+            fileEncodingMenu.hidden = true;
+
+            await reloadCurrentFile(encoding);
+        });
+
+        document.addEventListener("click", () => {
+            fileEncodingMenu.hidden = true;
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                fileEncodingMenu.hidden = true;
             }
         });
     }

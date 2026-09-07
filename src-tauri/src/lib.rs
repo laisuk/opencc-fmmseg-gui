@@ -1,5 +1,6 @@
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 
+mod cjk_encoding_detector;
 mod cjk_text_normalize;
 mod dictionary;
 mod dictionary_json;
@@ -80,6 +81,7 @@ pub fn run() {
             validate_dialog_quotes,
             detofu,
             read_text_file,
+            reload_text_file,
             reflow_text,
             open_path_to_editor,
             pick_paths_batch,
@@ -219,6 +221,17 @@ async fn open_file(
         custom_heading_regex,
     )
     .await
+}
+
+#[tauri::command]
+fn reload_text_file(
+    path: String,
+    encoding: String,
+) -> Result<String, String> {
+    let data =
+        fs::read(&path).map_err(|e| format!("read {}: {}", path, e))?;
+
+    decode_text_with_encoding(&data, &encoding)
 }
 
 #[tauri::command]
@@ -410,16 +423,115 @@ async fn open_path_to_editor(
 
     let data = fs::read(&path_buf).map_err(|e| format!("read {}: {}", path_str, e))?;
 
-    let mut contents = String::from_utf8(data)
-        .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).to_string());
-
-    if contents.starts_with('\u{FEFF}') {
-        contents.remove(0);
-    }
+    let contents = decode_text_with_encoding(&data, "auto")?;
 
     emit_done(&app, &path_str);
 
     Ok((path_str, contents))
+}
+
+fn decode_text_as_kind(
+    data: &[u8],
+    encoding: cjk_encoding_detector::EncodingKind,
+    bom_size: usize,
+) -> String {
+    use cjk_encoding_detector::EncodingKind;
+    use encoding_rs::{BIG5, GB18030, UTF_16BE, UTF_16LE};
+
+    let bytes = &data[bom_size.min(data.len())..];
+
+    match encoding {
+        EncodingKind::Ascii
+        | EncodingKind::Utf8
+        | EncodingKind::Utf8Bom => {
+            String::from_utf8_lossy(bytes).into_owned()
+        }
+
+        EncodingKind::Utf16Le
+        | EncodingKind::Utf16LeBom => {
+            let (text, _, _) = UTF_16LE.decode(bytes);
+            text.into_owned()
+        }
+
+        EncodingKind::Utf16Be
+        | EncodingKind::Utf16BeBom => {
+            let (text, _, _) = UTF_16BE.decode(bytes);
+            text.into_owned()
+        }
+
+        EncodingKind::Big5 => {
+            let (text, _, _) = BIG5.decode(bytes);
+            text.into_owned()
+        }
+
+        EncodingKind::Gb18030 => {
+            let (text, _, _) = GB18030.decode(bytes);
+            text.into_owned()
+        }
+
+        EncodingKind::Unknown => {
+            String::from_utf8_lossy(data).into_owned()
+        }
+    }
+}
+
+fn decode_text_with_encoding(
+    data: &[u8],
+    encoding: &str,
+) -> Result<String, String> {
+    use cjk_encoding_detector::{detect, EncodingKind};
+    use encoding_rs::SHIFT_JIS;
+
+    match encoding {
+        "auto" => {
+            let result = detect(data);
+
+            Ok(decode_text_as_kind(
+                data,
+                result.encoding,
+                result.bom_size,
+            ))
+        }
+
+        "utf-8" => Ok(decode_text_as_kind(
+            data,
+            EncodingKind::Utf8,
+            usize::from(data.starts_with(&[0xEF, 0xBB, 0xBF])) * 3,
+        )),
+
+        "gb18030" => Ok(decode_text_as_kind(
+            data,
+            EncodingKind::Gb18030,
+            0,
+        )),
+
+        "big5" => Ok(decode_text_as_kind(
+            data,
+            EncodingKind::Big5,
+            0,
+        )),
+
+        "utf-16le" => Ok(decode_text_as_kind(
+            data,
+            EncodingKind::Utf16Le,
+            usize::from(data.starts_with(&[0xFF, 0xFE])) * 2,
+        )),
+
+        "utf-16be" => Ok(decode_text_as_kind(
+            data,
+            EncodingKind::Utf16Be,
+            usize::from(data.starts_with(&[0xFE, 0xFF])) * 2,
+        )),
+
+        "shift_jis" => {
+            let (text, _, _) = SHIFT_JIS.decode(data);
+            Ok(text.into_owned())
+        }
+
+        _ => Err(format!(
+            "Unsupported encoding: {encoding}"
+        )),
+    }
 }
 
 fn open_pdf_extract_text_with_progress(
