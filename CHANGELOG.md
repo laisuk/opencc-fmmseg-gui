@@ -20,6 +20,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Added transactional hot-swapping between the permanent built-in converter and custom dictionary converters.
 - Added English, Simplified Chinese, and Traditional Chinese localization for Dictionary controls, statuses, and
   validation messages.
+- Add CJK encoding detection and manual text encoding reload.
 
 ### Changed
 
