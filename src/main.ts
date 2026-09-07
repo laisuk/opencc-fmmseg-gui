@@ -323,9 +323,8 @@ function createApp() {
     }
 
     function setCurrentOpenFile(path: string) {
-        currentOpenFilename = path;
-
-        if (!path) {
+        if (!path || isOpenXmlOrPdf(path)) {
+            currentOpenFilename = "";
             btnCurrentFile.textContent = "";
             btnCurrentFile.title = "";
             btnCurrentFile.hidden = true;
@@ -333,11 +332,23 @@ function createApp() {
             return;
         }
 
-        btnCurrentFile.textContent =
-            path.split(/[\\/]/).pop() ?? path;
-
+        currentOpenFilename = path;
+        btnCurrentFile.textContent = path.split(/[\\/]/).pop() ?? path;
         btnCurrentFile.title = path;
         btnCurrentFile.hidden = false;
+    }
+
+    function isOpenXmlOrPdf(path: string): boolean {
+        const ext = path.split(".").pop()?.toLowerCase();
+
+        return ext === "pdf"
+            || ext === "docx"
+            || ext === "xlsx"
+            || ext === "pptx"
+            || ext === "odt"
+            || ext === "ods"
+            || ext === "odp"
+            || ext === "epub";
     }
 
     async function reloadCurrentFile(encoding: string) {
