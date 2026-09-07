@@ -98,7 +98,7 @@ export const zhHans = {
         extendUnicodeCompat: "扩展 CJK 规范化的 Unicode 兼容范围",
     },
     dictionary: {
-        title: "词典生成",
+        title: "词典工具",
         generationHeading: "词典生成",
         baseDirectory: "基础词典目录",
         outputDirectory: "输出目录",

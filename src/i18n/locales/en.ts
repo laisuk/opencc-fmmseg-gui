@@ -91,7 +91,7 @@ export const en = {
     },
 
     dictionary: {
-        title: "Dictionary Generation",
+        title: "Dictionary Tool",
         generationHeading: "Dictionary generation",
         baseDirectory: "Base Dictionary Directory",
         outputDirectory: "Output Directory",

@@ -97,7 +97,7 @@ export const zhHant = {
         extendUnicodeCompat: "擴展 CJK 正規化的 Unicode 相容範圍",
     },
     dictionary: {
-        title: "字典產生",
+        title: "字典工具",
         generationHeading: "字典產生",
         baseDirectory: "基礎字典目錄",
         outputDirectory: "輸出目錄",
