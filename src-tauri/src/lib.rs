@@ -12,6 +12,7 @@ mod utils;
 
 use crate::cjk_text_normalize::DialogQuoteValidationResult;
 use crate::epub_helper::ExtractOptions;
+use crate::office_converter::converter::OfficeTextConverter;
 use crate::office_converter::OfficeConverter;
 use dictionary::OpenccManager;
 use opencc_fmmseg::{DetofuLevel, OpenCC};
@@ -224,12 +225,8 @@ async fn open_file(
 }
 
 #[tauri::command]
-fn reload_text_file(
-    path: String,
-    encoding: String,
-) -> Result<String, String> {
-    let data =
-        fs::read(&path).map_err(|e| format!("read {}: {}", path, e))?;
+fn reload_text_file(path: String, encoding: String) -> Result<String, String> {
+    let data = fs::read(&path).map_err(|e| format!("read {}: {}", path, e))?;
 
     decode_text_with_encoding(&data, &encoding)
 }
@@ -441,20 +438,16 @@ fn decode_text_as_kind(
     let bytes = &data[bom_size.min(data.len())..];
 
     match encoding {
-        EncodingKind::Ascii
-        | EncodingKind::Utf8
-        | EncodingKind::Utf8Bom => {
+        EncodingKind::Ascii | EncodingKind::Utf8 | EncodingKind::Utf8Bom => {
             String::from_utf8_lossy(bytes).into_owned()
         }
 
-        EncodingKind::Utf16Le
-        | EncodingKind::Utf16LeBom => {
+        EncodingKind::Utf16Le | EncodingKind::Utf16LeBom => {
             let (text, _, _) = UTF_16LE.decode(bytes);
             text.into_owned()
         }
 
-        EncodingKind::Utf16Be
-        | EncodingKind::Utf16BeBom => {
+        EncodingKind::Utf16Be | EncodingKind::Utf16BeBom => {
             let (text, _, _) = UTF_16BE.decode(bytes);
             text.into_owned()
         }
@@ -469,16 +462,11 @@ fn decode_text_as_kind(
             text.into_owned()
         }
 
-        EncodingKind::Unknown => {
-            String::from_utf8_lossy(data).into_owned()
-        }
+        EncodingKind::Unknown => String::from_utf8_lossy(data).into_owned(),
     }
 }
 
-fn decode_text_with_encoding(
-    data: &[u8],
-    encoding: &str,
-) -> Result<String, String> {
+fn decode_text_with_encoding(data: &[u8], encoding: &str) -> Result<String, String> {
     use cjk_encoding_detector::{detect, EncodingKind};
     use encoding_rs::SHIFT_JIS;
 
@@ -486,11 +474,7 @@ fn decode_text_with_encoding(
         "auto" => {
             let result = detect(data);
 
-            Ok(decode_text_as_kind(
-                data,
-                result.encoding,
-                result.bom_size,
-            ))
+            Ok(decode_text_as_kind(data, result.encoding, result.bom_size))
         }
 
         "utf-8" => Ok(decode_text_as_kind(
@@ -499,17 +483,9 @@ fn decode_text_with_encoding(
             usize::from(data.starts_with(&[0xEF, 0xBB, 0xBF])) * 3,
         )),
 
-        "gb18030" => Ok(decode_text_as_kind(
-            data,
-            EncodingKind::Gb18030,
-            0,
-        )),
+        "gb18030" => Ok(decode_text_as_kind(data, EncodingKind::Gb18030, 0)),
 
-        "big5" => Ok(decode_text_as_kind(
-            data,
-            EncodingKind::Big5,
-            0,
-        )),
+        "big5" => Ok(decode_text_as_kind(data, EncodingKind::Big5, 0)),
 
         "utf-16le" => Ok(decode_text_as_kind(
             data,
@@ -528,9 +504,7 @@ fn decode_text_with_encoding(
             Ok(text.into_owned())
         }
 
-        _ => Err(format!(
-            "Unsupported encoding: {encoding}"
-        )),
+        _ => Err(format!("Unsupported encoding: {encoding}")),
     }
 }
 
@@ -827,6 +801,14 @@ async fn run_batch_convert(
     let opencc_arc = state.opencc.active();
 
     tauri::async_runtime::spawn_blocking(move || -> Result<(), String> {
+        let text_converter = OfficeTextConverter::new({
+            let opencc = Arc::clone(&opencc_arc);
+
+            move |text: &str, config: &str, punctuation: bool| {
+                opencc.convert(text, config, punctuation)
+            }
+        });
+
         let out_dir = Path::new(&output_dir);
         fs::create_dir_all(out_dir)
             .map_err(|e| format!("create_dir_all {}: {}", out_dir.display(), e))?;
@@ -989,10 +971,10 @@ async fn run_batch_convert(
                         &path,
                         &output_path.to_string_lossy(),
                         &office_format,
-                        &*opencc_arc,
                         &config,
                         punctuation,
-                        true, // keep_font
+                        true,
+                        &text_converter,
                     )
                     .map_err(|e| format!("[{idx}/{total}] office convert failed: {e}"))
                     .and_then(|r| {

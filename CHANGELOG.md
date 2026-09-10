@@ -20,11 +20,17 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Added transactional hot-swapping between the permanent built-in converter and custom dictionary converters.
 - Added English, Simplified Chinese, and Traditional Chinese localization for Dictionary controls, statuses, and
   validation messages.
-- Add CJK encoding detection and manual text encoding reload.
+- Added CJK encoding detection and manual text encoding reload.
 
 ### Changed
 
 - Updated `opencc-fmmseg` to v0.12.0.
+- Refactored Office conversion to use a generic text-conversion adapter, decoupling DOCX, XLSX, PPTX, ODF, and EPUB
+  processing from the OpenCC implementation while preserving the active converter and custom dictionary snapshot.
+- Expanded PPTX conversion to cover slides, notes, slide masters, slide layouts, comments, and comment authors with
+  case-insensitive part matching.
+- Improved XLSX conversion to handle inline strings while leaving formulas and unrelated XML content untouched.
+- Hardened Office archive processing with stricter ZIP entry path validation and transactional output handling.
 - Optimized file skipping log display in Batch Conversion.
 - Added a default-on, persisted option to include non-empty custom dictionary rows in generated artifacts or generate
   from the base directory only.

@@ -1,10 +1,15 @@
-//! # Office / EPUB document converter
+//! # OfficeConverter Module
 //!
-//! Desktop-oriented Office and EPUB conversion support for the Tauri application.
+//! Generic conversion support for text stored inside ZIP-based Office,
+//! OpenDocument, and EPUB files.
 //!
-//! [`OfficeConverter`] rebuilds ZIP-based document containers entry by entry and
-//! applies [`OpenCC`] conversion only to text-bearing XML / XHTML parts. It does
-//! **not** extract the document into a temporary directory.
+//! The document layer is deliberately independent of any OpenCC implementation.
+//! Callers provide an [`OfficeTextConverter`], which wraps a text-conversion
+//! function with the signature `Fn(&str, &str, bool) -> String`.
+//!
+//! This separation lets applications compose any conversion policy they need
+//! (for example normalization, OpenCC conversion, custom dictionaries, or
+//! DeToFu processing) without coupling this module to a particular converter.
 //!
 //! ## Supported formats
 //!
@@ -16,35 +21,32 @@
 //!
 //! ## I/O model
 //!
-//! The normal Tauri / desktop path is [`OfficeConverter::convert`] (or
-//! [`OfficeConverter::convert_path_stream`]). Input is read through a buffered
-//! file stream and output is written to a sibling temporary file before an atomic
-//! replacement of the destination. The complete input and output archives are
-//! therefore not required to coexist in memory.
+//! File conversion streams from the input package to a temporary output file and
+//! atomically replaces the destination after validating the rebuilt ZIP archive.
+//! [`OfficeConverter::convert_bytes`] provides the same semantics for callers that
+//! already own package bytes in memory.
 //!
-//! [`OfficeConverter::convert_bytes`] is retained as a secondary in-memory API for
-//! tests and callers that already own the package bytes. Both public paths share
-//! the same generic ZIP-to-ZIP conversion engine, so their conversion semantics are
-//! identical.
-//!
-//! Non-target ZIP entries are copied without text decoding. Only selected textual
-//! parts are materialized as UTF-8 strings.
+//! Non-target ZIP entries are copied without text decoding. XLSX worksheets are
+//! handled narrowly so formulas and unrelated metadata remain untouched. EPUB
+//! `mimetype` is emitted first and stored without compression.
 //!
 //! ## Example
 //!
-//! ```rust,ignore
-//! use opencc_fmmseg::OpenCC;
-//! use crate::office_converter::OfficeConverter;
+//! ```rust,no_run
+//! use crate::office_converter::{OfficeConverter, OfficeTextConverter};
 //!
-//! let opencc = OpenCC::new();
+//! let text_converter = OfficeTextConverter::new(
+//!     |text: &str, _config: &str, _punctuation: bool| text.replace("汉语", "漢語"),
+//! );
+//!
 //! let result = OfficeConverter::convert(
 //!     "input.docx",
 //!     "output.docx",
 //!     "docx",
-//!     &opencc,
 //!     "s2t",
 //!     true,
 //!     true,
+//!     &text_converter,
 //! )?;
 //!
 //! assert!(result.success);
@@ -62,7 +64,6 @@ use zip::{
     CompressionMethod, ZipArchive, ZipWriter,
 };
 
-use opencc_fmmseg::OpenCC;
 
 /// Result of a document conversion operation.
 ///
@@ -72,14 +73,38 @@ pub struct ConversionResult {
     pub message: Box<str>,
 }
 
-/// Converter for Office and EPUB documents.
+/// Caller-supplied text conversion policy used by [`OfficeConverter`].
 ///
-/// Provides desktop file conversion and an optional byte-array API over one shared
-/// ZIP streaming core.
+/// The adapter is deliberately independent of OpenCC. Any closure or function
+/// implementing `Fn(&str, &str, bool) -> String` can be supplied, including a
+/// richer pipeline that performs normalization or postprocessing around the
+/// actual Chinese conversion engine.
+pub struct OfficeTextConverter<F> {
+    convert: F,
+}
+
+impl<F> OfficeTextConverter<F>
+where
+    F: Fn(&str, &str, bool) -> String,
+{
+    /// Create a text-conversion adapter from a closure or function.
+    #[inline]
+    pub fn new(convert: F) -> Self {
+        Self { convert }
+    }
+
+    /// Convert one text fragment using the wrapped conversion policy.
+    #[inline]
+    pub fn convert_text(&self, text: &str, config: &str, punctuation: bool) -> String {
+        (self.convert)(text, config, punctuation)
+    }
+}
+
+/// Generic converter for Office, OpenDocument, and EPUB archives.
 ///
-/// The converter preserves non-target package entries, supports optional font
-/// declaration protection, applies narrow XLSX inline-string conversion to avoid
-/// rewriting formulas, and enforces EPUB `mimetype` packaging requirements.
+/// `OfficeConverter` owns no conversion engine or dictionary. All text policy is
+/// supplied through [`OfficeTextConverter`], while this type owns document-part
+/// selection, font protection, ZIP safety, and package reconstruction.
 pub struct OfficeConverter;
 
 /// Precompiled regex patterns for extracting fonts
@@ -145,36 +170,30 @@ thread_local! {
 }
 
 impl OfficeConverter {
-    /// Convert an input Office/EPUB file using OpenCC and output a new archive.
+    /// Convert an Office/EPUB file using a caller-supplied text policy.
     ///
-    /// # Arguments
-    /// - `input_path`: Path to the input `.docx`, `.xlsx`, `.pptx`, `.odt`, `.ods`, `.odp`, or `.epub` file
-    /// - `output_path`: Path to save the converted file
-    /// - `format`: File format string (e.g. `"docx"`, `"epub"`)
-    /// - `helper`: Reference to an `OpenCC` instance
-    /// - `config`: OpenCC conversion config (e.g. `"s2t"`)
-    /// - `punctuation`: Whether to convert punctuation
-    /// - `keep_font`: Whether to preserve original font declarations
-    ///
-    /// # Returns
-    /// A `ConversionResult` with success flag and status message.
-    pub fn convert(
+    /// The document layer handles package traversal and reconstruction while
+    /// `text_converter` performs conversion of selected text fragments.
+    pub fn convert<F>(
         input_path: &str,
         output_path: &str,
         format: &str,
-        helper: &OpenCC,
         config: &str,
         punctuation: bool,
         keep_font: bool,
-    ) -> io::Result<ConversionResult> {
+        text_converter: &OfficeTextConverter<F>,
+    ) -> io::Result<ConversionResult>
+    where
+        F: Fn(&str, &str, bool) -> String,
+    {
         Self::convert_path_stream(
             input_path,
             output_path,
             format,
-            helper,
             config,
             punctuation,
             keep_font,
+            text_converter,
         )
     }
 
@@ -188,14 +207,17 @@ impl OfficeConverter {
     /// [`Self::convert_path_stream`] so the whole input and output archives do not
     /// need to coexist in memory.
     #[allow(dead_code)]
-    pub fn convert_bytes(
+    pub fn convert_bytes<F>(
         input_zip: &[u8],
         format: &str,
-        helper: &OpenCC,
         config: &str,
         punctuation: bool,
         keep_font: bool,
-    ) -> io::Result<(Vec<u8>, usize)> {
+        text_converter: &OfficeTextConverter<F>,
+    ) -> io::Result<(Vec<u8>, usize)>
+    where
+        F: Fn(&str, &str, bool) -> String,
+    {
         Self::validate_input_zip(input_zip)?;
         let format = Self::normalize_format(format)?;
         let reader = Cursor::new(input_zip);
@@ -207,10 +229,10 @@ impl OfficeConverter {
             reader,
             &mut z_out,
             &format,
-            helper,
             config,
             punctuation,
             keep_font,
+            text_converter,
         )?;
 
         let out_cursor = z_out.finish()?;
@@ -225,15 +247,18 @@ impl OfficeConverter {
     /// it does not route through [`Self::convert_bytes`] or hold both complete
     /// archives in memory. Conversion semantics remain identical because both paths
     /// delegate to [`Self::convert_zip_stream`].
-    pub fn convert_path_stream(
+    pub fn convert_path_stream<F>(
         input_path: &str,
         output_path: &str,
         format: &str,
-        helper: &OpenCC,
         config: &str,
         punctuation: bool,
         keep_font: bool,
-    ) -> io::Result<ConversionResult> {
+        text_converter: &OfficeTextConverter<F>,
+    ) -> io::Result<ConversionResult>
+    where
+        F: Fn(&str, &str, bool) -> String,
+    {
         let format = Self::normalize_format(format)?;
         let in_path_abs = Path::new(input_path)
             .canonicalize()
@@ -259,10 +284,10 @@ impl OfficeConverter {
                 reader,
                 zip_writer,
                 &format,
-                helper,
                 config,
                 punctuation,
                 keep_font,
+                text_converter,
             )?;
 
             Ok(())
@@ -279,18 +304,19 @@ impl OfficeConverter {
     /// `R` and `W` abstract the storage backend. File conversion uses buffered input
     /// and a file-backed ZIP writer, while [`Self::convert_bytes`] uses cursors over
     /// memory. Only target XML/XHTML entries are decoded and materialized as text.
-    fn convert_zip_stream<R, W>(
+    fn convert_zip_stream<R, W, F>(
         reader: R,
         z_out: &mut ZipWriter<W>,
         format: &str,
-        helper: &OpenCC,
         config: &str,
         punctuation: bool,
         keep_font: bool,
+        text_converter: &OfficeTextConverter<F>,
     ) -> io::Result<usize>
     where
         R: Read + Seek,
         W: Write + Seek,
+        F: Fn(&str, &str, bool) -> String,
     {
         let mut zin = ZipArchive::new(reader)?;
         let mut converted_count = 0;
@@ -355,10 +381,10 @@ impl OfficeConverter {
                     content,
                     format,
                     &name,
-                    helper,
                     config,
                     punctuation,
                     keep_font,
+                    text_converter,
                 );
 
                 let opts: FileOptions<'_, ExtendedFileOptions> =
@@ -388,15 +414,18 @@ impl OfficeConverter {
     /// XLSX worksheet parts are intentionally handled narrowly: only inline-string
     /// text nodes are converted, so formulas and unrelated worksheet metadata remain
     /// untouched. Font masking is therefore limited to `sharedStrings.xml` for XLSX.
-    fn convert_text_entry(
+    fn convert_text_entry<F>(
         mut content: String,
         format: &str,
         name: &str,
-        helper: &OpenCC,
         config: &str,
         punctuation: bool,
         keep_font: bool,
-    ) -> String {
+        text_converter: &OfficeTextConverter<F>,
+    ) -> String
+    where
+        F: Fn(&str, &str, bool) -> String,
+    {
         let mut font_map = HashMap::new();
         let is_xlsx = format.eq_ignore_ascii_case("xlsx");
         let should_mask_fonts = keep_font && (!is_xlsx || Self::is_xlsx_shared_strings(name));
@@ -406,9 +435,9 @@ impl OfficeConverter {
         }
 
         let mut converted = if is_xlsx {
-            Self::convert_xlsx_entry(&content, name, helper, config, punctuation)
+            Self::convert_xlsx_entry(&content, name, config, punctuation, text_converter)
         } else {
-            helper.convert(&content, config, punctuation)
+            text_converter.convert_text(&content, config, punctuation)
         };
 
         for (marker, original) in font_map {
@@ -522,15 +551,18 @@ impl OfficeConverter {
     /// - sharedStrings.xml => whole-file conversion
     /// - worksheet XML => only inline-string cell text nodes
     /// - other XML => unchanged
-    fn convert_xlsx_entry(
+    fn convert_xlsx_entry<F>(
         content: &str,
         name: &str,
-        helper: &OpenCC,
         config: &str,
         punctuation: bool,
-    ) -> String {
+        text_converter: &OfficeTextConverter<F>,
+    ) -> String
+    where
+        F: Fn(&str, &str, bool) -> String,
+    {
         if Self::is_xlsx_shared_strings(name) {
-            return helper.convert(content, config, punctuation);
+            return text_converter.convert_text(content, config, punctuation);
         }
 
         if Self::is_xlsx_worksheet(name) {
@@ -561,7 +593,7 @@ impl OfficeConverter {
                                         .unwrap_or_default();
                                 }
 
-                                let converted = helper.convert(inner_text, config, punctuation);
+                                let converted = text_converter.convert_text(inner_text, config, punctuation);
                                 let mut out = String::with_capacity(
                                     open_tag.len() + converted.len() + close_tag.len(),
                                 );
@@ -596,8 +628,8 @@ impl OfficeConverter {
         name.starts_with('/')
             || name.starts_with('\\')
             || (name.len() >= 3
-                && name.as_bytes()[1] == b':'
-                && matches!(name.as_bytes()[2], b'/' | b'\\'))
+            && name.as_bytes()[1] == b':'
+            && matches!(name.as_bytes()[2], b'/' | b'\\'))
             || name.split(['/', '\\']).any(|part| part == "..")
     }
 
@@ -775,8 +807,8 @@ mod tests {
 
     #[test]
     fn test_convert_bytes_rejects_empty_input() {
-        let opencc = OpenCC::new();
-        let err = OfficeConverter::convert_bytes(&[], "docx", &opencc, "s2t", true, true)
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
+        let err = OfficeConverter::convert_bytes(&[], "docx", "s2t", true, true, &converter)
             .expect_err("empty input must be rejected");
 
         assert_eq!(err.kind(), io::ErrorKind::InvalidInput);
@@ -785,8 +817,8 @@ mod tests {
 
     #[test]
     fn test_convert_bytes_rejects_invalid_zip() {
-        let opencc = OpenCC::new();
-        let err = OfficeConverter::convert_bytes(b"not a zip", "docx", &opencc, "s2t", true, true)
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
+        let err = OfficeConverter::convert_bytes(b"not a zip", "docx", "s2t", true, true, &converter)
             .expect_err("invalid ZIP input must be rejected");
 
         assert_ne!(err.kind(), io::ErrorKind::NotFound);
@@ -794,12 +826,12 @@ mod tests {
 
     #[test]
     fn test_convert_bytes_rejects_unsupported_format() {
-        let opencc = OpenCC::new();
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
         let zip = make_zip(&[(
             "word/document.xml",
             "<w:document>汉语</w:document>".as_bytes(),
         )]);
-        let err = OfficeConverter::convert_bytes(&zip, "pdf", &opencc, "s2t", true, true)
+        let err = OfficeConverter::convert_bytes(&zip, "pdf", "s2t", true, true, &converter)
             .expect_err("unsupported format must be rejected");
 
         assert_eq!(err.kind(), io::ErrorKind::InvalidInput);
@@ -808,9 +840,9 @@ mod tests {
 
     #[test]
     fn test_convert_bytes_rejects_zip_with_no_target_fragments() {
-        let opencc = OpenCC::new();
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
         let zip = make_zip(&[("docProps/core.xml", "<root>汉语</root>".as_bytes())]);
-        let err = OfficeConverter::convert_bytes(&zip, "docx", &opencc, "s2t", true, true)
+        let err = OfficeConverter::convert_bytes(&zip, "docx", "s2t", true, true, &converter)
             .expect_err("ZIP without target XML must be rejected");
 
         assert_eq!(err.kind(), io::ErrorKind::InvalidData);
@@ -819,12 +851,12 @@ mod tests {
 
     #[test]
     fn test_convert_bytes_rejects_epub_without_mimetype() {
-        let opencc = OpenCC::new();
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
         let zip = make_zip(&[(
             "OEBPS/content.xhtml",
             "<html><body>汉语</body></html>".as_bytes(),
         )]);
-        let err = OfficeConverter::convert_bytes(&zip, "epub", &opencc, "s2t", true, true)
+        let err = OfficeConverter::convert_bytes(&zip, "epub", "s2t", true, true, &converter)
             .expect_err("EPUB without mimetype must be rejected");
 
         assert_eq!(err.kind(), io::ErrorKind::InvalidData);
@@ -850,17 +882,17 @@ mod tests {
             zip.finish().unwrap();
         }
 
-        let opencc = OpenCC::new();
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
 
         let (out_bytes, converted_count) = OfficeConverter::convert_bytes(
             input_cursor.get_ref(),
             "xlsx",
-            &opencc,
             "s2t",
             true,
             true,
+            &converter,
         )
-        .expect("convert_bytes failed");
+            .expect("convert_bytes failed");
 
         assert_eq!(
             converted_count, 1,
@@ -903,22 +935,22 @@ mod tests {
                  </row></sheetData></worksheet>"
                     .as_bytes(),
             )
-            .unwrap();
+                .unwrap();
 
             zip.finish().unwrap();
         }
 
-        let opencc = OpenCC::new();
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
 
         let (out_bytes, _) = OfficeConverter::convert_bytes(
             input_cursor.get_ref(),
             "xlsx",
-            &opencc,
             "s2t",
             true,
             true,
+            &converter,
         )
-        .expect("convert_bytes failed");
+            .expect("convert_bytes failed");
 
         let cursor = Cursor::new(out_bytes);
         let mut zip = ZipArchive::new(cursor).expect("Output is not a valid ZIP archive");
@@ -965,10 +997,10 @@ mod tests {
             ),
         ];
         let input = make_zip(&entries);
-        let opencc = OpenCC::new();
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
 
         let (output, converted_count) =
-            OfficeConverter::convert_bytes(&input, "pptx", &opencc, "s2t", false, true)
+            OfficeConverter::convert_bytes(&input, "pptx", "s2t", false, true, &converter)
                 .expect("PPTX byte conversion should succeed");
 
         assert_eq!(converted_count, 5);
@@ -996,13 +1028,36 @@ mod tests {
             "PPT/SLIDEMASTERS/SLIDEMASTER1.XML",
             "<a:t>汉语</a:t>".as_bytes(),
         )]);
-        let opencc = OpenCC::new();
+        let converter = OfficeTextConverter::new(|text: &str, _, _| text.replace("汉语", "漢語"));
 
         let (output, converted_count) =
-            OfficeConverter::convert_bytes(&input, "PPTX", &opencc, "s2t", false, false)
+            OfficeConverter::convert_bytes(&input, "PPTX", "s2t", false, false, &converter)
                 .expect("case-insensitive PPTX conversion should succeed");
 
         assert_eq!(converted_count, 1);
         assert!(read_zip_entry(&output, "PPT/SLIDEMASTERS/SLIDEMASTER1.XML").contains("漢語"));
+    }
+    #[test]
+    fn test_convert_bytes_uses_office_text_converter() {
+        let input = make_zip(&[(
+            "word/document.xml",
+            "<w:document>汉语</w:document>".as_bytes(),
+        )]);
+        let converter = OfficeTextConverter::new(|text: &str, config: &str, punctuation: bool| {
+            text.replace("汉语", &format!("自訂-{config}-{punctuation}"))
+        });
+
+        let (output, converted_count) = OfficeConverter::convert_bytes(
+            &input,
+            "docx",
+            "s2t",
+            false,
+            false,
+            &converter,
+        )
+            .expect("delegate conversion should succeed");
+
+        assert_eq!(converted_count, 1);
+        assert!(read_zip_entry(&output, "word/document.xml").contains("自訂-s2t-false"));
     }
 }

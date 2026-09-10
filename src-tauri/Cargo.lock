@@ -876,7 +876,7 @@ version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab8ecd87370524b461f8557c119c405552c396ed91fc0a8eec68679eab26f94a"
 dependencies = [
- "libloading 0.7.4",
+ "libloading 0.8.9",
 ]
 
 [[package]]
@@ -1002,9 +1002,9 @@ checksum = "4ef6b89e5b37196644d8796de5268852ff179b44e96276cf4290264843743bb7"
 
 [[package]]
 name = "encoding_rs"
-version = "0.8.40"
+version = "0.8.41"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a7a45518d2863d18aa47f4a0cf9faec2aa4304cc09df5e41299f276b3ad135e"
+checksum = "7b5ef0006ac9ab233c38522f5ae99cae3625151de8f706cacee1cba4b8e2832a"
 dependencies = [
  "cfg-if",
  "core_detect",
@@ -2775,7 +2775,7 @@ dependencies = [
 [[package]]
 name = "opencc-fmmseg"
 version = "0.12.0"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#35e1a39a7d15c660da6b9573b792e249db4db222"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#b84039a20c17fd26bf3c300af78688cff296552d"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2908,7 +2908,7 @@ checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 [[package]]
 name = "pdfium-helper"
 version = "0.1.6"
-source = "git+https://github.com/laisuk/pdfium-helper#eaffa46e61895079b7d39d58ac11dd42464b4539"
+source = "git+https://github.com/laisuk/pdfium-helper#ded84dc56829fa47df28541b2cfb3943e22cecc1"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",
