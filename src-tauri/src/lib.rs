@@ -8,12 +8,13 @@ mod epub_helper;
 mod office_converter;
 mod open_doc_helper;
 mod open_xml_helper;
+mod text_converter;
 mod utils;
 
 use crate::cjk_text_normalize::DialogQuoteValidationResult;
 use crate::epub_helper::ExtractOptions;
-use crate::office_converter::converter::OfficeTextConverter;
 use crate::office_converter::OfficeConverter;
+use crate::text_converter::{create_text_converter, TextConverter, TextConverterOptions};
 use dictionary::OpenccManager;
 use opencc_fmmseg::{DetofuLevel, OpenCC};
 use pdfium_helper::{
@@ -192,7 +193,7 @@ async fn open_file(
     compact: bool,
     config: String,
     punctuation: bool,
-    custom_heading_regex: Option<String>, // NEW
+    custom_heading_regex: Option<String>,
 ) -> Result<(String, String), String> {
     let Some(file_handle) = AsyncFileDialog::new()
         .add_filter("Text Files", &["txt", "md"])
@@ -298,7 +299,7 @@ async fn open_path_to_editor(
     compact: bool,
     config: String,
     punctuation: bool,
-    custom_heading_regex: Option<String>, // NEW
+    custom_heading_regex: Option<String>,
 ) -> Result<(String, String), String> {
     let path_buf = PathBuf::from(&path);
     let path_str = path_buf.display().to_string();
@@ -518,7 +519,7 @@ fn open_pdf_extract_text_with_progress(
     config: &str,
     punctuation: bool,
     do_convert: bool,
-    custom_heading_regex: Option<&str>, // NEW (borrow, no clone)
+    custom_heading_regex: Option<&str>, // (borrow, no clone)
 ) -> Result<String, String> {
     let path_display = input_path.to_string();
 
@@ -749,12 +750,13 @@ fn make_output_path(input_path: &str, out_dir: &Path, config: &str) -> Result<Pa
     Ok(out_dir.join(filename))
 }
 
-fn convert_filename_only(
-    opencc: &OpenCC,
+fn convert_filename_only<F>(
     input_path: &str,
-    config: &str,
-    punctuation: bool,
-) -> Result<String, String> {
+    text_converter: &TextConverter<F>,
+) -> Result<String, String>
+where
+    F: Fn(&str) -> String,
+{
     let p = Path::new(input_path);
 
     // If we can't get a filename, just return original.
@@ -763,12 +765,12 @@ fn convert_filename_only(
         None => return Ok(input_path.to_string()),
     };
 
-    // Split into stem + ext (ext includes the dot, e.g. ".pdf")
+    // Split into stem + extension (without the dot, e.g. "pdf")
     let stem = p.file_stem().and_then(|s| s.to_str()).unwrap_or(file_name);
     let ext = p.extension().and_then(|s| s.to_str()).unwrap_or("");
 
     // Convert only the stem
-    let stem_converted = opencc.convert(stem, config, punctuation);
+    let stem_converted = text_converter.convert(stem);
 
     // Rebuild filename with original extension
     let new_file_name = if ext.is_empty() {
@@ -796,18 +798,18 @@ async fn run_batch_convert(
     punctuation: bool,
     convert_filename: bool,
     overwrite_output: bool,
-    custom_heading_regex: Option<String>, // NEW
+    custom_heading_regex: Option<String>,
 ) -> Result<(), String> {
     let opencc_arc = state.opencc.active();
 
     tauri::async_runtime::spawn_blocking(move || -> Result<(), String> {
-        let text_converter = OfficeTextConverter::new({
-            let opencc = Arc::clone(&opencc_arc);
-
-            move |text: &str, config: &str, punctuation: bool| {
-                opencc.convert(text, config, punctuation)
-            }
-        });
+        let text_converter = create_text_converter(
+            opencc_arc.as_ref(),
+            TextConverterOptions {
+                config: &config,
+                punctuation,
+            },
+        );
 
         let out_dir = Path::new(&output_dir);
         fs::create_dir_all(out_dir)
@@ -875,7 +877,7 @@ async fn run_batch_convert(
 
             // compute path used for output naming
             let path_for_output = if convert_filename {
-                convert_filename_only(&*opencc_arc, &path, &config, punctuation)
+                convert_filename_only(&path, &text_converter)
                     .map_err(|e| format!("[{idx}/{total}] convert_filename failed: {e}"))?
             } else {
                 path.clone()
@@ -956,13 +958,11 @@ async fn run_batch_convert(
             let result: Result<(), String> = if is_pdf {
                 convert_pdf_to_txt_with_progress(
                     &app,
-                    &opencc_arc,
+                    &text_converter,
                     idx,
                     total,
                     &path,
                     &output_path,
-                    &config,
-                    punctuation,
                     heading_regex.as_ref(),
                 )
             } else if is_office {
@@ -971,8 +971,6 @@ async fn run_batch_convert(
                         &path,
                         &output_path.to_string_lossy(),
                         &office_format,
-                        &config,
-                        punctuation,
                         true,
                         &text_converter,
                     )
@@ -998,7 +996,7 @@ async fn run_batch_convert(
                     let contents = String::from_utf8(data)
                         .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).to_string());
 
-                    let converted = { opencc_arc.convert(&contents, &config, punctuation) };
+                    let converted = text_converter.convert(&contents);
 
                     // keep your current behavior; or switch to write_text_unix_newlines if you want consistent \n
                     fs::write(&output_path, converted).map_err(|e| {
@@ -1212,17 +1210,18 @@ fn normalize_input_path_for_os(input: &str) -> String {
     }
 }
 
-fn convert_pdf_to_txt_with_progress(
+fn convert_pdf_to_txt_with_progress<F>(
     app: &AppHandle,
-    opencc_arc: &Arc<OpenCC>,
+    text_converter: &TextConverter<F>,
     idx: usize,
     total: usize,
     input_path: &str,
     output_path: &Path,
-    config: &str,
-    punctuation: bool,
-    custom_heading_regex: Option<&Regex>, // NEW (borrow, no clone)
-) -> Result<(), String> {
+    custom_heading_regex: Option<&Regex>,
+) -> Result<(), String>
+where
+    F: Fn(&str) -> String,
+{
     // ---- ensure pdfium is loaded once per process ----
     let (pdfium, _lib_path) = PdfiumLibrary::global_with_fallbacks()
         .map_err(|e| format!("[{idx}/{total}] pdfium load failed: {e}"))?;
@@ -1273,14 +1272,14 @@ fn convert_pdf_to_txt_with_progress(
     )
     .map_err(|e| format!("[{idx}/{total}] pdf extract failed: {e}"))?;
 
-    // drop(guard)?  <-- keep it or drop it, both fine; key is pdfium stays in AppState
+    // Pdfium is process-global through PdfiumLibrary::global_with_fallbacks().
 
     let mut extracted = pages.concat();
 
     extracted =
         reflow_cjk_paragraphs_with_heading_regex(&extracted, false, false, custom_heading_regex);
 
-    let converted = { opencc_arc.convert(&extracted, config, punctuation) };
+    let converted = text_converter.convert(&extracted);
 
     write_text_unix_newlines(output_path, &converted)
         .map_err(|e| format!("[{idx}/{total}] write {}: {e}", output_path.display()))?;

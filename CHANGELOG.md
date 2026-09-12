@@ -25,8 +25,11 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 ### Changed
 
 - Updated `opencc-fmmseg` to v0.12.0.
-- Refactored Office conversion to use a generic text-conversion adapter, decoupling DOCX, XLSX, PPTX, ODF, and EPUB
-  processing from the OpenCC implementation while preserving the active converter and custom dictionary snapshot.
+- Centralized batch text conversion through a reusable `TextConverter`, capturing the active OpenCC configuration and
+  punctuation setting once and reusing the same text-to-text conversion policy for plain text, filenames, PDF output,
+  and Office/EPUB content.
+- Refactored Office conversion to accept a generic `Fn(&str) -> String` text-conversion contract, removing OpenCC
+  configuration and punctuation handling from DOCX, XLSX, PPTX, ODF, and EPUB processing.
 - Expanded PPTX conversion to cover slides, notes, slide masters, slide layouts, comments, and comment authors with
   case-insensitive part matching.
 - Improved XLSX conversion to handle inline strings while leaving formulas and unrelated XML content untouched.
