@@ -70,6 +70,7 @@ export const en = {
         addPageHeader: "Add Page Header (PDF)",
         compactPdf: "Compact PDF Text",
         autoReflow: "Auto Reflow (PDF)",
+        ignoreUntrustedPdfText: "Ignore Untrusted PDF Text (Advanced PDF)",
         overwriteOutput: "Overwrite Existing Output Files (Batch Mode)",
         enableEditorLog: "Enable Editor Log",
         uiLanguage: "UI Language",

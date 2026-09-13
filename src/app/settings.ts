@@ -8,6 +8,7 @@ export type AppSettingsSnapshot = {
     addPageHeader: boolean;
     compactPdf: boolean;
     autoReflow: boolean;
+    ignoreUntrustedPdfText: boolean;
     overwriteOutput: boolean;
     enableEditorLog: boolean;
     punctuation: boolean;
@@ -23,6 +24,7 @@ type SettingsElements = {
     cbAddPageHeader: HTMLInputElement;
     cbCompactPdf: HTMLInputElement;
     cbAutoReflow: HTMLInputElement;
+    cbIgnoreUntrustedPdfText: HTMLInputElement;
     cbOverwriteOutput: HTMLInputElement;
     cbEnableEditorLog: HTMLInputElement;
     cbPunctuation: HTMLInputElement;
@@ -39,6 +41,7 @@ const STORAGE_KEYS = {
     addPageHeader: "addPageHeader",
     compactPdf: "compactPdf",
     autoReflow: "autoReflow",
+    ignoreUntrustedPdfText: "ignoreUntrustedPdfText",
     overwriteOutput: "cbOverwriteOutput",
     enableEditorLog: "cbEnableEditorLog",
     punctuation: "cbPunctuation",
@@ -56,6 +59,7 @@ const state = {
     addPageHeader: false,
     compactPdf: false,
     autoReflow: true,
+    ignoreUntrustedPdfText: false,
     overwriteOutput: true,
     enableEditorLog: true,
     punctuation: true,
@@ -98,6 +102,7 @@ function syncStateFromCheckboxes(): void {
     state.addPageHeader = elements.cbAddPageHeader.checked;
     state.compactPdf = elements.cbCompactPdf.checked;
     state.autoReflow = elements.cbAutoReflow.checked;
+    state.ignoreUntrustedPdfText = elements.cbIgnoreUntrustedPdfText.checked;
     state.overwriteOutput = elements.cbOverwriteOutput.checked;
     state.enableEditorLog = elements.cbEnableEditorLog.checked;
     state.punctuation = elements.cbPunctuation.checked;
@@ -110,6 +115,7 @@ function applyStateToCheckboxes(): void {
     elements.cbAddPageHeader.checked = state.addPageHeader;
     elements.cbCompactPdf.checked = state.compactPdf;
     elements.cbAutoReflow.checked = state.autoReflow;
+    elements.cbIgnoreUntrustedPdfText.checked = state.ignoreUntrustedPdfText;
     elements.cbOverwriteOutput.checked = state.overwriteOutput;
     elements.cbEnableEditorLog.checked = state.enableEditorLog;
     elements.cbPunctuation.checked = state.punctuation;
@@ -121,6 +127,7 @@ function persistCheckboxState(): void {
     localStorage.setItem(STORAGE_KEYS.addPageHeader, String(state.addPageHeader));
     localStorage.setItem(STORAGE_KEYS.compactPdf, String(state.compactPdf));
     localStorage.setItem(STORAGE_KEYS.autoReflow, String(state.autoReflow));
+    localStorage.setItem(STORAGE_KEYS.ignoreUntrustedPdfText, String(state.ignoreUntrustedPdfText));
     localStorage.setItem(STORAGE_KEYS.overwriteOutput, String(state.overwriteOutput));
     localStorage.setItem(STORAGE_KEYS.enableEditorLog, String(state.enableEditorLog));
     localStorage.setItem(STORAGE_KEYS.punctuation, String(state.punctuation));
@@ -193,6 +200,7 @@ export function initAppSettings(): void {
         cbAddPageHeader: mustGetEl<HTMLInputElement>("cbAddPageHeader"),
         cbCompactPdf: mustGetEl<HTMLInputElement>("cbCompactPdf"),
         cbAutoReflow: mustGetEl<HTMLInputElement>("cbAutoReflow"),
+        cbIgnoreUntrustedPdfText: mustGetEl<HTMLInputElement>("cbIgnoreUntrustedPdfText"),
         cbOverwriteOutput: mustGetEl<HTMLInputElement>("cbOverwriteOutput"),
         cbEnableEditorLog: mustGetEl<HTMLInputElement>("cbEnableEditorLog"),
         cbPunctuation: mustGetEl<HTMLInputElement>("cb_punctuation"),
@@ -208,6 +216,7 @@ export function initAppSettings(): void {
     state.addPageHeader = readBoolean(STORAGE_KEYS.addPageHeader, false);
     state.compactPdf = readBoolean(STORAGE_KEYS.compactPdf, false);
     state.autoReflow = readBoolean(STORAGE_KEYS.autoReflow, true);
+    state.ignoreUntrustedPdfText = readBoolean(STORAGE_KEYS.ignoreUntrustedPdfText, false);
     state.overwriteOutput = readBoolean(STORAGE_KEYS.overwriteOutput, true);
     state.enableEditorLog = readBoolean(STORAGE_KEYS.enableEditorLog, true);
     state.punctuation = readBoolean(STORAGE_KEYS.punctuation, true);
@@ -220,6 +229,7 @@ export function initAppSettings(): void {
         elements.cbAddPageHeader,
         elements.cbCompactPdf,
         elements.cbAutoReflow,
+        elements.cbIgnoreUntrustedPdfText,
         elements.cbOverwriteOutput,
         elements.cbEnableEditorLog,
         elements.cbPunctuation,
@@ -281,6 +291,7 @@ export function getAppSettings(): AppSettingsSnapshot {
         addPageHeader: state.addPageHeader,
         compactPdf: state.compactPdf,
         autoReflow: state.autoReflow,
+        ignoreUntrustedPdfText: state.ignoreUntrustedPdfText,
         overwriteOutput: state.overwriteOutput,
         enableEditorLog: state.enableEditorLog,
         punctuation: state.punctuation,

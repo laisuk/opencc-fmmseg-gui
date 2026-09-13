@@ -78,6 +78,7 @@ export const zhHans = {
         addPageHeader: "添加页眉（PDF）",
         compactPdf: "紧凑化 PDF 文本",
         autoReflow: "自动重排（PDF）",
+        ignoreUntrustedPdfText: "忽略不可信的 PDF 文本（高级 PDF）",
         overwriteOutput: "覆盖现有输出文件（批量模式）",
         enableEditorLog: "启用编辑器日志",
         uiLanguage: "UI Language（界面语言）",

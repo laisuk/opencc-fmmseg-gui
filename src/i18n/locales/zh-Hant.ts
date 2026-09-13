@@ -77,6 +77,7 @@ export const zhHant = {
         addPageHeader: "新增頁首（PDF）",
         compactPdf: "精簡 PDF 文字",
         autoReflow: "自動重排（PDF）",
+        ignoreUntrustedPdfText: "忽略不可信的 PDF 文字（進階 PDF）",
         overwriteOutput: "覆寫現有輸出檔案（批次模式）",
         enableEditorLog: "啟用編輯器記錄",
         uiLanguage: "UI Language（介面語言）",

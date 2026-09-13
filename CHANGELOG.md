@@ -21,6 +21,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Added English, Simplified Chinese, and Traditional Chinese localization for Dictionary controls, statuses, and
   validation messages.
 - Added CJK encoding detection and manual text encoding reload.
+- Added Ignore Untrusted PDF Text for PDF text extraction.
 
 ### Changed
 

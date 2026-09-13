@@ -433,7 +433,8 @@ function createApp() {
                 compact: appSettings.compactPdf,
                 config: getCurrentConfig(),
                 punctuation: cbPunctuation.checked,
-                customHeadingRegex,
+                customHeadingRegex: customHeadingRegex,
+                ignoreUntrustedPdfText: appSettings.ignoreUntrustedPdfText,
             });
 
             if (!filePath) {
@@ -786,6 +787,7 @@ function createApp() {
         const convertFilename = appSettings.convertFilename;
         const overwriteOutput = appSettings.overwriteOutput;
         const customHeadingRegex = getCustomHeadingRegex();
+        const isReflow = appSettings.autoReflow;
 
         if (batchLog) {
             batchLog.value = "";
@@ -797,6 +799,7 @@ function createApp() {
         appendLog(`Config: ${config}`);
         appendLog(`Punctuation: ${punctuation}`);
         appendLog(`Convert Filename: ${convertFilename}`);
+        appendLog(`Reflow PDF: ${isReflow}`);
         appendLog("-----------------------------");
 
         try {
@@ -811,6 +814,7 @@ function createApp() {
                 convertFilename,
                 overwriteOutput,
                 customHeadingRegex,
+                isReflow,
             });
 
             const hadError = getBatchHadError();
@@ -887,6 +891,7 @@ function createApp() {
                 config: getCurrentConfig(),
                 punctuation: cbPunctuation.checked,
                 customHeadingRegex: appSettings.customHeadingRegex,
+                ignoreUntrustedPdfText: appSettings.ignoreUntrustedPdfText,
             });
 
             setCurrentOpenFile(pathStr);

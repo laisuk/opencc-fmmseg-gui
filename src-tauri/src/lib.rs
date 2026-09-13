@@ -194,6 +194,7 @@ async fn open_file(
     config: String,
     punctuation: bool,
     custom_heading_regex: Option<String>,
+    ignore_untrusted_pdf_text: bool,
 ) -> Result<(String, String), String> {
     let Some(file_handle) = AsyncFileDialog::new()
         .add_filter("Text Files", &["txt", "md"])
@@ -221,6 +222,7 @@ async fn open_file(
         config,
         punctuation,
         custom_heading_regex,
+        ignore_untrusted_pdf_text,
     )
     .await
 }
@@ -300,6 +302,7 @@ async fn open_path_to_editor(
     config: String,
     punctuation: bool,
     custom_heading_regex: Option<String>,
+    ignore_untrusted_pdf_text: bool,
 ) -> Result<(String, String), String> {
     let path_buf = PathBuf::from(&path);
     let path_str = path_buf.display().to_string();
@@ -333,6 +336,7 @@ async fn open_path_to_editor(
                 punctuation,
                 false, // do_convert on open
                 custom_heading_regex.as_deref(),
+                ignore_untrusted_pdf_text,
             )
         })
         .await
@@ -520,6 +524,7 @@ fn open_pdf_extract_text_with_progress(
     punctuation: bool,
     do_convert: bool,
     custom_heading_regex: Option<&str>, // (borrow, no clone)
+    ignore_untrusted_pdf_text: bool,
 ) -> Result<String, String> {
     let path_display = input_path.to_string();
 
@@ -541,7 +546,7 @@ fn open_pdf_extract_text_with_progress(
         pdfium,
         &input_norm,
         page_header,
-        false,
+        ignore_untrusted_pdf_text,
         |page, total_pages, text| {
             pages.push(text.to_owned());
 
@@ -799,6 +804,7 @@ async fn run_batch_convert(
     convert_filename: bool,
     overwrite_output: bool,
     custom_heading_regex: Option<String>,
+    is_reflow: bool,
 ) -> Result<(), String> {
     let opencc_arc = state.opencc.active();
 
@@ -964,6 +970,7 @@ async fn run_batch_convert(
                     &path,
                     &output_path,
                     heading_regex.as_ref(),
+                    is_reflow,
                 )
             } else if is_office {
                 match ext_lower.clone() {
@@ -1218,6 +1225,7 @@ fn convert_pdf_to_txt_with_progress<F>(
     input_path: &str,
     output_path: &Path,
     custom_heading_regex: Option<&Regex>,
+    is_reflow: bool,
 ) -> Result<(), String>
 where
     F: Fn(&str) -> String,
@@ -1233,11 +1241,15 @@ where
     let mut last_emit_page: i32 = 0;
     let mut block: i32 = 1;
 
+    // Advanced PDF text filtering is intentionally editor-only.
+    // Batch conversion keeps all extracted text for predictable unattended processing.
+    let ignore_untrusted_pdf_text = false;
+
     extract_pdf_pages_with_callback_pdfium(
         pdfium,
         &input_norm,
         false,
-        false,
+        ignore_untrusted_pdf_text,
         |page, total_pages, text| {
             pages.push(text.to_owned());
 
@@ -1276,8 +1288,14 @@ where
 
     let mut extracted = pages.concat();
 
-    extracted =
-        reflow_cjk_paragraphs_with_heading_regex(&extracted, false, false, custom_heading_regex);
+    if is_reflow {
+        extracted = reflow_cjk_paragraphs_with_heading_regex(
+            &extracted,
+            false,
+            false,
+            custom_heading_regex,
+        );
+    }
 
     let converted = text_converter.convert(&extracted);
 

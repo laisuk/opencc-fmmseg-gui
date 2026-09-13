@@ -113,6 +113,7 @@ export function applyLocale(): void {
     mustGetEl<HTMLElement>("add-page-header-text").textContent = s.settings.addPageHeader;
     mustGetEl<HTMLElement>("compact-pdf-text").textContent = s.settings.compactPdf;
     mustGetEl<HTMLElement>("auto-reflow-text").textContent = s.settings.autoReflow;
+    mustGetEl<HTMLElement>("ignore-untrusted-pdf-text").textContent = s.settings.ignoreUntrustedPdfText;
     mustGetEl<HTMLElement>("overwrite-output-text").textContent = s.settings.overwriteOutput;
     mustGetEl<HTMLElement>("enable-editor-log-text").textContent = s.settings.enableEditorLog;
 
