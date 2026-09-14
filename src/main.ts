@@ -955,9 +955,9 @@ function createApp() {
 
             cbRegionalTerms.disabled = !enabled;
 
-            if (!enabled) {
-                cbRegionalTerms.checked = false;
-            }
+            // if (!enabled) {
+            //     cbRegionalTerms.checked = false;
+            // }
         }
 
         cbRegionalTerms.addEventListener("change", updateRegionalTermsState);
