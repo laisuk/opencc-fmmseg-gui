@@ -56,6 +56,12 @@ export const en = {
     },
 
     batch: {
+        addTitle: "Add file(s) to listbox",
+        removeTitle: "Remove selected file(s) from listbox",
+        clearTitle: "Clear list box contents",
+        browseTitle: "Browse output folder",
+        openOutDirTitle: "Open output folder",
+        clearLogTitle: "Clear all logs or preview",
         filesTitle: "Files",
         logPreviewTitle: "Log / Preview",
         idleStatus: "Idle",
@@ -93,10 +99,12 @@ export const en = {
 
     dictionary: {
         title: "Dictionary Tool",
-        generationHeading: "Dictionary generation",
+        generationHeading: "📖 Dictionary generation",
         baseDirectory: "Base Dictionary Directory",
+        baseDirectoryHint: "Must contain the complete set of required dicts/*.txt files.",
         outputDirectory: "Output Directory",
         browse: "Browse",
+        clearPathHint: "Clear path",
         generateZstd: "Generate ZSTD",
         generateCbor: "Generate CBOR",
         generateJson: "Generate JSON",
@@ -107,6 +115,7 @@ export const en = {
         dictionaryFile: "Dictionary file",
         filePlaceholder: "Dictionary file path",
         remove: "Remove",
+        removeHint: "Remove current row",
         add: "Add Custom Dictionary",
         apply: "Apply to Current Converter",
         applyStartup: "Apply to Converter during startup",
@@ -131,4 +140,75 @@ export const en = {
         close: "Close",
         more: (count: number) => `...and ${count} more.`,
     },
+
+    runtime: {
+        clipboardEmpty: "Clipboard empty",
+        clipboardPasted: "Clipboard contents pasted",
+        noTextCopied: "No text to copy",
+        outputCopied: "Output contents copied",
+        errorCopyText: "Error copying text: {error}",
+
+        converting: "Converting...",
+        conversionComplete: "Conversion complete ({config})",
+        selectionConverted: "Selection converted ({config})",
+        convertFailed: "Convert failed: {error}",
+
+        reflowing: "Reflowing...",
+        reflowComplete: "Reflow complete",
+        selectionReflowComplete: "Selection reflow complete",
+        reflowFailed: "Reflow failed: {error}",
+
+        normalizingCompat: "Normalizing compatibility ideographs...",
+        noCompatFound: "No CJK compatibility characters found.",
+        normalizationComplete: "Normalization complete",
+        selectionNormalizationComplete: "Selection normalization complete",
+        normalizationFailed: "Normalization failed: {error}",
+
+        normalizingDialogQuotes: "Normalizing CJK dialog quotes...",
+
+        validatingDialogQuotes: "Validating CJK dialog quotes...",
+        validationCompleted: "Validation complete",
+        validationFailed: "Validation failed: {error}",
+
+        runningDeTofu: "Running DeTofu...",
+        noDeTofuNeeded: "No tofu-risk characters found",
+        deTofuComplete: "DeTofu complete",
+        deTofuFailed: "DeTofu failed: {error}",
+
+        sourceCleared: "Editor source cleared",
+        destinationCleared: "Editor destination cleared",
+
+        opening: "Opening...",
+        noFileSelected: "No file selected",
+        fileOpened: "File opened: {filePath}",
+        openFailed: "Open failed: {error}",
+        fileDropped: "File dropped: {filePath}",
+        dropFailed: "Drop failed: {error}",
+
+        selectSavePath: "Selected path to save {target} ...",
+        fileSaved: "File saved: {filePath}",
+        fileNotSaved: "File not saved: {error}",
+
+        noFilesSelected: "No files selected",
+        outputDirectoryNotSet: "Output directory not set",
+        batchRunning: "Batch running...",
+        batchCompleted: "Batch completed ({config})",
+        batchWithError: "Batch done with errors ({config})",
+        batchFailed: "Batch failed",
+        noOutputFolderSelected: "No output folder selected",
+        outputFolderOpened: "Output folder opened: {path}",
+        outputFolderError: "Output folder error: {error}",
+
+        logCleared: "Logs cleared",
+        addedFiles: "Added {count} file(s)",
+
+        comparing: "Comparing source and converted text...",
+        compareCompleted: "Comparison completed",
+        compareDisabled: "Comparison disabled",
+
+        reloadingEncoding: "Reloading as {encoding}...",
+        reloadedAutoEncoding: "File reloaded with auto encoding detection",
+        reloadedEncoding: "File reloaded as {encoding}",
+        reloadFailed: "Reload failed: {error}",
+    }
 } as const;

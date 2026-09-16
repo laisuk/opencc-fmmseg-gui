@@ -7,7 +7,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.12.0] - Unreleased
+## [0.12.0] - 2026-09-16
 
 ### Added
 
@@ -40,11 +40,19 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
   from the base directory only.
 - Updated Dictionary SVG icons to use theme-aware `currentColor` fills.
 - Updated dictionary JSON import and export to use the public `DictMaxLen` API and rebuild derived length metadata.
+- Expanded English, Simplified Chinese, and Traditional Chinese localization for editor, file, conversion,
+  normalization,
+  DeTofu, comparison, encoding reload, and Batch Conversion runtime statuses.
 
 ### Fixed
 
-- Fixed Dialog Quotes Validator to handle go-to-line out of bound.
-- Fixed mis-placed SVG icon button in Linux.
+- Fixed intermittent drag-and-drop failures, especially with multiple files, by routing drops from the actual drop
+  position instead of stale hover state.
+- Improved drag-and-drop hit testing by accounting for physical-to-CSS coordinate scaling and using target bounds
+  independently of nested editor DOM elements.
+- Serialized editor file drops to prevent overlapping file-open listener lifecycles during rapid consecutive drops.
+- Fixed Dialog Quotes Validator to handle go-to-line out of bounds.
+- Fixed misplaced SVG icon buttons on Linux.
 - Fixed Dictionary button icon and text vertical alignment.
 - Fixed Dictionary path fields and dropdown backgrounds in dark, light, and system themes.
 - Fixed Dictionary generation validation and backend errors not being shown in the tab status box.

@@ -58,7 +58,7 @@ const state = {
     extendUnicodeCompat: true,
     addPageHeader: false,
     compactPdf: false,
-    autoReflow: true,
+    autoReflow: false,
     ignoreUntrustedPdfText: false,
     overwriteOutput: true,
     enableEditorLog: true,
@@ -215,7 +215,7 @@ export function initAppSettings(): void {
     state.extendUnicodeCompat = readBoolean(STORAGE_KEYS.extendUnicodeCompat, true);
     state.addPageHeader = readBoolean(STORAGE_KEYS.addPageHeader, false);
     state.compactPdf = readBoolean(STORAGE_KEYS.compactPdf, false);
-    state.autoReflow = readBoolean(STORAGE_KEYS.autoReflow, true);
+    state.autoReflow = readBoolean(STORAGE_KEYS.autoReflow, false);
     state.ignoreUntrustedPdfText = readBoolean(STORAGE_KEYS.ignoreUntrustedPdfText, false);
     state.overwriteOutput = readBoolean(STORAGE_KEYS.overwriteOutput, true);
     state.enableEditorLog = readBoolean(STORAGE_KEYS.enableEditorLog, true);

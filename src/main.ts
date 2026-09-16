@@ -33,7 +33,7 @@ import {setupUnifiedDrop} from "./tauri/dragdrop";
 import {initUiLanguage} from "./i18n/initUiLanguage";
 import {formatCharCount, getRuntimeLabel} from "./i18n/runtimeLabels";
 import {openUrl} from "@tauri-apps/plugin-opener";
-import {initThemeMode} from "./i18n";
+import {getLocale, initThemeMode, format} from "./i18n";
 
 import {DialogQuoteValidationResult, initDialogs, showQuoteValidationDialog} from "./dialog.ts";
 import {initDictionary} from "./features/dictionary/dictionary";
@@ -355,7 +355,7 @@ function createApp() {
         if (!currentOpenFilename) return;
 
         try {
-            setStatus(`Reloading as ${encoding}...`);
+            setStatus(format(getLocale().runtime.reloadingEncoding, {encoding}));
 
             const text = await invoke<string>("reload_text_file", {
                 path: currentOpenFilename,
@@ -368,8 +368,8 @@ function createApp() {
 
             setStatus(
                 encoding === "auto"
-                    ? "File reloaded with auto encoding detection"
-                    : `File reloaded as ${encoding}`,
+                    ? getLocale().runtime.reloadedAutoEncoding
+                    : format(getLocale().runtime.reloadedEncoding, {encoding}),
             );
         } catch (error) {
             const msg =
@@ -377,7 +377,7 @@ function createApp() {
                     ? error
                     : (error as { message?: string })?.message ?? String(error);
 
-            setStatus(`Reload failed: ${msg}`);
+            setStatus(format(getLocale().runtime.reloadFailed, {error: msg}));
         }
     }
 
@@ -389,7 +389,7 @@ function createApp() {
         const pasted = await invoke<string | null>("paste_text2");
 
         if (!pasted) {
-            setStatus("Clipboard empty");
+            setStatus(getLocale().runtime.clipboardEmpty);
             return;
         }
 
@@ -399,7 +399,7 @@ function createApp() {
 
         await detectInputText(pasted);
         updateCharCount(editorLeft, lblCharCount);
-        setStatus("Clipboard contents pasted");
+        setStatus(getLocale().runtime.clipboardPasted);
     }
 
     async function handleCopy() {
@@ -407,16 +407,16 @@ function createApp() {
 
         if (!text) {
             console.warn("No text to copy");
-            setStatus("No text to copy");
+            setStatus(getLocale().runtime.noTextCopied);
             return;
         }
 
         try {
             await invoke<void>("copy_text2", {text});
-            setStatus("Output contents copied");
+            setStatus(getLocale().runtime.outputCopied);
         } catch (error) {
             console.error("Error copying text:", error);
-            setStatus("Error copying text: " + String(error));
+            setStatus(format(getLocale().runtime.errorCopyText, {error: String(error)}));
         }
     }
 
@@ -438,7 +438,7 @@ function createApp() {
             });
 
             if (!filePath) {
-                setStatus("No file selected");
+                setStatus(getLocale().runtime.noFileSelected);
                 return;
             }
 
@@ -448,10 +448,10 @@ function createApp() {
             setEditorText(editorLeft, text);
             await detectInputText(text);
 
-            setStatus("File Path: " + filePath);
+            setStatus(format(getLocale().runtime.fileOpened, {filePath}));
         } catch (error) {
             appendLog(`✖ [OPEN] invoke open_file failed: ${String(error)}`);
-            setStatus("Open failed");
+            setStatus(format(getLocale().runtime.openFailed, {error: String(error)}));
         } finally {
             stopOpenFileListener();
         }
@@ -467,20 +467,22 @@ function createApp() {
             const target =
                 appSettings.saveTarget.charAt(0).toUpperCase() +
                 appSettings.saveTarget.slice(1);
-            setStatus(`Select path to save ${target} ...`);
+            setStatus(format(getLocale().runtime.selectSavePath, {target}));
 
             const result = await invoke<string>("save_file", {content});
-            setStatus("Saved: " + result);
+            setStatus(format(getLocale().runtime.fileSaved, {filePath: result}));
         } catch (error) {
             console.error("Error saving file:", error);
-            setStatus("File not saved: " + String(error));
+            setStatus(
+                format(getLocale().runtime.fileNotSaved, {error: String(error)})
+            );
         }
     }
 
     async function handleConvert() {
         try {
             btnConvert.disabled = true;
-            setStatus("Converting...");
+            setStatus(getLocale().runtime.converting);
 
             const config = getCurrentConfig();
             const punctuation = cbPunctuation.checked;
@@ -501,8 +503,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? `Selection converted (${config})`
-                    : `Conversion complete (${config})`,
+                    ? format(getLocale().runtime.selectionConverted, {config})
+                    : format(getLocale().runtime.conversionComplete, {config}),
             );
         } catch (error) {
             const msg =
@@ -510,7 +512,7 @@ function createApp() {
                     ? error
                     : (error as { message?: string })?.message ?? String(error);
 
-            setStatus(`Convert failed: ${msg}`);
+            setStatus(format(getLocale().runtime.convertFailed, {error: msg}));
         } finally {
             btnConvert.disabled = false;
         }
@@ -518,7 +520,7 @@ function createApp() {
 
     async function handleReflow() {
         try {
-            setStatus("Reflowing...");
+            setStatus(getLocale().runtime.reflowing);
 
             const text = getInputText();
             const appSettings = getAppSettings();
@@ -539,8 +541,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? `Selection reflow complete`
-                    : `Reflow complete`,
+                    ? getLocale().runtime.selectionReflowComplete
+                    : getLocale().runtime.reflowComplete,
             );
         } catch (error) {
             const msg =
@@ -548,13 +550,13 @@ function createApp() {
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(`Reflow failed: ${msg}`);
+            setStatus(format(getLocale().runtime.reflowFailed, {error: msg}));
         }
     }
 
     async function handleNormCompat() {
         try {
-            setStatus("Normalizing compatibility ideographs...");
+            setStatus(getLocale().runtime.normalizingCompat);
 
             const text = getInputText();
             const extended = getAppSettings().extendUnicodeCompat;
@@ -564,13 +566,18 @@ function createApp() {
                 extended,
             });
 
+            if (text === result) {
+                setStatus(getLocale().runtime.noCompatFound);
+                return;
+            }
+
             compare.clear();
             setEditorText(editorLeft, result);
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? "Selection normalization complete"
-                    : "Normalization complete",
+                    ? getLocale().runtime.selectionNormalizationComplete
+                    : getLocale().runtime.normalizationComplete,
             );
         } catch (error) {
             const msg =
@@ -578,13 +585,13 @@ function createApp() {
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(`Normalization failed: ${msg}`);
+            setStatus(format(getLocale().runtime.normalizationFailed, {error: msg}));
         }
     }
 
     async function handleNormDialogQuotes() {
         try {
-            setStatus("Normalizing CJK dialog quotes...");
+            setStatus(getLocale().runtime.normalizingDialogQuotes);
 
             const text = getInputText();
 
@@ -597,8 +604,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? "Selection normalization complete"
-                    : "Normalization complete",
+                    ? getLocale().runtime.selectionNormalizationComplete
+                    : getLocale().runtime.normalizationComplete,
             );
         } catch (error) {
             const msg =
@@ -606,7 +613,7 @@ function createApp() {
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(`Normalization failed: ${msg}`);
+            setStatus(format(getLocale().runtime.normalizationFailed, {error: msg}));
         }
     }
 
@@ -615,7 +622,7 @@ function createApp() {
         editor: EditorView
     ): Promise<void> {
         try {
-            setStatus("Validating CJK dialog quotes...");
+            setStatus(getLocale().runtime.validatingDialogQuotes);
 
             const text = getText();
 
@@ -642,7 +649,7 @@ function createApp() {
                 goToLine(editor, lineNumber)
             );
 
-            setStatus("Validation complete");
+            setStatus(getLocale().runtime.validationCompleted);
         } catch (error: unknown) {
             const msg =
                 error instanceof Error
@@ -651,7 +658,7 @@ function createApp() {
                         ? error
                         : String(error);
 
-            setStatus(`Validation failed: ${msg}`);
+            setStatus(format(getLocale().runtime.validationFailed, {error: msg}));
         }
     }
 
@@ -676,7 +683,7 @@ function createApp() {
 
     async function handleDeTofu() {
         try {
-            setStatus("Running DeTofu...");
+            setStatus(getLocale().runtime.runningDeTofu);
 
             const before = getEditorText(editorRight);
             const appSettings = getAppSettings();
@@ -689,7 +696,7 @@ function createApp() {
             compare.clear();
 
             if (after === before) {
-                setStatus("No tofu-risk characters found");
+                setStatus(getLocale().runtime.noDeTofuNeeded);
                 return;
             }
 
@@ -699,14 +706,14 @@ function createApp() {
                 `DeTofu: ${original} → ${replacement}`,
             );
 
-            setStatus("DeTofu complete");
+            setStatus(getLocale().runtime.deTofuComplete);
         } catch (error) {
             const msg =
                 typeof error === "string"
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(`DeTofu failed: ${msg}`);
+            setStatus(format(getLocale().runtime.deTofuFailed, {error: msg}));
         }
     }
 
@@ -718,14 +725,14 @@ function createApp() {
         updateCharCount(editorLeft, lblCharCount);
         focusInput(editorLeft);
         lblInput.innerText = "";
-        setStatus("Editor source cleared");
+        setStatus(getLocale().runtime.sourceCleared);
     }
 
     function handleClearDestination() {
         compare.clear();
         if (!clearEditor(editorRight)) return;
         lblOutput.innerText = "";
-        setStatus("Editor destination cleared");
+        setStatus(getLocale().runtime.destinationCleared);
     }
 
     // =========================================================
@@ -736,10 +743,7 @@ function createApp() {
         if (!batchList) return;
 
         const paths = await invoke<string[]>("pick_paths_batch");
-        const existing = Array.from(batchList.options).map((o) => o.value);
-        const sorted = getSortedUniquePaths(existing, paths);
-
-        rebuildBatchList(sorted);
+        addPathsToBatchList(paths);
     }
 
     function handleBatchRemove() {
@@ -771,13 +775,13 @@ function createApp() {
             .filter(Boolean);
 
         if (paths.length === 0) {
-            setStatus("No files selected");
+            setStatus(getLocale().runtime.noFilesSelected);
             return;
         }
 
         const outputDir = (batchOutDir?.value ?? "").trim();
         if (!outputDir) {
-            setStatus("Output directory not set");
+            setStatus(getLocale().runtime.outputDirectoryNotSet);
             return;
         }
 
@@ -804,7 +808,7 @@ function createApp() {
 
         try {
             await startBatchListener();
-            setStatus("Batch running...");
+            setStatus(getLocale().runtime.batchRunning);
 
             await invoke<void>("run_batch_convert", {
                 paths,
@@ -819,7 +823,7 @@ function createApp() {
 
             const hadError = getBatchHadError();
             appendLog(hadError ? "⚠ Conversion completed with errors" : "✔ Conversion completed successfully");
-            setStatus(hadError ? `Batch done with errors (${config})` : `Batch complete (${config})`);
+            setStatus(hadError ? format(getLocale().runtime.batchWithError, {config}) : format(getLocale().runtime.batchCompleted, {config}));
         } catch (error: unknown) {
             const msg =
                 typeof error === "string"
@@ -828,7 +832,7 @@ function createApp() {
 
             appendLog("✖ Batch failed:");
             appendLog(msg);
-            setStatus("Batch failed");
+            setStatus(getLocale().runtime.batchFailed);
         } finally {
             stopBatchListener();
         }
@@ -838,15 +842,16 @@ function createApp() {
         const outputDir = (batchOutDir?.value ?? "").trim();
 
         if (!outputDir) {
-            setStatus("No output folder selected");
+            setStatus(getLocale().runtime.noOutputFolderSelected);
             return;
         }
 
         try {
             await invoke<void>("open_output_dir", {outputDir});
+            setStatus(format(getLocale().runtime.outputFolderOpened, {path: outputDir}));
         } catch (error) {
             console.error("open_output_dir failed:", error);
-            setStatus("Error: " + String(error));
+            setStatus(format(getLocale().runtime.outputFolderError, {error: String(error)}));
         }
     }
 
@@ -854,7 +859,7 @@ function createApp() {
         if (!batchLog) return;
 
         batchLog.value = "";
-        setStatus("Logs Cleared");
+        setStatus(getLocale().runtime.logCleared);
     }
 
     function addPathsToBatchList(paths: string[]) {
@@ -868,7 +873,7 @@ function createApp() {
 
         const added = sorted.length - before;
         if (added > 0) {
-            setStatus(`Added ${added} file(s)`);
+            setStatus(format(getLocale().runtime.addedFiles, {count: added}));
         }
     }
 
@@ -879,7 +884,7 @@ function createApp() {
     async function openFirstPathToEditor(path: string) {
         try {
             await startOpenFileListener();
-            setStatus("Opening...");
+            setStatus(getLocale().runtime.opening);
 
             const appSettings = getAppSettings();
 
@@ -899,14 +904,14 @@ function createApp() {
             setEditorText(editorLeft, text);
             await detectInputText(text);
 
-            setStatus("File dropped: " + pathStr);
+            setStatus(format(getLocale().runtime.fileDropped, {filePath: pathStr}));
         } catch (error: unknown) {
             const msg =
                 typeof error === "string"
                     ? error
                     : (error as { message?: string })?.message ?? JSON.stringify(error);
 
-            setStatus("Drop failed");
+            setStatus(format(getLocale().runtime.dropFailed, {error: msg}));
             appendEditorLog("✖ Drop failed:");
             appendEditorLog(msg);
         } finally {
@@ -918,7 +923,6 @@ function createApp() {
         await setupUnifiedDrop({
             editorHost: editorLeftHost,
             batchList,
-            setStatus,
             onOpenEditor: openFirstPathToEditor,
             onAddBatch: addPathsToBatchList,
         });
@@ -996,11 +1000,11 @@ function createApp() {
             compare.clear();
 
             if (cbCompare.checked) {
-                setStatus("Comparing source and converted text...");
+                setStatus(getLocale().runtime.comparing);
                 compare.apply();
-                setStatus("Comparison complete");
+                setStatus(getLocale().runtime.compareCompleted);
             } else {
-                setStatus("Compare disabled");
+                setStatus(getLocale().runtime.compareDisabled);
             }
         });
 

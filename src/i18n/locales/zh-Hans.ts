@@ -64,6 +64,12 @@ export const zhHans = {
     },
 
     batch: {
+        addTitle: "添加文件到列表",
+        removeTitle: "从列表中移除所选文件",
+        clearTitle: "清空文件列表",
+        browseTitle: "选择输出文件夹",
+        openOutDirTitle: "打开输出文件夹",
+        clearLogTitle: "清空日志或预览",
         filesTitle: "文件",
         logPreviewTitle: "日志 / 预览",
         idleStatus: "空闲",
@@ -100,10 +106,12 @@ export const zhHans = {
     },
     dictionary: {
         title: "词典工具",
-        generationHeading: "词典生成",
+        generationHeading: "📖 词典生成",
         baseDirectory: "基础词典目录",
+        baseDirectoryHint: "必须包含完整所需的 dicts/*.txt 字典文件。",
         outputDirectory: "输出目录",
         browse: "浏览",
+        clearPathHint: "清除路径",
         generateZstd: "生成 ZSTD",
         generateCbor: "生成 CBOR",
         generateJson: "生成 JSON",
@@ -114,6 +122,7 @@ export const zhHans = {
         dictionaryFile: "词典文件",
         filePlaceholder: "词典文件路径",
         remove: "移除",
+        removeHint: "移除当前行",
         add: "添加自定义词典",
         apply: "应用到当前转换器",
         applyStartup: "启动时应用到转换器",
@@ -137,5 +146,76 @@ export const zhHans = {
         goToFirstSuspiciousLine: "跳转到第一处可疑行",
         close: "关闭",
         more: (count: number) => `...还有 ${count} 项。`,
+    },
+
+    runtime: {
+        clipboardEmpty: "剪贴板为空",
+        clipboardPasted: "已粘贴剪贴板内容",
+        noTextCopied: "没有可复制的文本",
+        outputCopied: "已复制输出内容",
+        errorCopyText: "复制文本失败：{error}",
+
+        converting: "正在转换...",
+        conversionComplete: "转换完成（{config}）",
+        selectionConverted: "所选文本转换完成（{config}）",
+        convertFailed: "转换失败：{error}",
+
+        reflowing: "正在重排...",
+        reflowComplete: "重排完成",
+        selectionReflowComplete: "所选文本重排完成",
+        reflowFailed: "重排失败：{error}",
+
+        normalizingCompat: "正在规范化 CJK 兼容字符...",
+        noCompatFound: "未发现 CJK 兼容字符。",
+        normalizationComplete: "规范化完成",
+        selectionNormalizationComplete: "所选文本规范化完成",
+        normalizationFailed: "规范化失败：{error}",
+
+        normalizingDialogQuotes: "正在规范化 CJK 对话引号...",
+
+        validatingDialogQuotes: "正在验证 CJK 对话引号...",
+        validationCompleted: "验证完成",
+        validationFailed: "验证失败：{error}",
+
+        runningDeTofu: "正在执行 DeTofu...",
+        noDeTofuNeeded: "未发现豆腐块风险字符",
+        deTofuComplete: "DeTofu 完成",
+        deTofuFailed: "DeTofu 失败：{error}",
+
+        sourceCleared: "编辑器源文本已清除",
+        destinationCleared: "编辑器目标文本已清除",
+
+        opening: "正在打开...",
+        noFileSelected: "未选择文件",
+        fileOpened: "文件已打开：{filePath}",
+        openFailed: "打开失败：{error}",
+        fileDropped: "文件已拖放：{filePath}",
+        dropFailed: "拖放失败：{error}",
+
+        selectSavePath: "请选择保存路径 {target} ...",
+        fileSaved: "文件已保存：{filePath}",
+        fileNotSaved: "文件保存失败:{error}",
+
+        noFilesSelected: "未选择文件",
+        outputDirectoryNotSet: "未设置输出目录",
+        batchRunning: "正在批量转换...",
+        batchCompleted: "批量转换完成（{config}）",
+        batchWithError: "批量转换完成，但有错误（{config}）",
+        batchFailed: "批量转换失败",
+        noOutputFolderSelected: "未选择输出文件夹",
+        outputFolderOpened: "输出文件夹已打开：{path}",
+        outputFolderError: "打开输出文件夹失败：{error}",
+
+        logCleared: "日志已清除",
+        addedFiles: "已添加 {count} 个文件",
+
+        comparing: "正在比对源文本和转换后的文本...",
+        compareCompleted: "比对完成",
+        compareDisabled: "比对已禁用",
+
+        reloadingEncoding: "正在以 {encoding} 编码重新加载...",
+        reloadedAutoEncoding: "已使用自动编码检测重新加载文件",
+        reloadedEncoding: "已以 {encoding} 编码重新加载文件",
+        reloadFailed: "重新加载失败：{error}",
     },
 } as const;

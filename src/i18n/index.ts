@@ -63,3 +63,14 @@ export function initThemeMode(): void {
         });
     }
 }
+
+export function format(
+    template: string,
+    values: Record<string, string | number | boolean>,
+): string {
+    return template.replace(/\{(\w+)}/g, (match, key: string) =>
+        Object.prototype.hasOwnProperty.call(values, key)
+            ? String(values[key])
+            : match,
+    );
+}

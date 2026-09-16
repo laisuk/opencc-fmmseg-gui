@@ -84,6 +84,13 @@ export function applyLocale(): void {
     compareText.textContent = s.buttons.compare;
 
     // ---------- Batch Convert ----------
+    mustGetEl<HTMLButtonElement>("batch-add").title = s.batch.addTitle;
+    mustGetEl<HTMLButtonElement>("batch-remove").title = s.batch.removeTitle;
+    mustGetEl<HTMLButtonElement>("batch-clear").title = s.batch.clearTitle;
+    mustGetEl<HTMLButtonElement>("batch-browse").title = s.batch.browseTitle;
+    mustGetEl<HTMLButtonElement>("batch-open-outdir").title = s.batch.openOutDirTitle;
+    mustGetEl<HTMLButtonElement>("batch-log-clear").title = s.batch.clearLogTitle;
+
     const batchFilesTitle = document.getElementById("batch-files-title");
     if (batchFilesTitle) batchFilesTitle.textContent = s.batch.filesTitle;
 

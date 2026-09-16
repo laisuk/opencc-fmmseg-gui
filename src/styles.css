@@ -720,9 +720,11 @@ textarea {
 
 .cm-editor .cm-panel input {
     color: var(--text);
-    background: var(--ctl-bg);
+    /*background: var(--ctl-bg);*/
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid var(--ctl-border);
     border-radius: 6px;
+    font-size: var(--editor-font-size);
 }
 
 .cm-editor .cm-panel input:focus {

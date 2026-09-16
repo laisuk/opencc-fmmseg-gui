@@ -148,7 +148,7 @@ function renderRows(): void {
         const remove = document.createElement("button");
         remove.className = "dictionary-remove";
         remove.type = "button";
-        remove.title = strings.remove;
+        remove.title = strings.removeHint;
         remove.innerHTML = `<span class="dictionary-icon">${removeIcon}</span><span>${strings.remove}</span>`;
         remove.addEventListener("click", () => {
             rows.splice(index, 1);
@@ -166,7 +166,10 @@ async function validateSource(): Promise<void> {
     const sequence = ++validationSequence;
     const baseDirectory = el<HTMLInputElement>("dictionary-base-directory").value.trim();
     setBusy(false);
-    if (!baseDirectory) return;
+    if (!baseDirectory) {
+        setStatus("");
+        return;
+    }
     try {
         await invoke("validate_dictionary_source", {baseDirectory});
         if (sequence === validationSequence) setStatus("");
@@ -184,6 +187,13 @@ async function chooseDirectory(target: HTMLInputElement): Promise<void> {
     if (!selected) return;
     target.value = selected;
     target.dispatchEvent(new Event("input"));
+}
+
+function clearPath(inputId: string): void {
+    const input = el<HTMLInputElement>(inputId);
+
+    input.value = "";
+    input.dispatchEvent(new Event("input", {bubbles: true}));
 }
 
 async function applyRows(startup = false): Promise<void> {
@@ -206,15 +216,25 @@ async function applyRows(startup = false): Promise<void> {
 
 async function generate(formatName: string): Promise<void> {
     const strings = getLocale().dictionary;
+    const baseDirectory = el<HTMLInputElement>("dictionary-base-directory").value.trim();
+    const outputDirectory = el<HTMLInputElement>("dictionary-output-directory").value.trim();
+
+    if (!baseDirectory) {
+        setStatus("");
+        return;
+    }
+
     setBusy(true);
     setStatus(format(strings.generating, {format: formatName.toUpperCase()}));
+
     try {
         const path = await invoke<string>("generate_dictionary", {
-            baseDirectory: el<HTMLInputElement>("dictionary-base-directory").value,
-            outputDirectory: el<HTMLInputElement>("dictionary-output-directory").value,
+            baseDirectory,
+            outputDirectory,
             format: formatName,
             rows: el<HTMLInputElement>("dictionary-generate-with-custom").checked ? rows : [],
         });
+
         setStatus(format(strings.generated, {path}));
     } catch (error) {
         setStatus(format(strings.error, {error: errorText(error)}), true);
@@ -229,7 +249,10 @@ export function applyDictionaryLocale(): void {
     el("dictionary-title").textContent = s.title;
     el("dictionary-generation-heading").textContent = s.generationHeading;
     el("dictionary-base-label").textContent = s.baseDirectory;
+    el("dictionary-base-hint").textContent = s.baseDirectoryHint;
     el("dictionary-output-label").textContent = s.outputDirectory;
+    el("dictionary-clear-base").title = s.clearPathHint;
+    el("dictionary-clear-output").title = s.clearPathHint;
     el("dictionary-custom-heading").textContent = s.customSlots;
     el("dictionary-slot-column").textContent = s.slot;
     el("dictionary-mode-column").textContent = s.mode;
@@ -277,6 +300,12 @@ export async function initDictionary(): Promise<void> {
         localStorage.setItem(STORAGE.generateWithCustom, String(generateWithCustom.checked)));
     el("dictionary-browse-base").addEventListener("click", () => void chooseDirectory(base));
     el("dictionary-browse-output").addEventListener("click", () => void chooseDirectory(output));
+    el("dictionary-clear-base").addEventListener("click", () => {
+        clearPath("dictionary-base-directory");
+    });
+    el("dictionary-clear-output").addEventListener("click", () => {
+        clearPath("dictionary-output-directory");
+    });
     el("dictionary-add-row").addEventListener("click", () => {
         rows.push({slot: options.slots[0] ?? "", mode: options.modes[0] ?? "Append", path: ""});
         saveRows();
