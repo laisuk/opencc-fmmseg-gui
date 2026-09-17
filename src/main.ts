@@ -354,8 +354,10 @@ function createApp() {
     async function reloadCurrentFile(encoding: string) {
         if (!currentOpenFilename) return;
 
+        const runtimes = getLocale().runtime;
+
         try {
-            setStatus(format(getLocale().runtime.reloadingEncoding, {encoding}));
+            setStatus(format(runtimes.reloadingEncoding, {encoding}));
 
             const text = await invoke<string>("reload_text_file", {
                 path: currentOpenFilename,
@@ -368,8 +370,8 @@ function createApp() {
 
             setStatus(
                 encoding === "auto"
-                    ? getLocale().runtime.reloadedAutoEncoding
-                    : format(getLocale().runtime.reloadedEncoding, {encoding}),
+                    ? runtimes.reloadedAutoEncoding
+                    : format(runtimes.reloadedEncoding, {encoding}),
             );
         } catch (error) {
             const msg =
@@ -377,7 +379,7 @@ function createApp() {
                     ? error
                     : (error as { message?: string })?.message ?? String(error);
 
-            setStatus(format(getLocale().runtime.reloadFailed, {error: msg}));
+            setStatus(format(runtimes.reloadFailed, {error: msg}));
         }
     }
 
@@ -388,8 +390,10 @@ function createApp() {
     async function handlePaste() {
         const pasted = await invoke<string | null>("paste_text2");
 
+        const runtimes = getLocale().runtime;
+
         if (!pasted) {
-            setStatus(getLocale().runtime.clipboardEmpty);
+            setStatus(runtimes.clipboardEmpty);
             return;
         }
 
@@ -399,24 +403,25 @@ function createApp() {
 
         await detectInputText(pasted);
         updateCharCount(editorLeft, lblCharCount);
-        setStatus(getLocale().runtime.clipboardPasted);
+        setStatus(runtimes.clipboardPasted);
     }
 
     async function handleCopy() {
         const text = getEditorText(editorRight);
+        const runtimes = getLocale().runtime;
 
         if (!text) {
             console.warn("No text to copy");
-            setStatus(getLocale().runtime.noTextCopied);
+            setStatus(runtimes.noTextCopied);
             return;
         }
 
         try {
             await invoke<void>("copy_text2", {text});
-            setStatus(getLocale().runtime.outputCopied);
+            setStatus(runtimes.outputCopied);
         } catch (error) {
             console.error("Error copying text:", error);
-            setStatus(format(getLocale().runtime.errorCopyText, {error: String(error)}));
+            setStatus(format(runtimes.errorCopyText, {error: String(error)}));
         }
     }
 
@@ -425,6 +430,7 @@ function createApp() {
 
         const appSettings = getAppSettings();
         const customHeadingRegex = getCustomHeadingRegex();
+        const runtimes = getLocale().runtime;
 
         try {
             const [filePath, fileContents] = await invoke<[string, string]>("open_file", {
@@ -438,7 +444,7 @@ function createApp() {
             });
 
             if (!filePath) {
-                setStatus(getLocale().runtime.noFileSelected);
+                setStatus(runtimes.noFileSelected);
                 return;
             }
 
@@ -448,16 +454,18 @@ function createApp() {
             setEditorText(editorLeft, text);
             await detectInputText(text);
 
-            setStatus(format(getLocale().runtime.fileOpened, {filePath}));
+            setStatus(format(runtimes.fileOpened, {filePath}));
         } catch (error) {
             appendLog(`✖ [OPEN] invoke open_file failed: ${String(error)}`);
-            setStatus(format(getLocale().runtime.openFailed, {error: String(error)}));
+            setStatus(format(runtimes.openFailed, {error: String(error)}));
         } finally {
             stopOpenFileListener();
         }
     }
 
     async function handleSaveFile() {
+        const runtimes = getLocale().runtime;
+
         try {
             const appSettings = getAppSettings();
             const content = getEditorText(
@@ -467,22 +475,24 @@ function createApp() {
             const target =
                 appSettings.saveTarget.charAt(0).toUpperCase() +
                 appSettings.saveTarget.slice(1);
-            setStatus(format(getLocale().runtime.selectSavePath, {target}));
+            setStatus(format(runtimes.selectSavePath, {target}));
 
             const result = await invoke<string>("save_file", {content});
-            setStatus(format(getLocale().runtime.fileSaved, {filePath: result}));
+            setStatus(format(runtimes.fileSaved, {filePath: result}));
         } catch (error) {
             console.error("Error saving file:", error);
             setStatus(
-                format(getLocale().runtime.fileNotSaved, {error: String(error)})
+                format(runtimes.fileNotSaved, {error: String(error)})
             );
         }
     }
 
     async function handleConvert() {
+        const runtimes = getLocale().runtime;
+
         try {
             btnConvert.disabled = true;
-            setStatus(getLocale().runtime.converting);
+            setStatus(runtimes.converting);
 
             const config = getCurrentConfig();
             const punctuation = cbPunctuation.checked;
@@ -503,8 +513,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? format(getLocale().runtime.selectionConverted, {config})
-                    : format(getLocale().runtime.conversionComplete, {config}),
+                    ? format(runtimes.selectionConverted, {config})
+                    : format(runtimes.conversionComplete, {config}),
             );
         } catch (error) {
             const msg =
@@ -512,15 +522,17 @@ function createApp() {
                     ? error
                     : (error as { message?: string })?.message ?? String(error);
 
-            setStatus(format(getLocale().runtime.convertFailed, {error: msg}));
+            setStatus(format(runtimes.convertFailed, {error: msg}));
         } finally {
             btnConvert.disabled = false;
         }
     }
 
     async function handleReflow() {
+        const runtimes = getLocale().runtime;
+
         try {
-            setStatus(getLocale().runtime.reflowing);
+            setStatus(runtimes.reflowing);
 
             const text = getInputText();
             const appSettings = getAppSettings();
@@ -541,8 +553,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? getLocale().runtime.selectionReflowComplete
-                    : getLocale().runtime.reflowComplete,
+                    ? runtimes.selectionReflowComplete
+                    : runtimes.reflowComplete,
             );
         } catch (error) {
             const msg =
@@ -550,13 +562,15 @@ function createApp() {
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(format(getLocale().runtime.reflowFailed, {error: msg}));
+            setStatus(format(runtimes.reflowFailed, {error: msg}));
         }
     }
 
     async function handleNormCompat() {
+        const runtimes = getLocale().runtime;
+
         try {
-            setStatus(getLocale().runtime.normalizingCompat);
+            setStatus(runtimes.normalizingCompat);
 
             const text = getInputText();
             const extended = getAppSettings().extendUnicodeCompat;
@@ -567,7 +581,7 @@ function createApp() {
             });
 
             if (text === result) {
-                setStatus(getLocale().runtime.noCompatFound);
+                setStatus(runtimes.noCompatFound);
                 return;
             }
 
@@ -576,8 +590,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? getLocale().runtime.selectionNormalizationComplete
-                    : getLocale().runtime.normalizationComplete,
+                    ? runtimes.selectionNormalizationComplete
+                    : runtimes.normalizationComplete,
             );
         } catch (error) {
             const msg =
@@ -585,13 +599,15 @@ function createApp() {
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(format(getLocale().runtime.normalizationFailed, {error: msg}));
+            setStatus(format(runtimes.normalizationFailed, {error: msg}));
         }
     }
 
     async function handleNormDialogQuotes() {
+        const runtimes = getLocale().runtime;
+
         try {
-            setStatus(getLocale().runtime.normalizingDialogQuotes);
+            setStatus(runtimes.normalizingDialogQuotes);
 
             const text = getInputText();
 
@@ -604,8 +620,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? getLocale().runtime.selectionNormalizationComplete
-                    : getLocale().runtime.normalizationComplete,
+                    ? runtimes.selectionNormalizationComplete
+                    : runtimes.normalizationComplete,
             );
         } catch (error) {
             const msg =
@@ -613,7 +629,7 @@ function createApp() {
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(format(getLocale().runtime.normalizationFailed, {error: msg}));
+            setStatus(format(runtimes.normalizationFailed, {error: msg}));
         }
     }
 
@@ -621,8 +637,10 @@ function createApp() {
         getText: () => string,
         editor: EditorView
     ): Promise<void> {
+        const runtimes = getLocale().runtime;
+
         try {
-            setStatus(getLocale().runtime.validatingDialogQuotes);
+            setStatus(runtimes.validatingDialogQuotes);
 
             const text = getText();
 
@@ -649,7 +667,7 @@ function createApp() {
                 goToLine(editor, lineNumber)
             );
 
-            setStatus(getLocale().runtime.validationCompleted);
+            setStatus(runtimes.validationCompleted);
         } catch (error: unknown) {
             const msg =
                 error instanceof Error
@@ -658,7 +676,7 @@ function createApp() {
                         ? error
                         : String(error);
 
-            setStatus(format(getLocale().runtime.validationFailed, {error: msg}));
+            setStatus(format(runtimes.validationFailed, {error: msg}));
         }
     }
 
@@ -682,8 +700,10 @@ function createApp() {
     }
 
     async function handleDeTofu() {
+        const runtimes = getLocale().runtime;
+
         try {
-            setStatus(getLocale().runtime.runningDeTofu);
+            setStatus(runtimes.runningDeTofu);
 
             const before = getEditorText(editorRight);
             const appSettings = getAppSettings();
@@ -696,7 +716,7 @@ function createApp() {
             compare.clear();
 
             if (after === before) {
-                setStatus(getLocale().runtime.noDeTofuNeeded);
+                setStatus(runtimes.noDeTofuNeeded);
                 return;
             }
 
@@ -706,14 +726,14 @@ function createApp() {
                 `DeTofu: ${original} → ${replacement}`,
             );
 
-            setStatus(getLocale().runtime.deTofuComplete);
+            setStatus(runtimes.deTofuComplete);
         } catch (error) {
             const msg =
                 typeof error === "string"
                     ? error
                     : (error as any)?.message ?? String(error);
 
-            setStatus(format(getLocale().runtime.deTofuFailed, {error: msg}));
+            setStatus(format(runtimes.deTofuFailed, {error: msg}));
         }
     }
 
@@ -774,14 +794,16 @@ function createApp() {
             .map((o) => o.value)
             .filter(Boolean);
 
+        const runtimes = getLocale().runtime;
+
         if (paths.length === 0) {
-            setStatus(getLocale().runtime.noFilesSelected);
+            setStatus(runtimes.noFilesSelected);
             return;
         }
 
         const outputDir = (batchOutDir?.value ?? "").trim();
         if (!outputDir) {
-            setStatus(getLocale().runtime.outputDirectoryNotSet);
+            setStatus(runtimes.outputDirectoryNotSet);
             return;
         }
 
@@ -812,7 +834,7 @@ function createApp() {
 
         try {
             await startBatchListener();
-            setStatus(getLocale().runtime.batchRunning);
+            setStatus(runtimes.batchRunning);
 
             await invoke<void>("run_batch_convert", {
                 paths,
@@ -832,16 +854,16 @@ function createApp() {
                     ? `⚠ ${logs.completedWithErrors}`
                     : `✔ ${logs.completedSuccessfully}`
             );
-            setStatus(hadError ? format(getLocale().runtime.batchWithError, {config}) : format(getLocale().runtime.batchCompleted, {config}));
+            setStatus(hadError ? format(runtimes.batchWithError, {config}) : format(runtimes.batchCompleted, {config}));
         } catch (error: unknown) {
             const msg =
                 typeof error === "string"
                     ? error
                     : (error as { message?: string })?.message ?? JSON.stringify(error);
 
-            appendLog("✖ Batch failed:");
+            appendLog(`✖ ${logs.failed}:`);
             appendLog(msg);
-            setStatus(getLocale().runtime.batchFailed);
+            setStatus(runtimes.batchFailed);
         } finally {
             stopBatchListener();
         }
@@ -849,18 +871,19 @@ function createApp() {
 
     async function handleOpenOutputDir() {
         const outputDir = (batchOutDir?.value ?? "").trim();
+        const runtimes = getLocale().runtime;
 
         if (!outputDir) {
-            setStatus(getLocale().runtime.noOutputFolderSelected);
+            setStatus(runtimes.noOutputFolderSelected);
             return;
         }
 
         try {
             await invoke<void>("open_output_dir", {outputDir});
-            setStatus(format(getLocale().runtime.outputFolderOpened, {path: outputDir}));
+            setStatus(format(runtimes.outputFolderOpened, {path: outputDir}));
         } catch (error) {
             console.error("open_output_dir failed:", error);
-            setStatus(format(getLocale().runtime.outputFolderError, {error: String(error)}));
+            setStatus(format(runtimes.outputFolderError, {error: String(error)}));
         }
     }
 
@@ -891,9 +914,11 @@ function createApp() {
     // =========================================================
 
     async function openFirstPathToEditor(path: string) {
+        const runtimes = getLocale().runtime;
+
         try {
             await startOpenFileListener();
-            setStatus(getLocale().runtime.opening);
+            setStatus(runtimes.opening);
 
             const appSettings = getAppSettings();
 
@@ -913,14 +938,14 @@ function createApp() {
             setEditorText(editorLeft, text);
             await detectInputText(text);
 
-            setStatus(format(getLocale().runtime.fileDropped, {filePath: pathStr}));
+            setStatus(format(runtimes.fileDropped, {filePath: pathStr}));
         } catch (error: unknown) {
             const msg =
                 typeof error === "string"
                     ? error
                     : (error as { message?: string })?.message ?? JSON.stringify(error);
 
-            setStatus(format(getLocale().runtime.dropFailed, {error: msg}));
+            setStatus(format(runtimes.dropFailed, {error: msg}));
             appendEditorLog("✖ Drop failed:");
             appendEditorLog(msg);
         } finally {
@@ -1008,12 +1033,14 @@ function createApp() {
         cbCompare.addEventListener("change", () => {
             compare.clear();
 
+            const runtimes = getLocale().runtime;
+
             if (cbCompare.checked) {
-                setStatus(getLocale().runtime.comparing);
+                setStatus(runtimes.comparing);
                 compare.apply();
-                setStatus(getLocale().runtime.compareCompleted);
+                setStatus(runtimes.compareCompleted);
             } else {
-                setStatus(getLocale().runtime.compareDisabled);
+                setStatus(runtimes.compareDisabled);
             }
         });
 

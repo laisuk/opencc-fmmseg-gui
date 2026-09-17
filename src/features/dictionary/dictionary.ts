@@ -101,7 +101,9 @@ function renderRows(): void {
         wrapper.className = "dictionary-row";
 
         const slot = document.createElement("select");
+        slot.id = `dictionary-slot-${index}`;
         slot.className = "fluent-select";
+        slot.setAttribute("aria-label", strings.slot);
         options.slots.forEach((value) => slot.append(makeOption(value)));
         if (options.slots.includes(row.slot)) slot.value = row.slot;
         else if (options.slots.length) {
@@ -114,7 +116,9 @@ function renderRows(): void {
         });
 
         const mode = document.createElement("select");
+        mode.id = `dictionary-mode-${index}`;
         mode.className = "fluent-select";
+        mode.setAttribute("aria-label", strings.mode);
         options.modes.forEach((value) => mode.append(makeOption(value)));
         mode.value = options.modes.includes(row.mode) ? row.mode : options.modes[0];
         mode.addEventListener("change", () => {
@@ -123,8 +127,11 @@ function renderRows(): void {
         });
 
         const path = document.createElement("input");
+        path.id = `dictionary-file-${index}`;
         path.className = "dictionary-file-input fluent-input";
         path.type = "text";
+        path.setAttribute("aria-label", strings.dictionaryFile);
+        path.autocomplete = "off";
         path.placeholder = strings.filePlaceholder;
         path.value = row.path;
         path.addEventListener("input", () => {
