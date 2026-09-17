@@ -792,18 +792,22 @@ function createApp() {
         const overwriteOutput = appSettings.overwriteOutput;
         const customHeadingRegex = getCustomHeadingRegex();
         const isReflow = appSettings.autoReflow;
+        const autoDetectCjkEncoding = appSettings.autoDetectCjkEncoding;
 
         if (batchLog) {
             batchLog.value = "";
         }
 
-        appendLog("== Batch Global Info ==");
-        appendLog(`Files: ${paths.length}`);
-        appendLog(`Output: ${outputDir}`);
-        appendLog(`Config: ${config}`);
-        appendLog(`Punctuation: ${punctuation}`);
-        appendLog(`Convert Filename: ${convertFilename}`);
-        appendLog(`Reflow PDF: ${isReflow}`);
+        const logs = getLocale().batchLogs;
+
+        appendLog(`== ${logs.globalInfo} ==`);
+        appendLog(`${logs.files}: ${paths.length}`);
+        appendLog(`${logs.output}: ${outputDir}`);
+        appendLog(`${logs.config}: ${config}`);
+        appendLog(`${logs.punctuation}: ${punctuation}`);
+        appendLog(`${logs.convertFilename}: ${convertFilename}`);
+        appendLog(`${logs.reflowPdf}: ${isReflow}`);
+        appendLog(`${logs.autoDetectCjkEncoding}: ${autoDetectCjkEncoding}`);
         appendLog("-----------------------------");
 
         try {
@@ -819,10 +823,15 @@ function createApp() {
                 overwriteOutput,
                 customHeadingRegex,
                 isReflow,
+                autoDetectCjkEncoding,
             });
 
             const hadError = getBatchHadError();
-            appendLog(hadError ? "⚠ Conversion completed with errors" : "✔ Conversion completed successfully");
+            appendLog(
+                hadError
+                    ? `⚠ ${logs.completedWithErrors}`
+                    : `✔ ${logs.completedSuccessfully}`
+            );
             setStatus(hadError ? format(getLocale().runtime.batchWithError, {config}) : format(getLocale().runtime.batchCompleted, {config}));
         } catch (error: unknown) {
             const msg =

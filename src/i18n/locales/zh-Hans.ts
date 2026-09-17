@@ -86,6 +86,7 @@ export const zhHans = {
         autoReflow: "自动重排（PDF）",
         ignoreUntrustedPdfText: "忽略不可信的 PDF 文本（高级 PDF）",
         overwriteOutput: "覆盖现有输出文件（批量模式）",
+        autoDetectCjkEncoding: "自动检测纯文本的旧式 CJK 编码（批量模式）",
         enableEditorLog: "启用编辑器日志",
         uiLanguage: "UI Language（界面语言）",
         uiLanguageEnglish: "English",
@@ -217,5 +218,19 @@ export const zhHans = {
         reloadedAutoEncoding: "已使用自动编码检测重新加载文件",
         reloadedEncoding: "已以 {encoding} 编码重新加载文件",
         reloadFailed: "重新加载失败：{error}",
+    },
+
+    batchLogs: {
+        globalInfo: "批处理全局信息",
+        files: "文件",
+        output: "输出",
+        config: "配置",
+        punctuation: "标点符号",
+        convertFilename: "转换文件名",
+        reflowPdf: "PDF 自动重排",
+        autoDetectCjkEncoding: "自动检测 CJK 编码",
+        completedSuccessfully: "成功转换完毕",
+        completedWithErrors: "转换完毕，但有错误",
+        failed: "批处理失败",
     },
 } as const;

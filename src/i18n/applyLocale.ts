@@ -122,6 +122,7 @@ export function applyLocale(): void {
     mustGetEl<HTMLElement>("auto-reflow-text").textContent = s.settings.autoReflow;
     mustGetEl<HTMLElement>("ignore-untrusted-pdf-text").textContent = s.settings.ignoreUntrustedPdfText;
     mustGetEl<HTMLElement>("overwrite-output-text").textContent = s.settings.overwriteOutput;
+    mustGetEl<HTMLElement>("auto-detect-cjk-encoding-text").textContent = s.settings.autoDetectCjkEncoding;
     mustGetEl<HTMLElement>("enable-editor-log-text").textContent = s.settings.enableEditorLog;
 
     mustGetEl<HTMLElement>("rb-st-text").textContent = s.config.s2t;

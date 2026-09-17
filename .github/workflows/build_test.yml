@@ -13,6 +13,26 @@ permissions:
   contents: read
 
 jobs:
+  frontend-build:
+    name: Frontend build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
   rust-test:
     name: Rust tests (${{ matrix.os }})
     strategy:

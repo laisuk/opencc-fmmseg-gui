@@ -10,6 +10,7 @@ export type AppSettingsSnapshot = {
     autoReflow: boolean;
     ignoreUntrustedPdfText: boolean;
     overwriteOutput: boolean;
+    autoDetectCjkEncoding: boolean;
     enableEditorLog: boolean;
     punctuation: boolean;
     customHeadingRegexText: string;
@@ -26,6 +27,7 @@ type SettingsElements = {
     cbAutoReflow: HTMLInputElement;
     cbIgnoreUntrustedPdfText: HTMLInputElement;
     cbOverwriteOutput: HTMLInputElement;
+    cbAutoDetectCjkEncoding: HTMLInputElement;
     cbEnableEditorLog: HTMLInputElement;
     cbPunctuation: HTMLInputElement;
     tbHeadingRegex: HTMLInputElement | null;
@@ -43,6 +45,7 @@ const STORAGE_KEYS = {
     autoReflow: "autoReflow",
     ignoreUntrustedPdfText: "ignoreUntrustedPdfText",
     overwriteOutput: "cbOverwriteOutput",
+    autoDetectCjkEncoding: "cbAutoDetectCjkEncoding",
     enableEditorLog: "cbEnableEditorLog",
     punctuation: "cbPunctuation",
     customHeadingRegex: "custom_heading_regex",
@@ -61,6 +64,7 @@ const state = {
     autoReflow: false,
     ignoreUntrustedPdfText: false,
     overwriteOutput: true,
+    autoDetectCjkEncoding: false,
     enableEditorLog: true,
     punctuation: true,
     customHeadingRegexText: "",
@@ -104,6 +108,7 @@ function syncStateFromCheckboxes(): void {
     state.autoReflow = elements.cbAutoReflow.checked;
     state.ignoreUntrustedPdfText = elements.cbIgnoreUntrustedPdfText.checked;
     state.overwriteOutput = elements.cbOverwriteOutput.checked;
+    state.autoDetectCjkEncoding = elements.cbAutoDetectCjkEncoding.checked;
     state.enableEditorLog = elements.cbEnableEditorLog.checked;
     state.punctuation = elements.cbPunctuation.checked;
 }
@@ -117,6 +122,7 @@ function applyStateToCheckboxes(): void {
     elements.cbAutoReflow.checked = state.autoReflow;
     elements.cbIgnoreUntrustedPdfText.checked = state.ignoreUntrustedPdfText;
     elements.cbOverwriteOutput.checked = state.overwriteOutput;
+    elements.cbAutoDetectCjkEncoding.checked = state.autoDetectCjkEncoding;
     elements.cbEnableEditorLog.checked = state.enableEditorLog;
     elements.cbPunctuation.checked = state.punctuation;
 }
@@ -129,6 +135,7 @@ function persistCheckboxState(): void {
     localStorage.setItem(STORAGE_KEYS.autoReflow, String(state.autoReflow));
     localStorage.setItem(STORAGE_KEYS.ignoreUntrustedPdfText, String(state.ignoreUntrustedPdfText));
     localStorage.setItem(STORAGE_KEYS.overwriteOutput, String(state.overwriteOutput));
+    localStorage.setItem(STORAGE_KEYS.autoDetectCjkEncoding, String(state.autoDetectCjkEncoding));
     localStorage.setItem(STORAGE_KEYS.enableEditorLog, String(state.enableEditorLog));
     localStorage.setItem(STORAGE_KEYS.punctuation, String(state.punctuation));
 }
@@ -202,6 +209,7 @@ export function initAppSettings(): void {
         cbAutoReflow: mustGetEl<HTMLInputElement>("cbAutoReflow"),
         cbIgnoreUntrustedPdfText: mustGetEl<HTMLInputElement>("cbIgnoreUntrustedPdfText"),
         cbOverwriteOutput: mustGetEl<HTMLInputElement>("cbOverwriteOutput"),
+        cbAutoDetectCjkEncoding: mustGetEl<HTMLInputElement>("cbAutoDetectCjkEncoding"),
         cbEnableEditorLog: mustGetEl<HTMLInputElement>("cbEnableEditorLog"),
         cbPunctuation: mustGetEl<HTMLInputElement>("cb_punctuation"),
         tbHeadingRegex: document.getElementById("tbHeadingRegex") as HTMLInputElement | null,
@@ -218,6 +226,7 @@ export function initAppSettings(): void {
     state.autoReflow = readBoolean(STORAGE_KEYS.autoReflow, false);
     state.ignoreUntrustedPdfText = readBoolean(STORAGE_KEYS.ignoreUntrustedPdfText, false);
     state.overwriteOutput = readBoolean(STORAGE_KEYS.overwriteOutput, true);
+    state.autoDetectCjkEncoding = readBoolean(STORAGE_KEYS.autoDetectCjkEncoding, false);
     state.enableEditorLog = readBoolean(STORAGE_KEYS.enableEditorLog, true);
     state.punctuation = readBoolean(STORAGE_KEYS.punctuation, true);
 
@@ -231,6 +240,7 @@ export function initAppSettings(): void {
         elements.cbAutoReflow,
         elements.cbIgnoreUntrustedPdfText,
         elements.cbOverwriteOutput,
+        elements.cbAutoDetectCjkEncoding,
         elements.cbEnableEditorLog,
         elements.cbPunctuation,
     ].forEach((cb) => {
@@ -293,6 +303,7 @@ export function getAppSettings(): AppSettingsSnapshot {
         autoReflow: state.autoReflow,
         ignoreUntrustedPdfText: state.ignoreUntrustedPdfText,
         overwriteOutput: state.overwriteOutput,
+        autoDetectCjkEncoding: state.autoDetectCjkEncoding,
         enableEditorLog: state.enableEditorLog,
         punctuation: state.punctuation,
         customHeadingRegexText: state.customHeadingRegexText,

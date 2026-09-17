@@ -805,6 +805,7 @@ async fn run_batch_convert(
     overwrite_output: bool,
     custom_heading_regex: Option<String>,
     is_reflow: bool,
+    auto_detect_cjk_encoding: bool,
 ) -> Result<(), String> {
     let opencc_arc = state.opencc.active();
 
@@ -1000,8 +1001,13 @@ async fn run_batch_convert(
                     let data =
                         fs::read(&path).map_err(|e| format!("[{idx}/{total}] read {path}: {e}"))?;
 
-                    let contents = String::from_utf8(data)
-                        .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).to_string());
+                    let contents = if auto_detect_cjk_encoding {
+                        decode_text_with_encoding(&data, "auto")
+                            .map_err(|e| format!("[{idx}/{total}] decode {path}: {e}"))?
+                    } else {
+                        String::from_utf8(data)
+                            .unwrap_or_else(|e| String::from_utf8_lossy(e.as_bytes()).to_string())
+                    };
 
                     let converted = text_converter.convert(&contents);
 

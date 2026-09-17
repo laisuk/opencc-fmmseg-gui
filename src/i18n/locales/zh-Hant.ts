@@ -85,6 +85,7 @@ export const zhHant = {
         autoReflow: "自動重排（PDF）",
         ignoreUntrustedPdfText: "忽略不可信的 PDF 文字（進階 PDF）",
         overwriteOutput: "覆寫現有輸出檔案（批次模式）",
+        autoDetectCjkEncoding: "自動偵測純文字的舊式 CJK 編碼（批次模式）",
         enableEditorLog: "啟用編輯器記錄",
         uiLanguage: "UI Language（介面語言）",
         uiLanguageEnglish: "English",
@@ -216,5 +217,19 @@ export const zhHant = {
         reloadedAutoEncoding: "已使用自動編碼偵測重新載入檔案",
         reloadedEncoding: "已以 {encoding} 編碼重新載入檔案",
         reloadFailed: "重新載入失敗：{error}",
+    },
+
+    batchLogs: {
+        globalInfo: "批次處理全域資訊",
+        files: "檔案",
+        output: "輸出",
+        config: "設定",
+        punctuation: "標點符號",
+        convertFilename: "轉換檔案名稱",
+        reflowPdf: "PDF 自動重排",
+        autoDetectCjkEncoding: "自動偵測 CJK 編碼",
+        completedSuccessfully: "成功轉換完畢",
+        completedWithErrors: "轉換完畢，但有錯誤",
+        failed: "批次處理失敗",
     },
 } as const;

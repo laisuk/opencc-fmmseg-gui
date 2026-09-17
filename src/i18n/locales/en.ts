@@ -78,6 +78,7 @@ export const en = {
         autoReflow: "Auto Reflow (PDF)",
         ignoreUntrustedPdfText: "Ignore Untrusted PDF Text (Advanced PDF)",
         overwriteOutput: "Overwrite Existing Output Files (Batch Mode)",
+        autoDetectCjkEncoding: "Auto-detect Legacy CJK Encoding for Plain Text (Batch Mode)",
         enableEditorLog: "Enable Editor Log",
         uiLanguage: "UI Language",
         uiLanguageEnglish: "English",
@@ -210,5 +211,19 @@ export const en = {
         reloadedAutoEncoding: "File reloaded with auto encoding detection",
         reloadedEncoding: "File reloaded as {encoding}",
         reloadFailed: "Reload failed: {error}",
-    }
+    },
+
+    batchLogs: {
+        globalInfo: "Batch Global Info",
+        files: "Files",
+        output: "Output",
+        config: "Config",
+        punctuation: "Punctuation",
+        convertFilename: "Convert Filename",
+        reflowPdf: "Reflow PDF",
+        autoDetectCjkEncoding: "Auto-detect CJK Encoding",
+        completedSuccessfully: "Conversion completed successfully",
+        completedWithErrors: "Conversion completed with errors",
+        failed: "Batch failed",
+    },
 } as const;

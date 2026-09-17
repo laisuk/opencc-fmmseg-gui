@@ -7,7 +7,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.12.0] - 2026-09-16
+## [0.12.0] - 2026-09-17
 
 ### Added
 
@@ -21,6 +21,8 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Added English, Simplified Chinese, and Traditional Chinese localization for Dictionary controls, statuses, and
   validation messages.
 - Added CJK encoding detection and manual text encoding reload.
+- Added an optional Batch Conversion setting to auto-detect legacy CJK encodings for plain-text source files while
+  preserving the existing UTF-8 behavior by default.
 - Added Ignore Untrusted PDF Text for PDF text extraction.
 
 ### Changed
@@ -41,15 +43,14 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Updated Dictionary SVG icons to use theme-aware `currentColor` fills.
 - Updated dictionary JSON import and export to use the public `DictMaxLen` API and rebuild derived length metadata.
 - Expanded English, Simplified Chinese, and Traditional Chinese localization for editor, file, conversion,
-  normalization,
-  DeTofu, comparison, encoding reload, and Batch Conversion runtime statuses.
+  normalization, DeToFu, comparison, encoding reload, Batch Conversion runtime statuses, and Batch Conversion logs.
 
 ### Fixed
 
 - Fixed intermittent drag-and-drop failures, especially with multiple files, by routing drops from the actual drop
   position instead of stale hover state.
-- Improved drag-and-drop hit testing by accounting for physical-to-CSS coordinate scaling and using target bounds
-  independently of nested editor DOM elements.
+- Fixed drag-and-drop hit testing on high-DPI and scaled displays by converting Tauri physical coordinates to CSS
+  pixels and testing target bounds independently of nested editor DOM elements.
 - Serialized editor file drops to prevent overlapping file-open listener lifecycles during rapid consecutive drops.
 - Fixed Dialog Quotes Validator to handle go-to-line out of bounds.
 - Fixed misplaced SVG icon buttons on Linux.
