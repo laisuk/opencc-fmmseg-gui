@@ -51,7 +51,9 @@ export const zhHans = {
 
         pasteTitle: "将剪贴板内容粘贴到编辑器",
         copyTitle: "复制输出内容",
-        openFileTitle: "打开文件",
+        clearTitle: "清空编辑器内容",
+        openFileTitle: "打开文件至编辑器",
+        saveFileTitle: "将目标编辑器内容保存到文件（目标在设置中指定）",
         compareTitle: "在输出编辑器中高亮转换后的词语",
     },
 
@@ -60,7 +62,7 @@ export const zhHans = {
         zhHans: "zh-Hans（简体）",
         zhHant: "zh-Hant（繁体）",
         japanese: "Japanese（日文）",
-        chars: "Chars",
+        chars: "字符",
     },
 
     batch: {
@@ -109,8 +111,10 @@ export const zhHans = {
         title: "词典工具",
         generationHeading: "📖 词典生成",
         baseDirectory: "基础词典目录",
+        baseDirectoryPlaceholder: "选择或输入词典目录...",
         baseDirectoryHint: "必须包含完整所需的 dicts/*.txt 字典文件。",
         outputDirectory: "输出目录",
+        outputDirectoryPlaceholder: "选择或输入输出目录...",
         browse: "浏览",
         clearPathHint: "清除路径",
         generateZstd: "生成 ZSTD",
@@ -162,17 +166,20 @@ export const zhHans = {
         convertFailed: "转换失败：{error}",
 
         reflowing: "正在重排...",
+        noReflowText: "没有文本需要重排",
         reflowComplete: "重排完成",
         selectionReflowComplete: "所选文本重排完成",
         reflowFailed: "重排失败：{error}",
 
         normalizingCompat: "正在规范化 CJK 兼容字符...",
-        noCompatFound: "未发现 CJK 兼容字符。",
+        noCompatText: "没有文本需要规范化",
+        noCompatFound: "未发现 CJK 兼容字符",
         normalizationComplete: "规范化完成",
         selectionNormalizationComplete: "所选文本规范化完成",
         normalizationFailed: "规范化失败：{error}",
 
         normalizingDialogQuotes: "正在规范化 CJK 对话引号...",
+        noText: "编辑器文本为空",
 
         validatingDialogQuotes: "正在验证 CJK 对话引号...",
         validationCompleted: "验证完成",

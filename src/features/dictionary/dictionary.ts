@@ -256,8 +256,10 @@ export function applyDictionaryLocale(): void {
     el("dictionary-title").textContent = s.title;
     el("dictionary-generation-heading").textContent = s.generationHeading;
     el("dictionary-base-label").textContent = s.baseDirectory;
+    el<HTMLInputElement>("dictionary-base-directory").placeholder = s.baseDirectoryPlaceholder;
     el("dictionary-base-hint").textContent = s.baseDirectoryHint;
     el("dictionary-output-label").textContent = s.outputDirectory;
+    el<HTMLInputElement>("dictionary-output-directory").placeholder = s.outputDirectoryPlaceholder;
     el("dictionary-clear-base").title = s.clearPathHint;
     el("dictionary-clear-output").title = s.clearPathHint;
     el("dictionary-custom-heading").textContent = s.customSlots;

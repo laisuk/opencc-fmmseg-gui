@@ -35,9 +35,15 @@ export function applyLocale(): void {
 
     const btnSaveFile = mustGetEl<HTMLButtonElement>("save-file");
     btnSaveFile.querySelector("span")!.textContent = s.buttons.saveFile;
+    btnSaveFile.title = s.buttons.saveFileTitle;
 
-    mustGetEl<HTMLButtonElement>("clear-source").textContent = s.buttons.clear;
-    mustGetEl<HTMLButtonElement>("clear-destination").textContent = s.buttons.clear;
+    const btnClearSource = mustGetEl<HTMLButtonElement>("clear-source");
+    btnClearSource.textContent = s.buttons.clear;
+    btnClearSource.title = s.buttons.clearTitle;
+
+    const btnClearDestination = mustGetEl<HTMLButtonElement>("clear-destination");
+    btnClearDestination.textContent = s.buttons.clear;
+    btnClearDestination.title = s.buttons.clearTitle;
 
     // ---------- Reflow ----------
     const btnReflow = mustGetEl<HTMLButtonElement>("reflow");

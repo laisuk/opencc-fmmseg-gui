@@ -1,4 +1,5 @@
 import {EditorView} from "@codemirror/view";
+import {formatCharCount} from "../i18n/runtimeLabels.ts";
 
 export function getEditorText(view: EditorView): string {
     return view.state.doc.toString();
@@ -39,8 +40,7 @@ export function hasSelection(view: EditorView): boolean {
 
 // Fast and correct for CodeMirror: doc.length is character count.
 export function updateCharCount(view: EditorView, lblCharCount: HTMLElement): void {
-    const charCount = view.state.doc.length;
-    lblCharCount.textContent = `[ ${charCount.toLocaleString()} Chars ]`;
+    lblCharCount.textContent = formatCharCount(view.state.doc.length);
 }
 
 export function focusInput(view: EditorView): void {

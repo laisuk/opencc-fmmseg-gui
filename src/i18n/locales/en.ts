@@ -43,7 +43,9 @@ export const en = {
 
         pasteTitle: "Paste clipboard to editor",
         copyTitle: "Copy output",
-        openFileTitle: "Open file",
+        clearTitle: "Clear editor contents",
+        openFileTitle: "Open file to editor",
+        saveFileTitle: "Save target editor contents to file (target set in settings)",
         compareTitle: "Highlight converted phrases in the output editor",
     },
 
@@ -102,8 +104,10 @@ export const en = {
         title: "Dictionary Tool",
         generationHeading: "📖 Dictionary generation",
         baseDirectory: "Base Dictionary Directory",
+        baseDirectoryPlaceholder: "Select or enter dictionary directory...",
         baseDirectoryHint: "Must contain the complete set of required dicts/*.txt files.",
         outputDirectory: "Output Directory",
+        outputDirectoryPlaceholder: "Select or enter output directory...",
         browse: "Browse",
         clearPathHint: "Clear path",
         generateZstd: "Generate ZSTD",
@@ -155,17 +159,20 @@ export const en = {
         convertFailed: "Convert failed: {error}",
 
         reflowing: "Reflowing...",
+        noReflowText: "No text to reflow",
         reflowComplete: "Reflow complete",
         selectionReflowComplete: "Selection reflow complete",
         reflowFailed: "Reflow failed: {error}",
 
         normalizingCompat: "Normalizing compatibility ideographs...",
+        noCompatText: "No text to normalized",
         noCompatFound: "No CJK compatibility characters found.",
         normalizationComplete: "Normalization complete",
         selectionNormalizationComplete: "Selection normalization complete",
         normalizationFailed: "Normalization failed: {error}",
 
         normalizingDialogQuotes: "Normalizing CJK dialog quotes...",
+        noText: "Editor text is empty",
 
         validatingDialogQuotes: "Validating CJK dialog quotes...",
         validationCompleted: "Validation complete",

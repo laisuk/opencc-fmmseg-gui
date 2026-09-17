@@ -47,9 +47,9 @@ window.addEventListener("error", (e) => {
 document.addEventListener("DOMContentLoaded", async () => {
     await initDictionary();
     initAppSettings();
+    initUiLanguage();
     const app = createApp();
     app.init();
-    initUiLanguage();
     await initAboutVersion();
     initThemeMode();
 });
@@ -535,6 +535,11 @@ function createApp() {
             setStatus(runtimes.reflowing);
 
             const text = getInputText();
+
+            if (!text) {
+                setStatus(runtimes.noReflowText);
+                return;
+            }
             const appSettings = getAppSettings();
             const pageHeader = appSettings.addPageHeader;
             const compact = appSettings.compactPdf;
@@ -573,6 +578,12 @@ function createApp() {
             setStatus(runtimes.normalizingCompat);
 
             const text = getInputText();
+
+            if (!text) {
+                setStatus(runtimes.noCompatText);
+                return;
+            }
+
             const extended = getAppSettings().extendUnicodeCompat;
 
             const result = await invoke<string>("normalize_compat", {
@@ -611,6 +622,11 @@ function createApp() {
 
             const text = getInputText();
 
+            if (!text) {
+                setStatus(runtimes.noText);
+                return;
+            }
+
             const result = await invoke<string>("normalize_dialog_quotes", {
                 text,
             });
@@ -643,6 +659,11 @@ function createApp() {
             setStatus(runtimes.validatingDialogQuotes);
 
             const text = getText();
+
+            if (!text) {
+                setStatus(runtimes.noText);
+                return;
+            }
 
             const result = await invoke<DialogQuoteValidationResult>(
                 "validate_dialog_quotes",
@@ -706,6 +727,12 @@ function createApp() {
             setStatus(runtimes.runningDeTofu);
 
             const before = getEditorText(editorRight);
+
+            if (!before) {
+                setStatus(runtimes.noText);
+                return;
+            }
+
             const appSettings = getAppSettings();
 
             const after = await invoke<string>("detofu", {

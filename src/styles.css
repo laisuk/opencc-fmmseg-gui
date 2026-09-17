@@ -29,6 +29,7 @@
     --muted: rgba(255, 255, 255, 0.70);
     --faint: rgba(255, 255, 255, 0.52);
     --accent: #3b82f6;
+    --accent2: #0078D4;
     --accentRing: rgba(59, 130, 246, 0.22);
     --shadow: 0 26px 80px rgba(0, 0, 0, 0.55);
     --shadow2: 0 10px 24px rgba(0, 0, 0, 0.25);
@@ -803,12 +804,21 @@ textarea {
     align-items: center;
     gap: 6px;
     padding: 4px 10px;
+    transition: transform 120ms ease, border-color 120ms ease;
 }
 
 .panel-actions button .icon {
     width: 20px;
     height: 20px;
     pointer-events: none;
+}
+
+.panel-actions button:hover {
+    transform: scale(1.05);
+}
+
+.panel-actions button:active {
+    transform: scale(0.96);
 }
 
 .btn-icon-only {
@@ -877,18 +887,6 @@ textarea {
     background: rgba(128, 128, 128, 0.18);
 }
 
-.btn-icon-only:hover {
-    transform: scale(1.05);
-}
-
-.btn-icon-only:active {
-    transform: scale(0.96);
-}
-
-#reflow:hover {
-    border-color: rgba(59, 130, 246, .4);
-}
-
 /* Global actions */
 .global-actions {
     margin-top: 18px;
@@ -935,7 +933,8 @@ button {
 
 button:hover {
     background: rgba(255, 255, 255, .09);
-    border-color: var(--stroke2);
+    /*border-color: var(--stroke2);*/
+    border-color: rgba(59, 130, 246, .4);
 }
 
 button:active {
@@ -1101,11 +1100,22 @@ button:active {
     display: flex;
     align-items: center;
     gap: 10px;
+    transition: transform 120ms ease, border-color 120ms ease;
 }
 
 .batch-controls-left button {
     width: 64px;
     justify-content: center;
+}
+
+.batch-controls-left button:hover,
+.batch-controls-right button:hover {
+    transform: scale(1.05);
+}
+
+.batch-controls-left button:active,
+.batch-controls-right button:active {
+    transform: scale(0.96);
 }
 
 .batch-inline-label {
