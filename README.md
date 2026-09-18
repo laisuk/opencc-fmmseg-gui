@@ -5,23 +5,29 @@
 [![License](https://img.shields.io/github/license/laisuk/opencc-fmmseg-gui)](https://github.com/laisuk/opencc-fmmseg-gui/blob/master/LICENSE)
 ![Build Status](https://github.com/laisuk/opencc-fmmseg-gui/actions/workflows/build_test.yml/badge.svg)
 
-A **modern cross‑platform Chinese text converter** built with **Tauri + Vite** and powered by the Rust **opencc-fmmseg**
-engine.
+A **modern cross-platform Chinese text conversion workstation** built with **Tauri + Vite** and powered by the Rust
+**opencc-fmmseg** engine.
 
-The application provides fast **Simplified ↔ Traditional Chinese conversion**, PDF text extraction, and batch processing
-in a lightweight desktop GUI.
+Beyond fast **Simplified ↔ Traditional Chinese conversion**, the application provides configurable regional
+conversion, runtime custom dictionaries, Office / EPUB / PDF processing, compatibility normalization, legacy CJK
+encoding support, and batch workflows in a lightweight desktop GUI.
 
 ---
 
 # ✨ Highlights
 
-• ⚡ **Fast Rust conversion engine** (opencc-fmmseg)  
-• 🖥 **Cross-platform desktop app** (Windows / Linux / macOS)  
-• 📚 **Office / EPUB / PDF support**  
-• 📄 **PDF text extraction with CJK reflow**  
-• 🔍 **Compare mode to highlight conversion differences**  
-• 📂 **Batch conversion**  
-• 🎨 **Modern UI (Tauri + Vite)**
+- ⚡ **Fast Rust conversion engine** powered by opencc-fmmseg
+- 🀄 **Simplified ↔ Traditional conversion** with Taiwan, Hong Kong, regional-term, and punctuation options
+- 📖 **Runtime custom dictionaries** with Append / Override modes and hot-swapping without restarting
+- 🧩 **Dictionary tools** for generating ZSTD, CBOR, and readable JSON dictionary artifacts
+- 📚 **Office / EPUB / PDF conversion** with optional filename conversion
+- 📄 **PDF text extraction and CJK-aware reflow**, including advanced handling for untrusted PDF text
+- 🈶 **CJK compatibility normalization** with optional extended Unicode compatibility mappings
+- 🔤 **Legacy CJK encoding detection and reload**, with optional automatic detection for batch text conversion
+- 📂 **Batch conversion** across supported document and text formats
+- 🔍 **Compare mode** for inspecting conversion differences
+- 🌐 **Runtime localization** in English, Simplified Chinese, and Traditional Chinese
+- 🖥 **Cross-platform portable desktop app** for Windows, Linux, and macOS
 
 ---
 
@@ -151,7 +157,7 @@ The goal is **clean reading text**, not exact layout reconstruction.
 
 Workflow:
 
-1. Paste text or open a file
+1. Paste text, drag-in or open a file
 2. Choose conversion configuration
 3. Click **Convert**
 
@@ -291,16 +297,16 @@ MIT License
 
 # 🙏 Acknowledgements
 
-• **OpenCC** – Chinese conversion dictionaries  
-https://github.com/BYVoid/OpenCC
+- **OpenCC** – Chinese conversion dictionaries  
+  https://github.com/BYVoid/OpenCC
 
-• **opencc-fmmseg** – Rust implementation  
-https://github.com/laisuk/opencc-fmmseg
+- **opencc-fmmseg** – Rust implementation  
+  https://github.com/laisuk/opencc-fmmseg
 
-• **PDFium** – PDF rendering and extraction engine
+- **PDFium** – PDF rendering and extraction engine
 
-• **CodeMirror 6** – high-performance text editor used in the GUI  
-https://codemirror.net/
+- **CodeMirror 6** – high-performance text editor used in the GUI  
+  https://codemirror.net/
 
-• **Tauri** – cross-platform desktop framework  
-https://tauri.app
+- **Tauri** – cross-platform desktop framework  
+  https://tauri.app
