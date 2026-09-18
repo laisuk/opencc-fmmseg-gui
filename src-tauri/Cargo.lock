@@ -2789,7 +2789,7 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg-gui"
-version = "0.12.0"
+version = "0.12.1"
 dependencies = [
  "encoding_rs",
  "kuchiki",
