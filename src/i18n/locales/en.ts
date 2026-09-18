@@ -172,7 +172,9 @@ export const en = {
         normalizationFailed: "Normalization failed: {error}",
 
         normalizingDialogQuotes: "Normalizing CJK dialog quotes...",
-        noText: "Editor text is empty",
+        noSourceText: "Source text is empty",
+        normalizationDialogQuotesComplete: "Dialog quotes normalization complete",
+        selectionNormalizationDialogQuotesComplete: "Selection dialog quotes normalization complete",
 
         validatingDialogQuotes: "Validating CJK dialog quotes...",
         validationCompleted: "Validation complete",

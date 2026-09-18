@@ -178,7 +178,9 @@ export const zhHant = {
         normalizationFailed: "正規化失敗：{error}",
 
         normalizingDialogQuotes: "正在正規化 CJK 對話引號...",
-        noText: "編輯器文本為空",
+        noSourceText: "來源文本為空",
+        normalizationDialogQuotesComplete: "對話引號正規化完成",
+        selectionNormalizationDialogQuotesComplete: "所選文本對話引號正規化完成",
 
         validatingDialogQuotes: "正在驗證 CJK 對話引號...",
         validationCompleted: "驗證完成",

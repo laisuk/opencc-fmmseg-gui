@@ -623,7 +623,7 @@ function createApp() {
             const text = getInputText();
 
             if (!text) {
-                setStatus(runtimes.noText);
+                setStatus(runtimes.noSourceText);
                 return;
             }
 
@@ -636,8 +636,8 @@ function createApp() {
 
             setStatus(
                 hasSelection(editorLeft)
-                    ? runtimes.selectionNormalizationComplete
-                    : runtimes.normalizationComplete,
+                    ? runtimes.selectionNormalizationDialogQuotesComplete
+                    : runtimes.normalizationDialogQuotesComplete,
             );
         } catch (error) {
             const msg =
@@ -661,7 +661,7 @@ function createApp() {
             const text = getText();
 
             if (!text) {
-                setStatus(runtimes.noText);
+                setStatus(runtimes.noSourceText);
                 return;
             }
 
@@ -729,7 +729,7 @@ function createApp() {
             const before = getEditorText(editorRight);
 
             if (!before) {
-                setStatus(runtimes.noText);
+                setStatus(runtimes.noSourceText);
                 return;
             }
 

@@ -27,7 +27,7 @@ export const zhHans = {
         paste: "粘贴",
         copy: "复制",
         clear: "AC",
-        compare: "对比",
+        compare: "比对",
 
         // Reflow button: text + tooltip separated for future flexibility
         reflowText: "↳↰",
@@ -179,7 +179,9 @@ export const zhHans = {
         normalizationFailed: "规范化失败：{error}",
 
         normalizingDialogQuotes: "正在规范化 CJK 对话引号...",
-        noText: "编辑器文本为空",
+        noSourceText: "来源文本为空",
+        normalizationDialogQuotesComplete: "对话引号规范化完成",
+        selectionNormalizationDialogQuotesComplete: "所选文本对话引号规范化完成",
 
         validatingDialogQuotes: "正在验证 CJK 对话引号...",
         validationCompleted: "验证完成",
