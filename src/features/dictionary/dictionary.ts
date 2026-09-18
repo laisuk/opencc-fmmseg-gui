@@ -263,6 +263,7 @@ export function applyDictionaryLocale(): void {
     el("dictionary-clear-base").title = s.clearPathHint;
     el("dictionary-clear-output").title = s.clearPathHint;
     el("dictionary-custom-heading").textContent = s.customSlots;
+    el("dictionary-custom-hint").textContent = s.customDictionaryEmptyHint;
     el("dictionary-slot-column").textContent = s.slot;
     el("dictionary-mode-column").textContent = s.mode;
     el("dictionary-file-column").textContent = s.dictionaryFile;

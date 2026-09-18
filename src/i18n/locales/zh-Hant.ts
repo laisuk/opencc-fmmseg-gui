@@ -133,6 +133,7 @@ export const zhHant = {
         empty: "尚未設定自訂字典。",
         defaultRuntime: "預設字典",
         customRuntime: "自訂字典（{count}）",
+        customDictionaryEmptyHint: "未配置自訂詞典時套用，將把目前的轉換器重設為預設基礎詞典。",
         validating: "正在驗證字典來源…",
         invalidSource: "請選擇有效的基礎字典目錄以啟用產生。",
         generating: "正在產生 {format} 字典…",

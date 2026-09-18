@@ -134,6 +134,7 @@ export const zhHans = {
         empty: "未配置自定义词典。",
         defaultRuntime: "默认词典",
         customRuntime: "自定义词典（{count}）",
+        customDictionaryEmptyHint: "未配置自定义词典时应用，将把当前转换器重置为默认基础词典。",
         validating: "正在验证词典源…",
         invalidSource: "请选择有效的基础词典目录以启用生成。",
         generating: "正在生成 {format} 词典…",

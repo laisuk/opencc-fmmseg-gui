@@ -115,6 +115,7 @@ export const en = {
         generateJson: "Generate JSON",
         generateWithCustom: "Applied with custom dictionary",
         customSlots: "Custom Dictionary Slots",
+        customDictionaryEmptyHint: "Applying with no custom dictionaries configured resets the current converter to the default base dictionary.",
         slot: "Slot",
         mode: "Mode",
         dictionaryFile: "Dictionary file",

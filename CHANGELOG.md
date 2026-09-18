@@ -7,6 +7,15 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
+## [0.12.1] - Unreleased
+
+### Changed
+
+- Added a hint to the **Custom Dictionary Slots** section clarifying that applying with no custom dictionaries
+  configured resets the current converter to the default base dictionary.
+
+---
+
 ## [0.12.0] - 2026-09-18
 
 ### Added
