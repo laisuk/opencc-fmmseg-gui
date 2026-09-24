@@ -18,7 +18,11 @@ export type ZhoConfig =
     | "hk2t"
     | "hk2tp"
     | "jp2t"
-    | "t2jp";
+    | "t2jp"
+    | "seal2s"
+    | "seal2t"
+    | "s2seal"
+    | "t2seal";
 
 export type TextCode = 0 | 1 | 2; // 1: zh-Hant, 2: zh-Hans, else: others
 
@@ -28,6 +32,7 @@ const MANUAL_CONFIGS: readonly ZhoConfig[] = [
     "tw2s", "tw2sp", "tw2t", "tw2tp",
     "hk2s", "hk2sp", "hk2t", "hk2tp",
     "jp2t", "t2jp",
+    "seal2s", "seal2t", "s2seal", "t2seal",
 ] as const;
 
 function asZhoConfig(v: string): ZhoConfig {

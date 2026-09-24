@@ -39,6 +39,7 @@
  * ***** END LICENSE BLOCK *****
  */
 
+const MAX_HEURISTIC_SAMPLE_SIZE: usize = 128 * 1024;
 const MAX_LEGACY_SAMPLE_SIZE: usize = 128 * 1024;
 const MIN_LEGACY_CONFIDENCE: f32 = 0.20;
 const MIN_LEGACY_MARGIN: f32 = 0.05;
@@ -165,14 +166,9 @@ pub fn detect(data: &[u8]) -> DetectionResult {
         return DetectionResult::new(EncodingKind::Utf16BeBom, 2, 1.0);
     }
 
-    // 2. ASCII.
-    if is_ascii(data) {
-        return DetectionResult::new(EncodingKind::Ascii, 0, 1.0);
-    }
-
-    // 3. Strict UTF-8.
-    if is_valid_utf8(data) {
-        return DetectionResult::new(EncodingKind::Utf8, 0, 1.0);
+    // 2-3. Strict UTF-8, with ASCII classified in the same pass.
+    if let Some(encoding) = classify_utf8(data) {
+        return DetectionResult::new(encoding, 0, 1.0);
     }
 
     // 4. BOM-less UTF-16.
@@ -201,13 +197,9 @@ const fn unknown() -> DetectionResult {
     DetectionResult::new(EncodingKind::Unknown, 0, 0.0)
 }
 
-fn is_ascii(data: &[u8]) -> bool {
-    data.iter().all(|&b| b < 0x80)
-}
-
-/// Strict UTF-8 validation kept explicit to mirror the C# and C++ detectors.
-fn is_valid_utf8(data: &[u8]) -> bool {
+fn classify_utf8(data: &[u8]) -> Option<EncodingKind> {
     let mut i = 0usize;
+    let mut saw_non_ascii = false;
 
     while i < data.len() {
         let c0 = data[i];
@@ -217,13 +209,11 @@ fn is_valid_utf8(data: &[u8]) -> bool {
             continue;
         }
 
+        saw_non_ascii = true;
+
         if (0xC2..=0xDF).contains(&c0) {
-            if i + 1 >= data.len() {
-                return false;
-            }
-            let c1 = data[i + 1];
-            if c1 & 0xC0 != 0x80 {
-                return false;
+            if i + 1 >= data.len() || data[i + 1] & 0xC0 != 0x80 {
+                return None;
             }
             i += 2;
             continue;
@@ -231,33 +221,22 @@ fn is_valid_utf8(data: &[u8]) -> bool {
 
         if (0xE0..=0xEF).contains(&c0) {
             if i + 2 >= data.len() {
-                return false;
+                return None;
             }
 
             let c1 = data[i + 1];
             let c2 = data[i + 2];
-
             if c2 & 0xC0 != 0x80 {
-                return false;
+                return None;
             }
 
-            match c0 {
-                0xE0 => {
-                    if !(0xA0..=0xBF).contains(&c1) {
-                        return false;
-                    }
-                }
-                0xED => {
-                    // Reject UTF-16 surrogate range U+D800..U+DFFF.
-                    if !(0x80..=0x9F).contains(&c1) {
-                        return false;
-                    }
-                }
-                _ => {
-                    if c1 & 0xC0 != 0x80 {
-                        return false;
-                    }
-                }
+            let valid_c1 = match c0 {
+                0xE0 => (0xA0..=0xBF).contains(&c1),
+                0xED => (0x80..=0x9F).contains(&c1),
+                _ => c1 & 0xC0 == 0x80,
+            };
+            if !valid_c1 {
+                return None;
             }
 
             i += 3;
@@ -266,54 +245,59 @@ fn is_valid_utf8(data: &[u8]) -> bool {
 
         if (0xF0..=0xF4).contains(&c0) {
             if i + 3 >= data.len() {
-                return false;
+                return None;
             }
 
             let c1 = data[i + 1];
             let c2 = data[i + 2];
             let c3 = data[i + 3];
-
             if c2 & 0xC0 != 0x80 || c3 & 0xC0 != 0x80 {
-                return false;
+                return None;
             }
 
-            match c0 {
-                0xF0 => {
-                    if !(0x90..=0xBF).contains(&c1) {
-                        return false;
-                    }
-                }
-                0xF4 => {
-                    if !(0x80..=0x8F).contains(&c1) {
-                        return false;
-                    }
-                }
-                _ => {
-                    if c1 & 0xC0 != 0x80 {
-                        return false;
-                    }
-                }
+            let valid_c1 = match c0 {
+                0xF0 => (0x90..=0xBF).contains(&c1),
+                0xF4 => (0x80..=0x8F).contains(&c1),
+                _ => c1 & 0xC0 == 0x80,
+            };
+            if !valid_c1 {
+                return None;
             }
 
             i += 4;
             continue;
         }
 
-        return false;
+        return None;
     }
 
-    true
+    Some(if saw_non_ascii {
+        EncodingKind::Utf8
+    } else {
+        EncodingKind::Ascii
+    })
+}
+
+/// Strict whole-slice UTF-8 validation used by tests and callers that only
+/// need validity rather than ASCII/UTF-8 classification.
+#[allow(dead_code)]
+fn is_valid_utf8(data: &[u8]) -> bool {
+    classify_utf8(data).is_some()
 }
 
 fn looks_like_utf16(data: &[u8], zero_byte_index: usize) -> bool {
+    // Preserve the whole-slice structural check, but bound the statistical
+    // zero-byte heuristic so very large files do not require another O(N) pass.
     if data.len() < 4 || data.len() & 1 != 0 {
         return false;
     }
 
+    let sample_len = data.len().min(MAX_HEURISTIC_SAMPLE_SIZE) & !1;
+    let sample = &data[..sample_len];
     let mut zero_bytes = 0usize;
     let mut pairs = 0usize;
 
-    for pair in data.chunks_exact(2) {
+    for pair in sample.chunks_exact(2) {
         let zero_byte = pair[zero_byte_index];
         let other_byte = pair[1 - zero_byte_index];
 

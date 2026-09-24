@@ -6,7 +6,8 @@ export type RuntimeLabelKind =
     | "others"
     | "zhHans"
     | "zhHant"
-    | "japanese";
+    | "japanese"
+    | "seal";
 
 export function getRuntimeLabel(kind: RuntimeLabelKind): string {
     const s = getLocale().labels;
@@ -20,6 +21,8 @@ export function getRuntimeLabel(kind: RuntimeLabelKind): string {
             return s.zhHant;
         case "japanese":
             return s.japanese;
+        case "seal":
+            return s.seal;
     }
 }
 

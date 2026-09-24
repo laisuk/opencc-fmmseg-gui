@@ -62,6 +62,7 @@ export const zhHans = {
         zhHans: "zh-Hans（简体）",
         zhHant: "zh-Hant（繁体）",
         japanese: "Japanese（日文）",
+        seal: "Seal（篆书）",
         chars: "字符",
     },
 

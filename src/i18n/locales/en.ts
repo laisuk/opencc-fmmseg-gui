@@ -54,6 +54,7 @@ export const en = {
         zhHans: "zh-Hans",
         zhHant: "zh-Hant",
         japanese: "Japanese",
+        seal: "Seal",
         chars: "Chars",
     },
 

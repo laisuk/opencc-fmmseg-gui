@@ -270,6 +270,9 @@ function createApp() {
         if (lblInput.dataset.kind === "others") {
             lblOutput.innerText = getRuntimeLabel("others");
             lblOutput.dataset.kind = "others";
+        } else if (config.endsWith("seal")) {
+            lblOutput.innerText = getRuntimeLabel("seal");
+            lblOutput.dataset.kind = "seal";
         } else if (config.includes("jp")) {
             lblOutput.innerText = getRuntimeLabel("japanese");
             lblOutput.dataset.kind = "japanese";
