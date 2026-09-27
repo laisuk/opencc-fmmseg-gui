@@ -62,6 +62,7 @@ function getEditorFontStack(fontFamily: string): string | null {
         case "KaiTi":
         case "FangSong":
         case "Planschrift P1":
+        case "Planschrift P2":
             return `${quoteFont(font)}, ${serifStack}`;
 
         default:
