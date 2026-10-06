@@ -438,7 +438,7 @@ fn decode_text_as_kind(
     bom_size: usize,
 ) -> String {
     use cjk_encoding_detector::EncodingKind;
-    use encoding_rs::{BIG5, GB18030, UTF_16BE, UTF_16LE};
+    use encoding_rs::{BIG5, GB18030, SHIFT_JIS, UTF_16BE, UTF_16LE};
 
     let bytes = &data[bom_size.min(data.len())..];
 
@@ -467,18 +467,21 @@ fn decode_text_as_kind(
             text.into_owned()
         }
 
+        EncodingKind::ShiftJis => {
+            let (text, _, _) = SHIFT_JIS.decode(bytes);
+            text.into_owned()
+        }
+
         EncodingKind::Unknown => String::from_utf8_lossy(data).into_owned(),
     }
 }
 
 fn decode_text_with_encoding(data: &[u8], encoding: &str) -> Result<String, String> {
     use cjk_encoding_detector::{detect, EncodingKind};
-    use encoding_rs::SHIFT_JIS;
 
     match encoding {
         "auto" => {
             let result = detect(data);
-
             Ok(decode_text_as_kind(data, result.encoding, result.bom_size))
         }
 
@@ -504,10 +507,7 @@ fn decode_text_with_encoding(data: &[u8], encoding: &str) -> Result<String, Stri
             usize::from(data.starts_with(&[0xFE, 0xFF])) * 2,
         )),
 
-        "shift_jis" => {
-            let (text, _, _) = SHIFT_JIS.decode(data);
-            Ok(text.into_owned())
-        }
+        "shift_jis" => Ok(decode_text_as_kind(data, EncodingKind::ShiftJis, 0)),
 
         _ => Err(format!("Unsupported encoding: {encoding}")),
     }

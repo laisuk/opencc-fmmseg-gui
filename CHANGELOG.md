@@ -13,6 +13,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 - Added a hint to the **Custom Dictionary Slots** section clarifying that applying with no custom dictionaries
   configured resets the current converter to the default base dictionary.
+- Extended auto-detect CJK text encoding detection with Shift-Jis.
 
 ---
 
