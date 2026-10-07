@@ -2667,9 +2667,10 @@ dependencies = [
 [[package]]
 name = "opencc-fmmseg"
 version = "0.13.0"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#bf2affec4fd3f77342d82db085c7be06d869480c"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#5e1baf2d854fa3b99c89db5a69d59dd2fc706ab9"
 dependencies = [
  "rayon",
+ "rayon-core",
  "regex",
  "rustc-hash",
  "serde",
@@ -2798,8 +2799,8 @@ checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 
 [[package]]
 name = "pdfium-helper"
-version = "0.1.6"
-source = "git+https://github.com/laisuk/pdfium-helper#064806cde1538bdc0abfdf8a21cf83352fc48258"
+version = "0.1.7"
+source = "git+https://github.com/laisuk/pdfium-helper#bf3daef281303cee50bf129742385051d805f39b"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",
@@ -2807,7 +2808,6 @@ dependencies = [
  "smallvec",
  "thiserror 2.0.20",
  "unicode-general-category",
- "zstd",
 ]
 
 [[package]]
