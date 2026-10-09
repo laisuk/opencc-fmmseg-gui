@@ -700,7 +700,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d045de693cb712d0b22c6a64be5b953f67b3ce00ab5ad3dd5d8b441886ab8e1a"
 dependencies = [
  "quote",
- "syn 3.0.3",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -2091,11 +2091,11 @@ dependencies = [
 
 [[package]]
 name = "jobserver"
-version = "0.1.34"
+version = "0.1.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9afb3de4395d6b3e67a780b6de64b51c978ecf11cb9a462c66be7d4ca9039d33"
+checksum = "1c00acbd29eabad4a2392fa0e921c874934dbbf4194312ad20f04a0ed67a3cb3"
 dependencies = [
- "getrandom 0.3.4",
+ "getrandom 0.4.2",
  "libc",
 ]
 
@@ -2687,7 +2687,8 @@ dependencies = [
 [[package]]
 name = "opencc-fmmseg"
 version = "0.13.0"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#e45329b23dac45fcd90d64516ed11bdbec58c581"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e951aaa88775062e2c36746e65217bd151374b5daebd58f059f506fe685717be"
 dependencies = [
  "rayon",
  "rayon-core",

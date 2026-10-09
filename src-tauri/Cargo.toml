@@ -24,9 +24,9 @@ tauri = { version = "2.12", features = [] }
 #tauri-plugin-dialog = "2.6"
 tauri-plugin-opener = "2.7"
 #tauri-plugin-shell = "2.3.5"
-opencc-fmmseg = { git = "https://github.com/laisuk/opencc-fmmseg.git", branch = "master", features = ["dictionary-build"] }
+#opencc-fmmseg = { git = "https://github.com/laisuk/opencc-fmmseg.git", branch = "master", features = ["dictionary-build"] }
 #opencc-fmmseg = {path = "../../opencc-fmmseg", features = ["dictionary-build"] }
-#opencc-fmmseg = "0.13.0"
+opencc-fmmseg = { version = "0.13.0", features = ["dictionary-build"] }
 rfd = "0.17"
 tauri-plugin-clipboard-manager = "2.4"
 opener = "0.9"
