@@ -24,9 +24,7 @@ tauri = { version = "2.12", features = [] }
 #tauri-plugin-dialog = "2.6"
 tauri-plugin-opener = "2.7"
 #tauri-plugin-shell = "2.3.5"
-#opencc-fmmseg = { git = "https://github.com/laisuk/opencc-fmmseg.git", branch = "master" }
 opencc-fmmseg = { git = "https://github.com/laisuk/opencc-fmmseg.git", branch = "master", features = ["dictionary-build"] }
-#opencc-fmmseg = {path = "../../opencc-fmmseg"}
 #opencc-fmmseg = {path = "../../opencc-fmmseg", features = ["dictionary-build"] }
 #opencc-fmmseg = "0.13.0"
 rfd = "0.17"
@@ -35,7 +33,7 @@ opener = "0.9"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 regex = "1.13"
-zip = { version = "8.6", default-features = false, features = ["deflate"] }
+zip = { version = "=3.0", default-features = false, features = ["deflate"] }
 #pdfium-helper = {path="../../pdfium-helper", features = ["pdfium-embed"] }
 pdfium-helper = { git = "https://github.com/laisuk/pdfium-helper", features = ["pdfium-embed"] }
 kuchiki = "0.8"
