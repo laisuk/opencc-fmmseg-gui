@@ -320,7 +320,7 @@ fn extract_xhtml_text<R: Read>(mut xhtml_stream: R) -> Result<String, EpubError>
     Ok(text)
 }
 
-fn walk_dom(node: &kuchiki::NodeRef, sb: &mut String, depth: usize) {
+fn walk_dom(node: &kuchiki::NodeRef, sb: &mut String, _depth: usize) {
     // head() behavior
     if let Some(el) = node.as_element() {
         let name = el.name.local.to_string();
@@ -338,7 +338,7 @@ fn walk_dom(node: &kuchiki::NodeRef, sb: &mut String, depth: usize) {
 
     // children
     for child in node.children() {
-        walk_dom(&child, sb, depth + 1);
+        walk_dom(&child, sb, _depth + 1);
     }
 
     // tail() behavior
@@ -380,14 +380,9 @@ fn append_normalized_text(sb: &mut String, t: &str) {
     // but don't add leading space.
     for c in t.chars() {
         if c.is_whitespace() {
-            if sb.is_empty() {
-                continue;
+            if !sb.is_empty() && !sb.ends_with([' ', '\n', '\r', '\t']) {
+                sb.push(' ');
             }
-            let last = sb.chars().last().unwrap_or('\0');
-            if last == ' ' || last == '\n' || last == '\r' || last == '\t' {
-                continue;
-            }
-            sb.push(' ');
         } else {
             sb.push(c);
         }

@@ -299,7 +299,7 @@ fn looks_like_utf16(data: &[u8], zero_byte_index: usize) -> bool {
     let mut zero_bytes = 0usize;
     let mut pairs = 0usize;
 
-    for pair in sample.chunks_exact(2) {
+    for pair in sample.as_chunks::<2>().0 {
         let zero_byte = pair[zero_byte_index];
         let other_byte = pair[1 - zero_byte_index];
 

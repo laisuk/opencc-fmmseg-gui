@@ -59,8 +59,8 @@ pub fn extract_docx_all_text(
         }
     }
 
-    headers.sort_by(|a, b| a.to_ascii_lowercase().cmp(&b.to_ascii_lowercase()));
-    footers.sort_by(|a, b| a.to_ascii_lowercase().cmp(&b.to_ascii_lowercase()));
+    headers.sort_by_key(|a| a.to_ascii_lowercase());
+    footers.sort_by_key(|a| a.to_ascii_lowercase());
 
     parts.extend(headers);
     parts.extend(footers);
@@ -230,21 +230,21 @@ fn extract_wordprocessingml_text(
                         );
                         current_target(in_cell, &mut current_cell, &mut sb).push('\t');
                     }
-                } else if name.as_ref() == "br" || name.as_ref() == "cr" {
-                    if !(skip_this_note && (in_footnote || in_endnote)) {
-                        para_prefix_emitted = write_list_prefix(
-                            ctx,
-                            in_paragraph,
-                            para_prefix_emitted,
-                            para_num_id,
-                            para_ilvl,
-                            para_style_id.as_deref(),
-                            in_cell,
-                            &mut current_cell,
-                            &mut sb,
-                        );
-                        current_target(in_cell, &mut current_cell, &mut sb).push('\n');
-                    }
+                } else if (name.as_ref() == "br" || name.as_ref() == "cr")
+                    && !(skip_this_note && (in_footnote || in_endnote))
+                {
+                    para_prefix_emitted = write_list_prefix(
+                        ctx,
+                        in_paragraph,
+                        para_prefix_emitted,
+                        para_num_id,
+                        para_ilvl,
+                        para_style_id.as_deref(),
+                        in_cell,
+                        &mut current_cell,
+                        &mut sb,
+                    );
+                    current_target(in_cell, &mut current_cell, &mut sb).push('\n');
                 }
             }
 
@@ -324,6 +324,7 @@ fn should_skip_note_element(e: &quick_xml::events::BytesStart) -> bool {
 
 // ---------------------------- Numbering prefix (REAL) ----------------------------
 
+#[allow(clippy::too_many_arguments)]
 fn write_list_prefix(
     ctx: &mut NumberingContext,
     in_paragraph: bool,
@@ -418,13 +419,7 @@ impl NumberingContext {
     }
 
     pub fn next_prefix(&mut self, num_id: i32, ilvl: i32) -> String {
-        let mut ilvl = ilvl;
-        if ilvl < 0 {
-            ilvl = 0;
-        }
-        if ilvl > 8 {
-            ilvl = 8;
-        }
+        let ilvl = ilvl.clamp(0, 8);
 
         let abs = match self.num_to_abs.get(&num_id).copied() {
             Some(v) => v,
@@ -436,13 +431,12 @@ impl NumberingContext {
             None => return String::new(),
         };
 
-        // update counters
+        // Update counters.
         let counters = self.counters.entry(num_id).or_insert([0; 9]);
         let u = ilvl as usize;
+
         counters[u] += 1;
-        for d in (u + 1)..counters.len() {
-            counters[d] = 0;
-        }
+        counters[(u + 1)..].fill(0);
 
         // bullets
         if def.num_fmt.eq_ignore_ascii_case("bullet") {
@@ -475,7 +469,7 @@ impl NumberingContext {
         }
 
         // normalize whitespace (like your C#)
-        out = out.replace('\t', " ").replace('\u{00A0}', " ");
+        out = out.replace(['\t', '\u{00A0}'], " ");
         if !out.is_empty() && !out.chars().last().unwrap().is_whitespace() {
             out.push(' ');
         }
@@ -617,17 +611,13 @@ impl NumberingContext {
                             style_num_id = None;
                             style_ilvl = None;
                         }
-                        "numId" => {
-                            if cur_style_id.is_some() {
-                                style_num_id =
-                                    utils::attr_any_string(&e, "val").and_then(|s| s.parse().ok());
-                            }
+                        "numId" if cur_style_id.is_some() => {
+                            style_num_id =
+                                utils::attr_any_string(&e, "val").and_then(|s| s.parse().ok());
                         }
-                        "ilvl" => {
-                            if cur_style_id.is_some() {
-                                style_ilvl =
-                                    utils::attr_any_string(&e, "val").and_then(|s| s.parse().ok());
-                            }
+                        "ilvl" if cur_style_id.is_some() => {
+                            style_ilvl =
+                                utils::attr_any_string(&e, "val").and_then(|s| s.parse().ok());
                         }
                         _ => {}
                     }
@@ -777,10 +767,8 @@ fn resolve_bullet_glyph(lvl_text: &str, font_hint: &str, ilvl: i32) -> String {
         };
     }
 
-    if font.eq_ignore_ascii_case("Courier New") {
-        if ch == 'o' {
-            return "○".into();
-        }
+    if font.eq_ignore_ascii_case("Courier New") && ch == 'o' {
+        return "○".into();
     }
 
     // last resort: if it looks like 'o', it's often an open circle bullet

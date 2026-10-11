@@ -30,16 +30,9 @@ use std::{fs, io};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_clipboard_manager::ClipboardExt;
 
+#[derive(Default)]
 pub struct AppState {
     pub(crate) opencc: OpenccManager,
-}
-
-impl Default for AppState {
-    fn default() -> Self {
-        Self {
-            opencc: OpenccManager::default(),
-        }
-    }
 }
 
 #[derive(Serialize, Clone)]
@@ -149,8 +142,7 @@ fn normalize_dialog_quotes(text: String) -> String {
 
 #[tauri::command]
 fn validate_dialog_quotes(text: String) -> DialogQuoteValidationResult {
-    let result = cjk_text_normalize::validate_cjk_text_dialog_quotes(&text);
-    DialogQuoteValidationResult::from(result)
+    cjk_text_normalize::validate_cjk_text_dialog_quotes(&text)
 }
 
 #[tauri::command]
@@ -184,6 +176,7 @@ fn emit_open_as_batch(app: &AppHandle, p: BatchProgress) {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn open_file(
     app: AppHandle,
@@ -291,6 +284,7 @@ fn emit_done(app: &AppHandle, input_path: &str) {
     );
 }
 
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn open_path_to_editor(
     app: AppHandle,
@@ -513,6 +507,7 @@ fn decode_text_with_encoding(data: &[u8], encoding: &str) -> Result<String, Stri
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn open_pdf_extract_text_with_progress(
     app: &AppHandle,
     opencc_arc: &Arc<OpenCC>,
@@ -529,7 +524,7 @@ fn open_pdf_extract_text_with_progress(
     let path_display = input_path.to_string();
 
     // ---- marker: open start ----
-    emit_start(&app);
+    emit_start(app);
 
     // ---- ensure pdfium is loaded once per process ----
     let (pdfium, _lib_path) = PdfiumLibrary::global_with_fallbacks()
@@ -594,7 +589,7 @@ fn open_pdf_extract_text_with_progress(
             },
         );
 
-        let heading_regex = compile_optional_regex(custom_heading_regex.as_deref())?;
+        let heading_regex = compile_optional_regex(custom_heading_regex)?;
 
         extracted = reflow_cjk_paragraphs_with_heading_regex(
             &extracted,
@@ -793,6 +788,7 @@ where
     Ok(new_path.to_string_lossy().to_string())
 }
 
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 async fn run_batch_convert(
     app: AppHandle,
@@ -1146,7 +1142,7 @@ fn open_dir(dir: &Path) -> Result<(), String> {
             .arg(dir)
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(target_os = "macos")]
@@ -1155,7 +1151,7 @@ fn open_dir(dir: &Path) -> Result<(), String> {
             .arg(dir)
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(all(unix, not(target_os = "macos")))]
@@ -1164,7 +1160,7 @@ fn open_dir(dir: &Path) -> Result<(), String> {
             .arg(dir)
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
 }
 
@@ -1177,7 +1173,7 @@ fn reveal_file(file: &Path) -> Result<(), String> {
             .arg(file)
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(target_os = "macos")]
@@ -1188,7 +1184,7 @@ fn reveal_file(file: &Path) -> Result<(), String> {
             .arg(file)
             .spawn()
             .map_err(|e| e.to_string())?;
-        return Ok(());
+        Ok(())
     }
 
     #[cfg(all(unix, not(target_os = "macos")))]
@@ -1196,7 +1192,7 @@ fn reveal_file(file: &Path) -> Result<(), String> {
         // Many Linux file managers support this via DBus / xdg-open doesn't "select".
         // Fallback: open the parent directory.
         let parent = file.parent().ok_or("No parent directory")?;
-        return open_dir(parent);
+        open_dir(parent)
     }
 }
 
@@ -1217,12 +1213,13 @@ fn make_output_path_pdf(input: &str, out_dir: &Path, config: &str) -> Result<Pat
 // Optional: normalize for Windows separators (matches your CLI)
 fn normalize_input_path_for_os(input: &str) -> String {
     if cfg!(windows) {
-        input.replace(['/', '\\'], &std::path::MAIN_SEPARATOR.to_string())
+        input.replace(['/', '\\'], std::path::MAIN_SEPARATOR_STR)
     } else {
         input.to_string()
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn convert_pdf_to_txt_with_progress<F>(
     app: &AppHandle,
     text_converter: &TextConverter<F>,
@@ -1331,10 +1328,10 @@ fn build_progress_bar_percent(percent: i32, width: usize) -> String {
     let mut s = String::with_capacity(width * 4 + 2);
     s.push('[');
     for _ in 0..filled {
-        s.push_str("🟩");
+        s.push('🟩');
     }
     for _ in filled..width {
-        s.push_str("🟨"); // or ⬜
+        s.push('🟨'); // or ⬜
     }
     s.push(']');
     s
