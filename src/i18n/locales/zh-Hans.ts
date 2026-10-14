@@ -83,7 +83,7 @@ export const zhHans = {
     },
 
     settings: {
-        convertFilename: "转换文件名",
+        convertFilename: "转换文件名（批量模式）",
         addPageHeader: "添加页眉（PDF）",
         compactPdf: "紧凑化 PDF 文本",
         autoReflow: "自动重排（PDF）",

@@ -82,7 +82,7 @@ export const zhHant = {
     },
 
     settings: {
-        convertFilename: "轉換檔名",
+        convertFilename: "轉換檔名（批次模式）",
         addPageHeader: "新增頁首（PDF）",
         compactPdf: "精簡 PDF 文字",
         autoReflow: "自動重排（PDF）",

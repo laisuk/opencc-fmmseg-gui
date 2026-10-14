@@ -875,7 +875,7 @@ version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab8ecd87370524b461f8557c119c405552c396ed91fc0a8eec68679eab26f94a"
 dependencies = [
- "libloading 0.8.9",
+ "libloading 0.7.4",
 ]
 
 [[package]]
@@ -2827,7 +2827,7 @@ checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 [[package]]
 name = "pdfium-helper"
 version = "0.1.7"
-source = "git+https://github.com/laisuk/pdfium-helper#0995f039ec9492cf325bd0316104bd4e042528f5"
+source = "git+https://github.com/laisuk/pdfium-helper#aac047da009813e2cd84a8730f82ceb26ea3a1e1"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",
@@ -4373,7 +4373,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.2",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",

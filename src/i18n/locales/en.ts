@@ -75,7 +75,7 @@ export const en = {
     },
 
     settings: {
-        convertFilename: "Convert Filename",
+        convertFilename: "Convert Filename (Batch Mode)",
         addPageHeader: "Add Page Header (PDF)",
         compactPdf: "Compact PDF Text",
         autoReflow: "Auto Reflow (PDF)",
