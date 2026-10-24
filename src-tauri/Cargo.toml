@@ -28,7 +28,7 @@ opencc-fmmseg = { git = "https://github.com/laisuk/opencc-fmmseg.git", branch = 
 #opencc-fmmseg = {path = "../../opencc-fmmseg", features = ["dictionary-build"] }
 #opencc-fmmseg = { version = "0.13.0", features = ["dictionary-build"] }
 rfd = "0.17"
-tauri-plugin-clipboard-manager = "2.4"
+tauri-plugin-clipboard-manager = "2.5"
 opener = "0.9"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.154"

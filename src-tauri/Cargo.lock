@@ -706,7 +706,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d045de693cb712d0b22c6a64be5b953f67b3ce00ab5ad3dd5d8b441886ab8e1a"
 dependencies = [
  "quote",
- "syn 3.0.3",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -875,7 +875,7 @@ version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab8ecd87370524b461f8557c119c405552c396ed91fc0a8eec68679eab26f94a"
 dependencies = [
- "libloading 0.8.9",
+ "libloading 0.7.4",
 ]
 
 [[package]]
@@ -2693,7 +2693,7 @@ dependencies = [
 [[package]]
 name = "opencc-fmmseg"
 version = "0.13.1"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#bb9e4118bd07a03b60829e3947811913325e08a7"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#f94ad018132f58781b26864ba9fd859d9a0f4b02"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -4238,9 +4238,9 @@ dependencies = [
 
 [[package]]
 name = "tauri-plugin-clipboard-manager"
-version = "2.4.2"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "640d0789c9db02265a800fded60520df5a3baa4a1b5f40715b83d58842c24fcb"
+checksum = "9be5ed8d94c33afe8377e885119069f6508780659271d0a25cfc54d441f2bc81"
 dependencies = [
  "arboard",
  "log",
