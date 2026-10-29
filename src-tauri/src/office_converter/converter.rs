@@ -57,12 +57,12 @@ use std::io::BufReader;
 use std::io::{self, Cursor, Read, Seek, Write};
 use std::path::{Path, PathBuf};
 
-use crate::text_converter::TextConverter;
-use regex::{Captures, Regex};
-use zip::{
+use crate::office_converter::zip::{
     write::{ExtendedFileOptions, FileOptions},
     CompressionMethod, ZipArchive, ZipWriter,
 };
+use crate::text_converter::TextConverter;
+use regex::{Captures, Regex};
 
 /// Result of a document conversion operation.
 ///
@@ -549,14 +549,9 @@ impl OfficeConverter {
         Ok(None)
     }
 
-    /// Detect unsafe ZIP entry names (zip-slip, `..`, root dirs).
+    /// Detect portable unsafe ZIP paths, including drive-relative names, ADS, and NULs.
     fn is_unsafe_zip_name(name: &str) -> bool {
-        name.starts_with('/')
-            || name.starts_with('\\')
-            || (name.len() >= 3
-                && name.as_bytes()[1] == b':'
-                && matches!(name.as_bytes()[2], b'/' | b'\\'))
-            || name.split(['/', '\\']).any(|part| part == "..")
+        crate::office_converter::zip::unsafe_path(name)
     }
 
     /// Replace font declarations with markers, storing originals in `font_map`.
@@ -698,12 +693,13 @@ fn replace_with_temp(
 
 #[cfg(test)]
 mod tests {
+    include!("security_tests.rs");
     use super::*;
-    use std::io::Cursor;
-    use zip::{
+    use crate::office_converter::zip::{
         write::{ExtendedFileOptions, FileOptions},
         CompressionMethod, ZipArchive, ZipWriter,
     };
+    use std::io::Cursor;
 
     fn make_zip(entries: &[(&str, &[u8])]) -> Vec<u8> {
         let mut input_cursor = Cursor::new(Vec::<u8>::new());

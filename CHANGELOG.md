@@ -9,6 +9,14 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ## [0.13.0] - Unreleased
 
+### Security
+
+- Vendored the hardened ZIP 3.0.0 module from local opencc-rs for Office/EPUB conversion, format detection, and text
+  extraction. Replaced external zip with direct support crates and pure-Rust DEFLATE; documented provenance,
+  licensing, dependencies, and maintenance. Added header-validation and all-format conversion regressions.
+- Reject inconsistent ZIP headers, duplicate effective names, and overlapping indexed entries before document
+  processing. Preserve unsafe-entry omission and extend it to drive-relative paths, alternate data streams, and NULs.
+
 ### Changed
 
 - Added a hint to the **Custom Dictionary Slots** section clarifying that applying with no custom dictionaries

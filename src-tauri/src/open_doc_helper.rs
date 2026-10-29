@@ -13,25 +13,25 @@
 //
 // Dependencies:
 //   quick-xml = "0.42"
-//   zip       = "2"
+//   ZIP       = private office_converter::zip module (see VENDOR_NOTES.md)
 //   thiserror = "2"
 
 use std::fs::File;
 use std::io::{Cursor, Read};
 use std::path::Path;
 
+use crate::office_converter::zip::ZipArchive;
 use crate::utils;
 use quick_xml::events::Event;
 use quick_xml::{Reader, XmlVersion};
 use thiserror::Error;
-use zip::ZipArchive;
 #[derive(Debug, Error)]
 pub enum OdtError {
     #[error("I/O error: {0}")]
     Io(#[from] std::io::Error),
 
     #[error("ZIP error: {0}")]
-    Zip(#[from] zip::result::ZipError),
+    Zip(#[from] crate::office_converter::zip::result::ZipError),
 
     #[error("Invalid ODT: {0}")]
     Invalid(String),

@@ -15,14 +15,14 @@ name = "opencc_fmmseg_gui_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.7", features = [] }
+tauri-build = { version = "2.7.4", features = [] }
 
 [dependencies]
-tauri = { version = "2.12", features = [] }
+tauri = { version = "2.12.5", features = [] }
 #serde = { version = "1", features = ["derive"] }
 #serde_json = "1"
 #tauri-plugin-dialog = "2.6"
-tauri-plugin-opener = "2.7"
+tauri-plugin-opener = "2.7.2"
 #tauri-plugin-shell = "2.3.5"
 opencc-fmmseg = { git = "https://github.com/laisuk/opencc-fmmseg.git", branch = "master", features = ["dictionary-build"] }
 #opencc-fmmseg = {path = "../../opencc-fmmseg", features = ["dictionary-build"] }
@@ -33,7 +33,12 @@ opener = "0.9"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0.154"
 regex = "1.13"
-zip = { version = "=3.0", default-features = false, features = ["deflate"] }
+# Support crates for the private ZIP module (Stored + pure-Rust DEFLATE).
+crc32fast = "1.5"
+flate2 = { version = "=1.1.1", default-features = false, features = ["rust_backend"] }
+# Keep the compatible range so Tauri's support crates can share the locked version.
+indexmap = "2.7"
+memchr = "2.7"
 #pdfium-helper = {path="../../pdfium-helper", features = ["pdfium-embed"] }
 pdfium-helper = { git = "https://github.com/laisuk/pdfium-helper", features = ["pdfium-embed"] }
 kuchiki = "0.8"

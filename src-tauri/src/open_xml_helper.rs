@@ -1,3 +1,4 @@
+use crate::office_converter::zip::ZipArchive;
 use crate::utils;
 use quick_xml::events::Event;
 use quick_xml::{Reader, XmlVersion};
@@ -6,7 +7,6 @@ use std::fs::File;
 use std::io::{BufRead, Read, Seek};
 use std::path::Path;
 use thiserror::Error;
-use zip::ZipArchive;
 
 #[derive(Debug, Error)]
 pub enum OpenXmlError {
@@ -14,7 +14,7 @@ pub enum OpenXmlError {
     Io(#[from] std::io::Error),
 
     #[error("ZIP error: {0}")]
-    Zip(#[from] zip::result::ZipError),
+    Zip(#[from] crate::office_converter::zip::result::ZipError),
 
     #[error("XML error: {0}")]
     Xml(String),

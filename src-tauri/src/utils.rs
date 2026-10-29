@@ -1,9 +1,9 @@
+use crate::office_converter::zip::ZipArchive;
 use quick_xml::events::BytesStart;
 use quick_xml::XmlVersion;
 use std::fs::File;
 use std::io::Read;
 use std::path::Path;
-use zip::ZipArchive;
 
 // ---------------------------- Format detection ----------------------------
 pub fn is_docx(path: impl AsRef<Path>) -> bool {
@@ -76,8 +76,8 @@ pub fn is_odt(path: impl AsRef<Path>) -> bool {
 }
 
 pub fn is_epub(path: impl AsRef<Path>) -> bool {
+    use crate::office_converter::zip::ZipArchive;
     use std::fs::File;
-    use zip::ZipArchive;
     let path = path.as_ref();
     if !path.is_file() {
         return false;

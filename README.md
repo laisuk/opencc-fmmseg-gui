@@ -289,6 +289,40 @@ Bug reports and feature suggestions are also appreciated.
 
 ---
 
+## Office / EPUB ZIP implementation
+
+The Rust backend uses a private vendored adaptation of zip 3.0.0 in
+`src-tauri/src/office_converter/zip`. Office/EPUB conversion, format detection,
+and DOCX/ODT/EPUB text extraction all use the same mandatory local/central-header
+validator. Inconsistent headers, duplicate effective names, and overlapping
+indexed entries are rejected before processing document parts. Conversion keeps
+its unsafe-path skip policy and now also filters Windows drive-relative paths,
+alternate data streams, and embedded NULs.
+
+```text
+Rust backend → private office_converter::zip module
+  crc32fast 1.5
+  flate2 =1.1.1 [rust_backend, no default features]
+    crc32fast
+    miniz_oxide → adler2
+  indexmap 2.7 (compatible range; shared with Tauri's support crates)
+    equivalent, hashbrown
+  memchr 2.7
+```
+
+The external `zip` dependency is removed. The flate2 pin matches the supplied
+module's pure-Rust backend; indexmap retains a compatible range to avoid forcing
+Tauri's existing dependency graph to an older version. Shared crates may still
+be required elsewhere in Tauri's graph. Compressed bytes may differ while decoded
+content remains the same. Inspect the resolved graph from `src-tauri` with
+`cargo tree --offline`.
+
+The [vendoring notes](src-tauri/src/office_converter/VENDOR_NOTES.md) record
+provenance, the preserved MIT license, regression coverage, validation limits,
+and maintenance duties. This is focused header validation; resource quotas and
+general ZIP security guarantees are not added. Raw-copy does not decode payloads
+to verify CRCs. Existing output replacement behavior is unchanged.
+
 # 📜 License
 
 MIT License
