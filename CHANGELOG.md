@@ -7,7 +7,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.13.0] - Unreleased
+## [0.13.1] - Unreleased
 
 ### Security
 
@@ -22,6 +22,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 - Added a hint to the **Custom Dictionary Slots** section clarifying that applying with no custom dictionaries
   configured resets the current converter to the default base dictionary.
 - Extended auto-detect CJK text encoding detection with Shift-Jis.
+- Optimized font placeholder restoration during Office and EPUB document conversion.
 
 ---
 
