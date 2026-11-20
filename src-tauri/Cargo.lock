@@ -697,7 +697,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d045de693cb712d0b22c6a64be5b953f67b3ce00ab5ad3dd5d8b441886ab8e1a"
 dependencies = [
  "quote",
- "syn 3.0.3",
+ "syn 2.0.117",
 ]
 
 [[package]]
@@ -855,7 +855,7 @@ version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ab8ecd87370524b461f8557c119c405552c396ed91fc0a8eec68679eab26f94a"
 dependencies = [
- "libloading 0.8.9",
+ "libloading 0.7.4",
 ]
 
 [[package]]
@@ -2682,8 +2682,8 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg"
-version = "0.13.1"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#da182ccdbd876b7f4b2b369148ccbaf417fd6a80"
+version = "0.13.2"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#5e7c8831507bf8cdaa46c2bbaaca292280aa41b1"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2695,7 +2695,7 @@ dependencies = [
 
 [[package]]
 name = "opencc-fmmseg-gui"
-version = "0.13.1"
+version = "0.13.2"
 dependencies = [
  "crc32fast",
  "encoding_rs",
@@ -2818,7 +2818,7 @@ checksum = "df94ce210e5bc13cb6651479fa48d14f601d9858cfe0467f43ae157023b938d3"
 [[package]]
 name = "pdfium-helper"
 version = "0.1.7"
-source = "git+https://github.com/laisuk/pdfium-helper#ccb6df37680ce7550104551ca246dd066e7c1473"
+source = "git+https://github.com/laisuk/pdfium-helper#b33616c27994d77e2687b6a069db938046fa82e6"
 dependencies = [
  "anyhow",
  "libloading 0.8.9",
@@ -3822,9 +3822,9 @@ checksum = "0c790de23124f9ab44544d7ac05d60440adc586479ce501c1d6d7da3cd8c9cf5"
 
 [[package]]
 name = "smallvec"
-version = "1.15.1"
+version = "1.16.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "67b1b7a3b5fe4f1376887184045fcf45c69e92af734b7aaddc05fb777b6fbd03"
+checksum = "149309498a5f7334b12ddae0cad8aba81ce785fe91755068867e017cf98fee46"
 
 [[package]]
 name = "socket2"
@@ -4359,7 +4359,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.2",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",

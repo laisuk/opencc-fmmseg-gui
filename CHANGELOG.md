@@ -7,7 +7,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.13.1] - Unreleased
+## \[0.13.2] - Unreleased
 
 ### Security
 
@@ -26,13 +26,13 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.12.0] - 2026-09-18
+## \[0.12.0] - 2026-09-18
 
 ### Added
 
 - Added a setting to use extended Unicode compatibility mappings for CJK normalization.
 - Added localization for all Settings checkboxes.
-- Added a Dictionary tab for generating ZSTD, CBOR, and readable JSON dictionary artifacts from OpenCC text
+- Added a Dictionary tab for generating ZSTD, CBOR, and readable JSON dictionary artifacts from `OpenCC` text
   dictionaries.
 - Added dynamic custom dictionary slots with canonical slot selection, Append/Override modes, persisted rows, and
   optional startup application.
@@ -47,10 +47,10 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 ### Changed
 
 - Updated `opencc-fmmseg` to v0.12.0.
-- Centralized batch text conversion through a reusable `TextConverter`, capturing the active OpenCC configuration and
+- Centralized batch text conversion through a reusable `TextConverter`, capturing the active `OpenCC` configuration and
   punctuation setting once and reusing the same text-to-text conversion policy for plain text, filenames, PDF output,
   and Office/EPUB content.
-- Refactored Office conversion to accept a generic `Fn(&str) -> String` text-conversion contract, removing OpenCC
+- Refactored Office conversion to accept a generic `Fn(&str) -> String` text-conversion contract, removing `OpenCC`
   configuration and punctuation handling from DOCX, XLSX, PPTX, ODF, and EPUB processing.
 - Expanded PPTX conversion to cover slides, notes, slide masters, slide layouts, comments, and comment authors with
   case-insensitive part matching.
@@ -80,14 +80,14 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.11.4] - 2026-07-13
+## \[0.11.4] - 2026-07-13
 
 ### Added
 
 - Added Normalize Compatibility Ideographs and DeTofu features via UI controls.
 - Added button Normalize CJK Dialog Quotes and Validate Dialog Quotes.
 - Added i18n for UI controls.
-- Added zh-Hant support for dialog quotes normalization and validation.
+- Added `zh-Hant` support for dialog quotes normalization and validation.
 - Added manual conversion config selections for `t2hkp` and `hk2tp`.
 
 ### Changed
@@ -96,7 +96,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.11.1] - 2026-06-28
+## \[0.11.1] - 2026-06-28
 
 ### Added
 
@@ -108,7 +108,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.10.1] - 2026-05-31
+## \[0.10.1] - 2026-05-31
 
 ### Changed
 
@@ -116,7 +116,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.10.0] - 2026-05-24
+## \[0.10.0] - 2026-05-24
 
 ### Changed
 
@@ -124,7 +124,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.9.2] - 2026-05-10
+## \[0.9.2] - 2026-05-10
 
 ### Changed
 
@@ -136,7 +136,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.9.1] – 2026-03-21
+## \[0.9.1] – 2026-03-21
 
 ### Changed
 
@@ -144,7 +144,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.9.0] – 2026-03-07
+## \[0.9.0] – 2026-03-07
 
 ### Changed
 
@@ -164,7 +164,7 @@ the [Keep a Changelog](https://keepachangelog.com/en/1.0.0/) format.
 
 ---
 
-## [0.0.0] – 2026-03-00
+## \[0.0.0] – 2026-03-00
 
 ### Added
 
