@@ -8,15 +8,15 @@
 
 use std::collections::HashMap;
 use std::fs::File;
-use std::io::{Read, Seek};
+use std::io::{self, BufReader, Read, Seek};
 use std::path::Path;
 
 use crate::office_converter::zip::ZipArchive;
 use crate::utils;
 use kuchiki::traits::*;
+use markup5ever::data::NAMED_ENTITIES;
 use quick_xml::events::Event;
 use quick_xml::Reader;
-use std::io::Cursor;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -70,10 +70,15 @@ pub fn extract_epub_all_text(
     epub_path: impl AsRef<Path>,
     options: ExtractOptions,
 ) -> Result<String, EpubError> {
-    let epub_path = epub_path.as_ref();
+    extract_epub_all_text_from_reader(File::open(epub_path)?, options)
+}
 
-    let file = File::open(epub_path)?;
-    let mut zip = ZipArchive::new(file)?;
+/// Extract spine text from a seekable EPUB source, such as a file or a byte cursor.
+pub fn extract_epub_all_text_from_reader<R: Read + Seek>(
+    source: R,
+    options: ExtractOptions,
+) -> Result<String, EpubError> {
+    let mut zip = ZipArchive::new(source)?;
 
     let opf_path = find_opf_path(&mut zip)?.ok_or_else(|| {
         EpubError::Invalid("container.xml has no OPF rootfile. Not a valid .epub?".into())
@@ -82,7 +87,10 @@ pub fn extract_epub_all_text(
     let opf_dir = get_dir(&opf_path);
     let opf = load_opf(&mut zip, &opf_path)?;
 
-    let mut sb = String::with_capacity(256 * 1024);
+    let mut out = String::with_capacity(256 * 1024);
+    let mut events = Vec::new();
+    let mut elements = Vec::new();
+    let mut chapter = String::new();
 
     for idref in opf.spine.iter() {
         let item = match opf.manifest.get(idref) {
@@ -99,52 +107,46 @@ pub fn extract_epub_all_text(
 
         let full_name = combine_zip_path(&opf_dir, &item.href);
 
-        let mut zf = match zip.by_name(&full_name) {
-            Ok(f) => f,
+        let entry = match zip.by_name(&full_name) {
+            Ok(entry) => entry,
             Err(_) => continue,
         };
 
         if options.include_part_headings {
-            if !sb.is_empty() && !ends_with_newline_str(&sb) {
-                sb.push('\n');
+            if !out.is_empty() && !out.ends_with('\n') {
+                push_newline(&mut out);
             }
-            sb.push_str("=== ");
-            sb.push_str(&full_name);
-            sb.push_str(" ===\n");
+            out.push_str("=== ");
+            append_output(&mut out, &full_name, options.normalize_newlines, false);
+            append_output(&mut out, " ===\n", false, false);
         }
 
-        let chapter_text = extract_xhtml_text(&mut zf)?;
-        sb.push_str(&chapter_text);
-
-        if !ends_with_newline_str(&sb) {
-            sb.push('\n');
+        chapter.clear();
+        if !stream_xhtml(entry, &mut chapter, &mut events, &mut elements)? {
+            // Reopen this chapter after discarding any partial fast-path output.
+            chapter.clear();
+            extract_html_fallback(zip.by_name(&full_name)?, &mut chapter)?;
         }
-        sb.push('\n'); // blank line between spine docs
+        append_output(&mut out, &chapter, false, true);
+
+        if !out.ends_with('\n') {
+            push_newline(&mut out);
+        }
+        push_newline(&mut out);
     }
 
-    let mut text = sb;
-
-    if options.normalize_newlines {
-        // In Rust strings are already '\n' typically; but keep parity with Java:
-        text = text.replace("\r\n", "\n").replace('\r', "\n");
-    }
-
-    text = normalize_excess_blank_lines(&text);
-    Ok(text)
+    Ok(out)
 }
 
 // ---------------------------- container.xml ----------------------------
 
 fn find_opf_path<R: Read + Seek>(zip: &mut ZipArchive<R>) -> Result<Option<String>, EpubError> {
-    let mut entry = match zip.by_name("META-INF/container.xml") {
+    let entry = match zip.by_name("META-INF/container.xml") {
         Ok(f) => f,
         Err(_) => return Ok(None),
     };
 
-    let mut bytes = Vec::with_capacity(8 * 1024);
-    entry.read_to_end(&mut bytes)?;
-
-    let mut r = Reader::from_reader(Cursor::new(bytes));
+    let mut r = Reader::from_reader(BufReader::new(entry));
     r.config_mut().trim_text(true);
     r.config_mut().expand_empty_elements = true;
 
@@ -173,11 +175,14 @@ fn find_opf_path<R: Read + Seek>(zip: &mut ZipArchive<R>) -> Result<Option<Strin
                     }
 
                     if !full.is_empty() {
+                        // Finish reading so the ZIP reader still checks the CRC.
+                        io::copy(&mut r.into_inner(), &mut io::sink())?;
                         return Ok(Some(full));
                     }
                 }
             }
 
+            Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
             Err(e) => return Err(EpubError::Xml(e.to_string())),
             _ => {}
         }
@@ -191,14 +196,11 @@ fn find_opf_path<R: Read + Seek>(zip: &mut ZipArchive<R>) -> Result<Option<Strin
 // ---------------------------- OPF parsing ----------------------------
 
 fn load_opf<R: Read + Seek>(zip: &mut ZipArchive<R>, opf_path: &str) -> Result<OpfData, EpubError> {
-    let mut entry = zip
+    let entry = zip
         .by_name(opf_path)
         .map_err(|_| EpubError::Invalid(format!("OPF not found: {opf_path}")))?;
 
-    let mut bytes = Vec::with_capacity(64 * 1024);
-    entry.read_to_end(&mut bytes)?;
-
-    let mut r = Reader::from_reader(Cursor::new(bytes));
+    let mut r = Reader::from_reader(BufReader::new(entry));
     r.config_mut().trim_text(true);
     r.config_mut().expand_empty_elements = true;
 
@@ -247,6 +249,7 @@ fn load_opf<R: Read + Seek>(zip: &mut ZipArchive<R>, opf_path: &str) -> Result<O
                 }
             }
 
+            Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
             Err(e) => return Err(EpubError::Xml(e.to_string())),
             _ => {}
         }
@@ -293,8 +296,204 @@ fn looks_like_html(media_type: &str, href: &str) -> bool {
 
 // ---------------------------- XHTML/HTML -> plain text ----------------------------
 
-fn extract_xhtml_text<R: Read>(mut xhtml_stream: R) -> Result<String, EpubError> {
-    let html = read_to_string_lossy_utf8(&mut xhtml_stream)?;
+// Only use the fast path for structures whose HTML5 text order and whitespace
+// are reproduced by walking XML events. HTML tree repair, foreign content,
+// table foster parenting and raw-text edge cases go through Kuchiki.
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Element {
+    Html,
+    Head,
+    Body,
+    Block,
+    Paragraph,
+    Heading,
+    List,
+    Item,
+    Inline,
+    Link,
+    HiddenText,
+}
+
+fn stream_xhtml(
+    entry: impl Read,
+    chapter: &mut String,
+    buf: &mut Vec<u8>,
+    stack: &mut Vec<Element>,
+) -> Result<bool, EpubError> {
+    use Element::*;
+
+    let mut reader = Reader::from_reader(BufReader::new(entry));
+    reader.config_mut().trim_text(false);
+    reader.config_mut().check_comments = true;
+    buf.clear();
+    stack.clear();
+
+    let mut seen_html = false;
+    let mut seen_head = false;
+    let mut seen_body = false;
+
+    loop {
+        let parent = stack.last().copied();
+        let hidden = parent == Some(HiddenText);
+        let visible = seen_body && !hidden;
+        match reader.read_event_into(buf) {
+            Ok(event @ (Event::Start(_) | Event::Empty(_))) => {
+                let (tag, empty) = match event {
+                    Event::Start(tag) => (tag, false),
+                    Event::Empty(tag) => (tag, true),
+                    _ => unreachable!(),
+                };
+                let name = tag.name();
+                let name = name.as_ref();
+                // HTML ignores the XML self-closing flag on non-void elements.
+                if hidden || tag.attributes().any(|attr| attr.is_err()) {
+                    return Ok(false);
+                }
+                if empty {
+                    match (parent, name) {
+                        (Some(Head), "meta" | "link" | "base") => (),
+                        (Some(Body | Block | Paragraph | Heading | Item | Inline | Link), "br") => {
+                            chapter.push('\n');
+                        }
+                        (Some(Body | Block | Heading | Item | Inline | Link), "hr")
+                            if !stack.contains(&Paragraph) =>
+                        {
+                            ensure_paragraph_break(chapter);
+                        }
+                        (
+                            Some(Body | Block | Paragraph | Heading | Item | Inline | Link),
+                            "img" | "wbr",
+                        ) => (),
+                        _ => return Ok(false),
+                    }
+                } else {
+                    let element = match (parent, name) {
+                        (None, "html") if !seen_html => {
+                            seen_html = true;
+                            Html
+                        }
+                        (Some(Html), "head") if !seen_head && !seen_body => {
+                            seen_head = true;
+                            Head
+                        }
+                        (Some(Html), "body") if !seen_body => {
+                            seen_body = true;
+                            Body
+                        }
+                        (Some(Head), "title" | "style" | "script" | "noscript") => HiddenText,
+                        (Some(List), "li") => Item,
+                        (Some(Body | Block | Paragraph | Heading | Item | Inline | Link), _) => {
+                            match name {
+                                "p" => Paragraph,
+                                "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => Heading,
+                                "div" | "section" | "article" | "blockquote" => Block,
+                                "ol" | "ul" => List,
+                                "a" if !stack.contains(&Link) => Link,
+                                "span" | "em" | "strong" | "b" | "i" | "u" | "s" | "small"
+                                | "sub" | "sup" | "code" | "mark" | "abbr" | "cite" | "q"
+                                | "dfn" | "kbd" | "samp" | "var" | "bdi" | "bdo" => Inline,
+                                "script" | "style" | "noscript" => HiddenText,
+                                _ => return Ok(false),
+                            }
+                        }
+                        _ => return Ok(false),
+                    };
+                    if (matches!(element, Block | Paragraph | Heading | List)
+                        && stack.contains(&Paragraph))
+                        || (element == Heading && stack.contains(&Heading))
+                    {
+                        return Ok(false);
+                    }
+                    if matches!(element, Block | Paragraph | Heading | Item) {
+                        ensure_paragraph_break(chapter);
+                    }
+                    stack.push(element);
+                }
+            }
+            Ok(Event::End(_)) => {
+                // quick-xml checks the matching qualified name.
+                if matches!(stack.pop(), Some(Block | Paragraph | Heading | Item)) {
+                    ensure_paragraph_break(chapter);
+                }
+            }
+            Ok(Event::Text(text)) => {
+                let text = text.as_ref();
+                let whitespace = text.bytes().all(is_html_space);
+                if text.contains('\0')
+                    || (!whitespace
+                        && !hidden
+                        && (!seen_body || matches!(parent, None | Some(Html | List))))
+                {
+                    return Ok(false);
+                }
+                if visible {
+                    append_normalized_text(chapter, text);
+                }
+            }
+            Ok(Event::GeneralRef(reference))
+                if visible && !matches!(parent, None | Some(Html | List)) =>
+            {
+                match reference.resolve_char_ref() {
+                    Ok(Some(c))
+                        if !c.is_control() || matches!(c, '\t' | '\n' | '\r' | '\u{000C}') =>
+                    {
+                        append_normalized_text(chapter, c.encode_utf8(&mut [0; 4]));
+                    }
+                    Ok(None) => {
+                        if !append_named_entity(chapter, reference.as_ref()) {
+                            return Ok(false);
+                        }
+                    }
+                    // HTML remaps some numeric control references (including C1).
+                    _ => return Ok(false),
+                }
+            }
+            Ok(Event::GeneralRef(_)) if hidden => (),
+            // In an HTML body this is a bogus comment, ending at the
+            // first '>'. Let Kuchiki handle any early terminator.
+            Ok(Event::CData(text)) if !hidden && !text.contains('>') => (),
+            Ok(Event::Comment(text)) if !hidden && !text.contains('>') => (),
+            Ok(Event::Decl(decl)) if !seen_html && !decl.contains('>') => (),
+            Ok(Event::DocType(doctype)) if !seen_html && doctype.eq_ignore_ascii_case("html") => (),
+            Ok(Event::Eof) => return Ok(seen_body && stack.is_empty()),
+            Err(quick_xml::Error::Io(error)) => {
+                return Err(io::Error::new(error.kind(), error).into());
+            }
+            _ => return Ok(false),
+        }
+        buf.clear();
+    }
+}
+
+fn append_named_entity(chapter: &mut String, name: &str) -> bool {
+    // quick-xml separates the reference name from its semicolon. The HTML
+    // tokenizer's table keys for complete references include the semicolon.
+    let mut key = [0; 32];
+    let Some(key) = key.get_mut(..=name.len()) else {
+        return false;
+    };
+    key[..name.len()].copy_from_slice(name.as_bytes());
+    key[name.len()] = b';';
+    let Ok(key) = std::str::from_utf8(key) else {
+        return false;
+    };
+    let Some(&(first, second)) = NAMED_ENTITIES.get(key) else {
+        return false;
+    };
+    for codepoint in [first, second] {
+        if let Some(c) = char::from_u32(codepoint).filter(|&c| c != '\0') {
+            append_normalized_text(chapter, c.encode_utf8(&mut [0; 4]));
+        }
+    }
+    true
+}
+
+fn is_html_space(byte: u8) -> bool {
+    matches!(byte, b' ' | b'\t' | b'\n' | b'\r' | 0x0C)
+}
+
+fn extract_html_fallback(xhtml_stream: impl Read, sb: &mut String) -> Result<(), EpubError> {
+    let html = read_to_string_lossy_utf8(xhtml_stream)?;
 
     let document = kuchiki::parse_html().one(html);
 
@@ -311,43 +510,32 @@ fn extract_xhtml_text<R: Read>(mut xhtml_stream: R) -> Result<String, EpubError>
         Err(_) => document.clone(),
     };
 
-    let mut sb = String::with_capacity(32 * 1024);
-    walk_dom(&body, &mut sb, 0);
-
-    let mut text = sb;
-    text = text.replace('\u{00AD}', ""); // soft hyphen
-    text = text.replace('\u{00A0}', " "); // NBSP
-    Ok(text)
-}
-
-fn walk_dom(node: &kuchiki::NodeRef, sb: &mut String, _depth: usize) {
-    // head() behavior
-    if let Some(el) = node.as_element() {
-        let name = el.name.local.to_string();
-        if is_block_element(&name) {
-            ensure_paragraph_break(sb);
-        } else if name.eq_ignore_ascii_case("br") {
-            sb.push('\n');
-        }
-    } else if let Some(text) = node.as_text() {
-        let t = text.borrow();
-        if !t.is_empty() {
-            append_normalized_text(sb, &t);
-        }
-    }
-
-    // children
-    for child in node.children() {
-        walk_dom(&child, sb, _depth + 1);
-    }
-
-    // tail() behavior
-    if let Some(el) = node.as_element() {
-        let name = el.name.local.to_string();
-        if is_block_element(&name) {
-            ensure_paragraph_break(sb);
+    use kuchiki::iter::NodeEdge;
+    for edge in body.traverse() {
+        match edge {
+            NodeEdge::Start(node) => {
+                if let Some(el) = node.as_element() {
+                    let name = el.name.local.as_ref();
+                    if is_block_element(name) {
+                        ensure_paragraph_break(sb);
+                    } else if name.eq_ignore_ascii_case("br") {
+                        sb.push('\n');
+                    }
+                } else if let Some(text) = node.as_text() {
+                    append_normalized_text(sb, &text.borrow());
+                }
+            }
+            NodeEdge::End(node) => {
+                if let Some(el) = node.as_element() {
+                    if is_block_element(el.name.local.as_ref()) {
+                        ensure_paragraph_break(sb);
+                    }
+                }
+            }
         }
     }
+
+    Ok(())
 }
 
 fn is_block_element(local_name: &str) -> bool {
@@ -445,34 +633,88 @@ fn combine_zip_path(dir: &str, href: &str) -> String {
     stack.join("/")
 }
 
-fn normalize_excess_blank_lines(s: &str) -> String {
-    // Keep at most 2 consecutive '\n'
-    let mut out = String::with_capacity(s.len());
-    let mut nl = 0usize;
-
-    for c in s.chars() {
-        if c == '\n' {
-            nl += 1;
-            if nl <= 2 {
-                out.push(c);
-            }
-        } else {
-            nl = 0;
-            out.push(c);
-        }
+fn push_newline(out: &mut String) {
+    if !out.ends_with("\n\n") {
+        out.push('\n');
     }
-    out
 }
 
-// ---------------------------- misc ----------------------------
-
-fn ends_with_newline_str(s: &str) -> bool {
-    s.ends_with('\n') || s.ends_with("\r\n")
+fn append_output(out: &mut String, text: &str, normalize_newlines: bool, chapter: bool) {
+    let mut chars = text.chars().peekable();
+    while let Some(c) = chars.next() {
+        match c {
+            '\r' if normalize_newlines => {
+                if chars.peek() == Some(&'\n') {
+                    chars.next();
+                }
+                push_newline(out);
+            }
+            '\n' => push_newline(out),
+            '\u{00AD}' if chapter => (),
+            _ => out.push(c),
+        }
+    }
 }
 
 fn read_to_string_lossy_utf8<R: Read>(mut r: R) -> Result<String, EpubError> {
     let mut bytes = Vec::with_capacity(32 * 1024);
     r.read_to_end(&mut bytes)?;
-    // Java forces UTF-8; keep same, but tolerate invalid sequences
-    Ok(String::from_utf8_lossy(&bytes).into_owned())
+    Ok(String::from_utf8(bytes)
+        .unwrap_or_else(|error| String::from_utf8_lossy(error.as_bytes()).into_owned()))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn streams_xhtml_with_html5_text_semantics() {
+        let html = r#"<?xml version="1.0"?><!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta charset="utf-8"/><title>Hidden</title><style>a { color: red }</style></head>
+<body><h1>Heading</h1><section><div><p>漢<span> 字</span> 𠀀 &#x20000; &amp;
+&nbsp;&shy; &NotEqualTilde;<![CDATA[hidden]]><br/>next</p></div></section>
+<ul><li>First<ol><li>Nested</li></ol></li><li>Last</li></ul>
+<p>before<script>hidden</script><noscript>hidden</noscript>after</p>
+<span>tail</span></body>
+</html>"#;
+        let mut streamed = String::new();
+        assert!(stream_xhtml(
+            html.as_bytes(),
+            &mut streamed,
+            &mut Vec::new(),
+            &mut Vec::new(),
+        )
+        .unwrap());
+        let mut fallback = String::new();
+        extract_html_fallback(html.as_bytes(), &mut fallback).unwrap();
+        assert_eq!(streamed, fallback);
+    }
+
+    #[test]
+    fn defers_html_tree_repair_to_kuchiki() {
+        for body in [
+            "<p>start<div>automatically closes the paragraph</div></p>",
+            "<p>start<br>end",
+            "<p>start &copy without a semicolon</p>",
+            "<p>start &#128;</p>",
+            "<p>start<span/>end</p>",
+            "<a>start<a>nested</a>end</a>",
+            "<table>outside<tr><td>inside</td></tr></table>",
+            "<svg><foreignObject><p>foreign content</p></foreignObject></svg>",
+            "<p>a<![CDATA[early>visible]]>b</p>",
+        ] {
+            let html = format!("<html><body>{body}</body></html>");
+            assert!(
+                !stream_xhtml(
+                    html.as_bytes(),
+                    &mut String::new(),
+                    &mut Vec::new(),
+                    &mut Vec::new(),
+                )
+                .unwrap(),
+                "{body}"
+            );
+        }
+    }
 }

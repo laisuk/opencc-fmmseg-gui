@@ -1,10 +1,10 @@
 use crate::office_converter::zip::ZipArchive;
 use crate::utils;
 use quick_xml::events::Event;
-use quick_xml::{Reader, XmlVersion};
+use quick_xml::Reader;
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
-use std::io::{BufRead, Read, Seek};
+use std::io::{self, BufRead, BufReader, Read, Seek};
 use std::path::Path;
 use thiserror::Error;
 
@@ -31,8 +31,20 @@ pub fn extract_docx_all_text(
     include_part_headings: bool,
     normalize_newlines: bool,
 ) -> Result<String, OpenXmlError> {
-    let file = File::open(docx_path)?;
-    let mut zip = ZipArchive::new(file)?;
+    extract_docx_all_text_from_reader(
+        File::open(docx_path)?,
+        include_part_headings,
+        normalize_newlines,
+    )
+}
+
+/// Extract text from a seekable source containing a DOCX archive.
+pub fn extract_docx_all_text_from_reader(
+    source: impl Read + Seek,
+    include_part_headings: bool,
+    normalize_newlines: bool,
+) -> Result<String, OpenXmlError> {
+    let mut zip = ZipArchive::new(source)?;
 
     // numbering context (simplified / disabled)
     let mut ctx = NumberingContext::load(&mut zip)?;
@@ -70,9 +82,10 @@ pub fn extract_docx_all_text(
     let mut out = String::with_capacity(128 * 1024);
 
     for part in distinct_parts {
-        if zip.by_name(&part).is_err() {
-            continue;
-        }
+        let entry = match zip.by_name(&part) {
+            Ok(entry) => entry,
+            Err(_) => continue,
+        };
 
         if include_part_headings {
             if !out.is_empty() && !ends_with_newline_str(&out) {
@@ -83,16 +96,10 @@ pub fn extract_docx_all_text(
             out.push_str(" ===\n");
         }
 
-        // read entry bytes
-        let mut entry = zip.by_name(&part)?;
-        let mut xml = Vec::new();
-        entry.read_to_end(&mut xml)?;
-
         // Reset counters per part (kept for parity)
         ctx.reset_counters_for_part();
 
-        let text = extract_wordprocessingml_text(&xml, &mut ctx)?;
-        out.push_str(&text);
+        extract_wordprocessingml_text(entry, &mut ctx, &mut out)?;
 
         if !ends_with_newline_str(&out) {
             out.push('\n');
@@ -100,7 +107,7 @@ pub fn extract_docx_all_text(
     }
 
     let mut result = out;
-    if normalize_newlines {
+    if normalize_newlines && result.contains('\r') {
         result = normalize_newlines_to_lf(&result);
     }
     Ok(result)
@@ -111,9 +118,10 @@ pub fn extract_docx_all_text(
 // In DOCX, that’s almost always `w:*`, so this is safe enough in practice.
 
 fn extract_wordprocessingml_text(
-    xml: &[u8],
+    xml: impl Read,
     ctx: &mut NumberingContext,
-) -> Result<String, OpenXmlError> {
+    sb: &mut String,
+) -> Result<(), OpenXmlError> {
     fn set_opt_i32_from_val(
         in_para: bool,
         e: &quick_xml::events::BytesStart,
@@ -127,19 +135,20 @@ fn extract_wordprocessingml_text(
             *slot = Some(v);
         }
     }
-    let mut r = Reader::from_reader(xml);
+    let mut r = Reader::from_reader(BufReader::new(xml));
     r.config_mut().trim_text(false);
     r.config_mut().expand_empty_elements = true;
 
     let mut buf = Vec::new();
-    let mut sb = String::with_capacity(64 * 1024);
+    let part_start = sb.len();
 
     // table handling
     let mut in_table = false;
     let mut in_row = false;
     let mut in_cell = false;
-    let mut current_row_cells: Vec<String> = Vec::new();
-    let mut current_cell = String::with_capacity(256);
+    let mut row = String::new();
+    let mut row_has_cell = false;
+    let mut current_cell = String::new();
 
     // paragraph/list prefix
     let mut in_paragraph = false;
@@ -171,7 +180,8 @@ fn extract_wordprocessingml_text(
                 } else if name.as_ref() == "tr" {
                     if in_table {
                         in_row = true;
-                        current_row_cells.clear();
+                        row.clear();
+                        row_has_cell = false;
                     }
                 } else if name.as_ref() == "tc" {
                     if in_row {
@@ -209,11 +219,11 @@ fn extract_wordprocessingml_text(
                             para_style_id.as_deref(),
                             in_cell,
                             &mut current_cell,
-                            &mut sb,
+                            sb,
                         );
 
-                        let txt = read_text_until_end(&mut r, "t", &mut buf)?;
-                        current_target(in_cell, &mut current_cell, &mut sb).push_str(&txt);
+                        let target = current_target(in_cell, &mut current_cell, sb);
+                        append_text_until_end(&mut r, "t", &mut buf, target)?;
                     }
                 } else if name.as_ref() == "tab" {
                     if !(skip_this_note && (in_footnote || in_endnote)) {
@@ -226,9 +236,9 @@ fn extract_wordprocessingml_text(
                             para_style_id.as_deref(),
                             in_cell,
                             &mut current_cell,
-                            &mut sb,
+                            sb,
                         );
-                        current_target(in_cell, &mut current_cell, &mut sb).push('\t');
+                        current_target(in_cell, &mut current_cell, sb).push('\t');
                     }
                 } else if (name.as_ref() == "br" || name.as_ref() == "cr")
                     && !(skip_this_note && (in_footnote || in_endnote))
@@ -242,9 +252,9 @@ fn extract_wordprocessingml_text(
                         para_style_id.as_deref(),
                         in_cell,
                         &mut current_cell,
-                        &mut sb,
+                        sb,
                     );
-                    current_target(in_cell, &mut current_cell, &mut sb).push('\n');
+                    current_target(in_cell, &mut current_cell, sb).push('\n');
                 }
             }
 
@@ -253,26 +263,33 @@ fn extract_wordprocessingml_text(
 
                 if name.as_ref() == "p" {
                     if !(skip_this_note && (in_footnote || in_endnote)) {
-                        current_target(in_cell, &mut current_cell, &mut sb).push('\n');
+                        current_target(in_cell, &mut current_cell, sb).push('\n');
                     }
                     in_paragraph = false;
                     para_prefix_emitted = false;
                 } else if name.as_ref() == "tc" {
                     if in_cell {
-                        let cell = trim_trailing_newlines(&current_cell);
-                        current_row_cells.push(cell);
+                        if row_has_cell {
+                            row.push('\t');
+                        }
+                        row.push_str(current_cell.trim_end_matches(['\r', '\n']));
+                        row_has_cell = true;
                         in_cell = false;
                         current_cell.clear();
                     }
                 } else if name.as_ref() == "tr" {
                     if in_row {
-                        append_row_as_tsv_line(&mut sb, &current_row_cells);
+                        sb.push_str(&row);
+                        if !sb[part_start..].ends_with('\n') {
+                            sb.push('\n');
+                        }
                         in_row = false;
-                        current_row_cells.clear();
+                        row.clear();
+                        row_has_cell = false;
                     }
                 } else if name.as_ref() == "tbl" {
                     if in_table {
-                        if !ends_with_newline_str(&sb) {
+                        if !ends_with_newline_str(&sb[part_start..]) {
                             sb.push('\n');
                         }
                         in_table = false;
@@ -289,6 +306,7 @@ fn extract_wordprocessingml_text(
             // Text events: Word text usually comes via <w:t>, but keep other text safe.
             Ok(Event::Text(_)) => {}
 
+            Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
             Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
             _ => {}
         }
@@ -296,7 +314,7 @@ fn extract_wordprocessingml_text(
         buf.clear();
     }
 
-    Ok(sb)
+    Ok(())
 }
 
 // ---------------------------- Note skipping ----------------------------
@@ -480,15 +498,12 @@ impl NumberingContext {
         &mut self,
         zip: &mut ZipArchive<R>,
     ) -> Result<(), OpenXmlError> {
-        let mut entry = match zip.by_name("word/numbering.xml") {
+        let entry = match zip.by_name("word/numbering.xml") {
             Ok(e) => e,
             Err(_) => return Ok(()),
         };
 
-        let mut xml = Vec::new();
-        entry.read_to_end(&mut xml)?;
-
-        let mut r = Reader::from_reader(xml.as_slice());
+        let mut r = Reader::from_reader(BufReader::new(entry));
         r.config_mut().trim_text(true);
         r.config_mut().expand_empty_elements = true;
 
@@ -570,6 +585,7 @@ impl NumberingContext {
                     }
                 }
 
+                Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
                 Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
                 _ => {}
             }
@@ -581,15 +597,12 @@ impl NumberingContext {
     }
 
     fn load_styles<R: Read + Seek>(&mut self, zip: &mut ZipArchive<R>) -> Result<(), OpenXmlError> {
-        let mut entry = match zip.by_name("word/styles.xml") {
+        let entry = match zip.by_name("word/styles.xml") {
             Ok(e) => e,
             Err(_) => return Ok(()),
         };
 
-        let mut xml = Vec::new();
-        entry.read_to_end(&mut xml)?;
-
-        let mut r = Reader::from_reader(xml.as_slice());
+        let mut r = Reader::from_reader(BufReader::new(entry));
         r.config_mut().trim_text(true);
         r.config_mut().expand_empty_elements = true;
 
@@ -638,6 +651,7 @@ impl NumberingContext {
                     }
                 }
 
+                Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
                 Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
                 _ => {}
             }
@@ -817,27 +831,6 @@ fn ends_with_newline_str(s: &str) -> bool {
     s.ends_with('\n') || s.ends_with("\r\n")
 }
 
-fn trim_trailing_newlines(s: &str) -> String {
-    let mut end = s.len();
-    let bytes = s.as_bytes();
-    while end > 0 && (bytes[end - 1] == b'\n' || bytes[end - 1] == b'\r') {
-        end -= 1;
-    }
-    s[..end].to_string()
-}
-
-fn append_row_as_tsv_line(sb: &mut String, cells: &[String]) {
-    for (i, c) in cells.iter().enumerate() {
-        if i > 0 {
-            sb.push('\t');
-        }
-        sb.push_str(c);
-    }
-    if !sb.ends_with('\n') {
-        sb.push('\n');
-    }
-}
-
 fn current_target<'a>(
     in_cell: bool,
     current_cell: &'a mut String,
@@ -850,22 +843,23 @@ fn current_target<'a>(
     }
 }
 
-fn read_text_until_end<R: BufRead>(
+fn append_text_until_end<R: BufRead>(
     r: &mut Reader<R>,
     end_local: &str,
     buf: &mut Vec<u8>,
-) -> Result<String, OpenXmlError> {
-    let mut out = String::new();
+    out: &mut String,
+) -> Result<(), OpenXmlError> {
+    buf.clear();
 
     loop {
         match r.read_event_into(buf) {
             Ok(Event::Text(t)) => {
-                let text = t.xml_content(XmlVersion::Implicit1_0);
+                let text = t.xml10_content();
                 out.push_str(&text);
             }
 
             Ok(Event::CData(t)) => {
-                let text = t.xml_content(XmlVersion::Implicit1_0);
+                let text = t.xml10_content();
                 out.push_str(&text);
             }
 
@@ -875,7 +869,10 @@ fn read_text_until_end<R: BufRead>(
                 }
             }
 
+            // Match the existing extractor, which only emits Text and CData.
+            Ok(Event::GeneralRef(_)) => (),
             Ok(Event::Eof) => break,
+            Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
             Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
             _ => {}
         }
@@ -883,7 +880,7 @@ fn read_text_until_end<R: BufRead>(
         buf.clear();
     }
 
-    Ok(out)
+    Ok(())
 }
 
 fn skip_element<R: BufRead>(r: &mut Reader<R>, buf: &mut Vec<u8>) -> Result<(), OpenXmlError> {
@@ -895,6 +892,7 @@ fn skip_element<R: BufRead>(r: &mut Reader<R>, buf: &mut Vec<u8>) -> Result<(), 
             Ok(Event::Start(_)) => depth += 1,
             Ok(Event::End(_)) => depth -= 1,
             Ok(Event::Eof) => break,
+            Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
             Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
             _ => {}
         }
@@ -927,6 +925,7 @@ fn skip_element_named<R: BufRead>(
                 }
             }
             Ok(Event::Eof) => break,
+            Err(quick_xml::Error::Io(e)) => return Err(io::Error::new(e.kind(), e).into()),
             Err(e) => return Err(OpenXmlError::Xml(e.to_string())),
             _ => {}
         }

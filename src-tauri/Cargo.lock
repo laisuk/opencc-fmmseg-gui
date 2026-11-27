@@ -2736,7 +2736,7 @@ dependencies = [
 [[package]]
 name = "opencc-fmmseg"
 version = "0.13.2"
-source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#a8d69b836828835ce60b579a7c041f020d3d3916"
+source = "git+https://github.com/laisuk/opencc-fmmseg.git?branch=master#ebfb12cddc7a48149bd80605a3cbacd71b022568"
 dependencies = [
  "rayon",
  "rayon-core",
@@ -2755,6 +2755,7 @@ dependencies = [
  "flate2",
  "indexmap 2.14.0",
  "kuchiki",
+ "markup5ever 0.10.1",
  "memchr",
  "opencc-fmmseg",
  "opener",
@@ -4423,7 +4424,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.2",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",
